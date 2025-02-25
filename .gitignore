@@ -1,0 +1,46 @@
+# Virtual environment (Stops our own virtual environments from being pushed to the repository)
+.venv/
+venv/
+
+# Python bytecode (Created when running Python code)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite databases (Remove to not store database/rollbacks on github use hard coded to create database)
+*.db
+*.db-journal
+
+# Dependency directories (if they are accidentally created outside .venv)
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Flask specific files
+instance/
+*.cache
+
+# Certbot/SSL certificates (if stored locally)
+*.pem
+fullchain.pem
+privkey.pem
+letsencrypt/
+
+# Logs and temp files (flask logs, etc)
+*.log
+*.pid
+
+# Editor/IDE files (keeping personal settings out of the repository)
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.idea/
+
+# OS-specific (Cached files, metadata, etc from different operating systems cluttering the repository) 
+Thumbs.db
+.DS_Store
+
+# Secret files (python-dot env files keeping secretkey from expose on config using .env, etc)
+.env
+*.secret
