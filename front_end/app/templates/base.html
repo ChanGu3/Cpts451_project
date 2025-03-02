@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}E-Commerce-Website{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="navbarLeft">
+                <img src="./../static/images/amazon2-logo.png" class="logo">
+            </div>
+            <div class="navbarCenter">
+                <input type="text" placeholder="Search..." class="search-bar">
+            </div>
+            <div class="navbarRight">
+                <a href="#">Cart</a>
+                <a href="#">User Profile</a>
+            </div>
+        </nav>
+    </header>
+    <main>
+        {% block content %}
+        <!-- Content goes here -->
+        {% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2025 Amazon 2. All rights reserved.</p>
+    </footer>
+</body>
+</html>
