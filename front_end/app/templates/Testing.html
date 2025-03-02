@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+    <h1> Hello World! </h1>
+    <p> {{ value }} </p>
+    <p> {{ result }} </p>
+    <p> {{ list }} </p>
+    <ul>
+        {% for item in list %}
+                <li {% if item == 3%}style="color: red"{% endif%}>{{ item }}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('example.other') }}">Other</a>
+{% endblock %}
