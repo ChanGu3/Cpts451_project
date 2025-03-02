@@ -9,7 +9,7 @@ def other():
 
 @example_blueprint.route('/redirect_endpoint')
 def redirect_endpoint():
-    return redirect(url_for('example.other'))
+    return redirect(url_for('example.other')) # uses blueprint name and function name
 
 @example_blueprint.app_template_filter('reverse_string')
 def reverse_string(s):
@@ -35,7 +35,7 @@ def greet(name):
 def add(num1, num2):
     return f"<h1> The sum is {num1 + num2} </h1>"
 
-@example_blueprint.route('/handle_url_params')
+@example_blueprint.route('/handle_url_params') # /handle_url_params?name=Mike&greeting=Hello
 def handle_url_params():
     if 'greeting' in request.args.keys() and 'name' in request.args.keys():
         greeting = request.args['greeting']
@@ -43,3 +43,7 @@ def handle_url_params():
         return f"{greeting} {name}"
     else:
         return "Params are missing"
+    
+@example_blueprint.route('/Testing')
+def Testing():
+    return render_template('Testing.html', value="INPUT Hello, World!", result=30, list=[1,2,3,4,5,6,7,8,9,10])
