@@ -30,7 +30,7 @@ class Database:
         if self._does_customer_exist(username):
             return False
         # hash salted password
-        pw_hash, salt = self._hash_password(password)
+        pw_hash, salt = self._hash_new_password(password)
         # generate customer id artificial key
         customer_id = self._new_customer_id()
         # insert customer data into db
@@ -47,7 +47,7 @@ class Database:
         if self._does_admin_exist(username):
             return False
         # hash salted password
-        pw_hash, salt = self._hash_password(password)
+        pw_hash, salt = self._hash_new_password(password)
         # generate customer id artificial key
         admin_id = self._new_admin_id()
         # insert customer data into db
@@ -58,12 +58,40 @@ class Database:
         self.connection.commit()
         return True
 
-    def _hash_password(self, password: str) -> tuple[bytes, bytes]:
+    def validate_customer_credentials(self, username: str, password: str):
+        """Verifies that a username and password hash are within the db"""
+
+        # pull pw and salt from db for the username
+        self.cursor.execute("SELECT Password, Salt FROM CustomerUser where Username = ?", (username,))
+        res = self.cursor.fetchone()
+        if res is None:
+            return False
+
+        # unpack password and salt from result
+        pw_hash, salt = res
+
+        # encode salt and password to bytes
+        new_pw_hash = bcrypt.hashpw(
+            password.encode('utf-8'), 
+            salt.encode('utf-8')
+            ).decode('utf-8')
+
+        # verify password
+        if pw_hash == new_pw_hash:
+            return True
+        return False
+
+    def _hash_new_password(self, password: str) -> tuple[str, str]:
         """Hashes salted password w/ bcrypt"""
         pw_bytes = password.encode('utf-8')
         salt = bcrypt.gensalt()
         pw_hash = bcrypt.hashpw(pw_bytes, salt)
-        return pw_hash, salt
+        return pw_hash.decode('utf-8'), salt.decode('utf-8')
+
+    def _hash_password_with_previous_salt(self, password: str, salt: bytes) -> bytes:
+        """Hashes salted password using a previous salt w/ bcrypt"""
+        pw_bytes = password.encode('utf-8')
+        return bcrypt.hashpw(pw_bytes, salt)
         
     def _does_customer_exist(self, username: str) -> bool:
         """Checks if customer exists in db """
