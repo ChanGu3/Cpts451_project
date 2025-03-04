@@ -35,8 +35,8 @@ class Database:
         customer_id = self._new_customer_id()
         # insert customer data into db
         self.cursor.execute(            
-            "INSERT INTO CustomerUser (Customer_ID, Username, Email, Phone_Number, Password, Salt) VALUES (?, ?, ?, ?, ?, ?)", 
-            (customer_id, username, email, phone_number, pw_hash, salt)
+            "INSERT INTO CustomerUser (Customer_ID, Username, Email, Phone_Number, Password) VALUES (?, ?, ?, ?, ?)", 
+            (customer_id, username, email, phone_number, pw_hash)
             )
         self.connection.commit()
         return True
@@ -52,34 +52,34 @@ class Database:
         admin_id = self._new_admin_id()
         # insert customer data into db
         self.cursor.execute(            
-            "INSERT INTO AdminUser (Admin_ID, Username, Password, Salt) VALUES (?, ?, ?, ?)", 
-            (admin_id, username, pw_hash, salt)
+            "INSERT INTO AdminUser (Admin_ID, Username, Password) VALUES (?, ?, ?)", 
+            (admin_id, username, pw_hash)
             )
         self.connection.commit()
         return True
 
     def validate_customer_credentials(self, username: str, password: str):
-        """Verifies that a username and password hash are within the db"""
+        """Verifies that customer username and password hash are within the db"""
 
         # pull pw and salt from db for the username
-        self.cursor.execute("SELECT Password, Salt FROM CustomerUser where Username = ?", (username,))
+        self.cursor.execute("SELECT Password FROM CustomerUser where Username = ?", (username,))
         res = self.cursor.fetchone()
         if res is None:
             return False
+        # verify password hash
+        password_hash = res[0]
+        return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
 
-        # unpack password and salt from result
-        pw_hash, salt = res
-
-        # encode salt and password to bytes
-        new_pw_hash = bcrypt.hashpw(
-            password.encode('utf-8'), 
-            salt.encode('utf-8')
-            ).decode('utf-8')
-
-        # verify password
-        if pw_hash == new_pw_hash:
-            return True
-        return False
+    def validate_admin_credentials(self, username: str, password: str):
+        """Verifies that admin username and password hash are within the db"""
+        # pull pw and salt from db for the username
+        self.cursor.execute("SELECT Password FROM AdminUser where Username = ?", (username,))
+        res = self.cursor.fetchone()
+        if res is None:
+            return False
+        # verify password hash
+        password_hash = res[0]
+        return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
 
     def _hash_new_password(self, password: str) -> tuple[str, str]:
         """Hashes salted password w/ bcrypt"""

@@ -44,17 +44,6 @@ if __name__ == "__main__":
             os.remove(database_filename)
             print("Error while executing the schema file", error)
             exit(1)
-            
-    # # ! example of how to insert data into tables
-    # # open file and insert data into the tables
-    # with open(insertions_filename) as file:
-    #     try:
-    #         cursor.executescript(file.read())
-    #     except Exception as error:
-    #         connection.close()
-    #         os.remove(database_filename)
-    #         print("Error while executing the data-insert file", error)
-    #         exit(1)
 
     # close the connection
     connection.close()

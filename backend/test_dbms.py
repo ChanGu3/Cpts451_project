@@ -31,7 +31,22 @@ def test_admin_account_creation():
     assert success == True
     assert db._does_admin_exist("test") == True
 
-def test_validate_customer_password():
+def test_valid_customer_password_verification():
     db = Database("database.db")
-    assert db.customer_account_creation("mark", "password123", "mark@gmail.com", "1111111111")
-    assert db.validate_customer_credentials("mark", "password123") == True
+    assert db._does_customer_exist("test") 
+    assert db.validate_customer_credentials("test", "test")
+
+def test_invalid_customer_password_verification():
+    db = Database("database.db")
+    assert db._does_customer_exist("test")
+    assert not db.validate_customer_credentials("test", "tesstt")
+
+def test_valid_admin_password_verification():
+    db = Database("database.db")
+    assert db._does_admin_exist("test") 
+    assert db.validate_admin_credentials("test", "test")
+
+def test_invalid_admin_password_verification():
+    db = Database("database.db")
+    assert db._does_admin_exist("test")
+    assert not db.validate_admin_credentials("test", "tesstt")
