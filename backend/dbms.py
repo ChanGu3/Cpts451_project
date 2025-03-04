@@ -19,13 +19,59 @@ class Database:
         self.cursor = self.connection.cursor()
         print("Cursor created...")
 
+        # contains salts used for hashing user passwords
+        # salts are constant across passwords
+        # self.username_salts = {}
+
+
     def __del__(self):
         """On class destruction, close connection to db"""
         self.connection.close()
         print("Connection to database terminated...")
 
 
-    def _new_customer_id(self):
+    def customer_account_creation(self, username: str, password: str, email: str, phone_number: str) -> bool:
+
+        # don't create account if already exists
+        if self._does_customer_exist(username):
+            return False
+
+        # hash salted password
+        pw_hash, salt = self._hash_password(password)
+
+        # generate customer id artificial key
+        customer_id = self._new_customer_id()
+
+        self.cursor.execute(            
+            "INSERT INTO CustomerUser (Customer_ID, Username, Email, Phone_Number, Password, Salt) VALUES (?, ?, ?, ?, ?, ?)", 
+            (customer_id, username, email, phone_number, pw_hash, salt)
+            )
+    
+        self.connection.commit()
+        return True
+
+    def _hash_password(self, password: str) -> tuple[bytes, bytes]:
+        """Hashes salted password w/ bcrypt"""
+        pw_bytes = password.encode('utf-8')
+        salt = bcrypt.gensalt()
+        pw_hash = bcrypt.hashpw(pw_bytes, salt)
+        return pw_hash, salt
+        
+    def _does_customer_exist(self, username: str) -> bool:
+        """Checks if customer exists in db """
+        self.cursor.execute("SELECT Username FROM CustomerUser WHERE Username = ?", (username,))
+        if len(self.cursor.fetchall()) == 0:
+            return False
+        return True
+
+    def _does_admin_exist(self, username: str) -> bool:
+        """Checks if admin exists in db"""
+        self.cursor.execute("SELECT Username FROM AdminUser WHERE Username = ?", (username,))
+        if len(self.cursor.fetchall()) == 0:
+            return False
+        return True
+
+    def _new_customer_id(self) -> int:
         """generate new customer id artifical key"""
         self.cursor.execute("SELECT MAX(Customer_ID) FROM CustomerUser")
         max_customer_id = self.cursor.fetchone()[0]
@@ -38,3 +84,6 @@ if __name__ == "__main__":
     db = Database("../database/database.db")
 
     # db.customer_account_creation("test", "test", "test@test.com", "1234567890")
+
+
+

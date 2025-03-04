@@ -6,11 +6,17 @@ create table AdminUser(
 	Password Varchar(64) 
         CONSTRAINT AdminUser_Password_NOTNULL NOT NULL
     ,
+	Salt Varchar(16)
+	Constraint AdminUser_Salt Not NULL
+	,
 	CONSTRAINT AdminUser_PK PRIMARY KEY (Admin_ID)
 );
 
 create table CustomerUser(
 	Customer_ID INT,
+	Username Varchar(16) 
+        CONSTRAINT CustomerUser_Username_NOTNULL NOT NULL
+    ,
 	Email Varchar(254) 
         CONSTRAINT CustomerUser_Email_NOTNULL NOT NULL
         CONSTRAINT CustomerUser_Email_Format CHECK (Email LIKE '%@%.%')
@@ -18,6 +24,9 @@ create table CustomerUser(
 	Password Varchar(64) 
         CONSTRAINT CustomerUser_Password_NOTNULL NOT NULL
     ,
+	Salt Varchar(16)
+		Constraint CustomerUser_Salt Not NULL
+	,
 	Phone_Number INT 
         CONSTRAINT CustomerUser_Phone_Number_NOTNULL NOT NULL
         CONSTRAINT CustomerUser_PhoneNumber_Format CHECK (Phone_Number BETWEEN 0000000000 AND 9999999999)
