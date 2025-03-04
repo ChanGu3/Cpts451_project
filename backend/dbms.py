@@ -1,7 +1,6 @@
 import sqlite3
 import bcrypt
 
-
 class Database:
     """
     This class is used to interact with the database file stored in database/database.db
@@ -60,7 +59,6 @@ class Database:
 
     def validate_customer_credentials(self, username: str, password: str):
         """Verifies that customer username and password hash are within the db"""
-
         # pull pw and salt from db for the username
         self.cursor.execute("SELECT Password FROM CustomerUser where Username = ?", (username,))
         res = self.cursor.fetchone()
@@ -80,6 +78,39 @@ class Database:
         # verify password hash
         password_hash = res[0]
         return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
+
+    def retrieve_all_product_details(self):
+        """Gets all product details from the db"""
+        self.cursor.execute("SELECT * FROM Product")
+        return self.cursor.fetchall()
+
+    def insert_all_product_details(
+        self,
+        title: str,
+        price: float,
+        stock: int,
+        description: str,
+        discount_percentage: int,
+        website_info: str,
+        date_created: str,
+        product_id=None,  # None if no product exists in db already
+        ):
+        """Inserts all product details into the db"""
+
+        # create new product id if none provided 
+        if product_id is None or self._does_product_exist(product_id):
+            product_id = self._new_product_id()
+
+        # insert into db
+        self.cursor.execute(
+            """
+            INSERT INTO Product 
+            (Product_ID, Title, Price, Stock, Description, DiscountPercentage, WebsiteInfo, DateCreated)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            , (product_id, title, price, stock, description, discount_percentage, website_info, date_created)
+        )
+        self.connection.commit()
 
     def _hash_new_password(self, password: str) -> tuple[str, str]:
         """Hashes salted password w/ bcrypt"""
@@ -107,6 +138,13 @@ class Database:
             return False
         return True
 
+    def _does_product_exist(self, product_id: int) -> bool:
+        """Checks if product exists in db"""
+        self.cursor.execute("SELECT Product_ID FROM Product WHERE Product_ID = ?", (product_id,))
+        if len(self.cursor.fetchall()) == 0:
+            return False
+        return True
+
     def _new_customer_id(self) -> int:
         """generate new customer id artifical key"""
         self.cursor.execute("SELECT MAX(Customer_ID) FROM CustomerUser")
@@ -123,5 +161,10 @@ class Database:
             return 0
         return max_admin_id + 1
 
-
-
+    def _new_product_id(self) -> int:
+        """generate new product id artifical key"""
+        self.cursor.execute("SELECT MAX(Product_ID) FROM Product")
+        max_product_id = self.cursor.fetchone()[0]
+        if max_product_id is None:
+            return 0
+        return max_product_id + 1
