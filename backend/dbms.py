@@ -35,18 +35,15 @@ class Database:
         # don't create account if already exists
         if self._does_customer_exist(username):
             return False
-
         # hash salted password
         pw_hash, salt = self._hash_password(password)
-
         # generate customer id artificial key
         customer_id = self._new_customer_id()
-
+        # insert customer data into db
         self.cursor.execute(            
             "INSERT INTO CustomerUser (Customer_ID, Username, Email, Phone_Number, Password, Salt) VALUES (?, ?, ?, ?, ?, ?)", 
             (customer_id, username, email, phone_number, pw_hash, salt)
             )
-    
         self.connection.commit()
         return True
 
@@ -79,11 +76,6 @@ class Database:
             return 0
         return max_customer_id + 1
 
-
-if __name__ == "__main__":
-    db = Database("../database/database.db")
-
-    # db.customer_account_creation("test", "test", "test@test.com", "1234567890")
 
 
 
