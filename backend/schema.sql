@@ -11,6 +11,9 @@ create table AdminUser(
 
 create table CustomerUser(
 	Customer_ID INT,
+	Username Varchar(16) 
+        CONSTRAINT CustomerUser_Username_NOTNULL NOT NULL
+    ,
 	Email Varchar(254) 
         CONSTRAINT CustomerUser_Email_NOTNULL NOT NULL
         CONSTRAINT CustomerUser_Email_Format CHECK (Email LIKE '%@%.%')
