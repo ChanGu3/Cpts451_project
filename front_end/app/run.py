@@ -1,5 +1,6 @@
 import os
 from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g
+from dotenv import load_dotenv
 from routes.example_route import example_blueprint
 
 
@@ -45,6 +46,17 @@ def inject_user():
 def index():
     return render_template('index.html')
 
+@app.route('/ProfileBase')
+def profile_base():
+    return render_template('ProfileBase.html')
+
+@app.route('/ProfileAdmin')
+def profile_admin():
+    return render_template('ProfileAdmin.html')
+
+@app.route('/ProfileCustomer')
+def profile_customer():
+    return render_template('ProfileCustomer.html')
 
 app.register_blueprint(example_blueprint) # Register the blueprint from example for routing
 
