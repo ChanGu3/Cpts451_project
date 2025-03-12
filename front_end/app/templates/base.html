@@ -4,20 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}E-Commerce-Website{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/BrowserTab_Icon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleProfile.css') }}">
 </head>
 <body>
     <header>
         <nav class="navbar">
             <div class="navbarLeft">
-                <img src="./../static/images/amazon2-logo.png" class="logo">
+                <a href="{{ url_for('index') }}">
+                    <img src="./../static/images/amazon2-logo.png" class="logo">
+                </a>
             </div>
             <div class="navbarCenter">
                 <input type="text" placeholder="Search..." class="search-bar">
             </div>
             <div class="navbarRight">
-                <a href="#">Cart</a>
-                <a href="{{ url_for('profile_base') }}">User Profile</a>
+                {% if user %}
+                    <a href="{{ url_for('example.other') }}">Cart</a>
+                    <a href="{{ url_for('profile_base') }}">User Profile</a>
+                    <a href="{{ url_for('del_session') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('set_session') }}">Login</a>
+                {% endif %}
             </div>
         </nav>
     </header>
