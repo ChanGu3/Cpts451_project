@@ -21,10 +21,13 @@
             </div>
             <div class="navbarRight">
                 {% if user %}
+                    {% if user.userType == "Customer" %}
                     <a href="{{ url_for('index') }}">Cart</a>
+                    {% endif %}
                     <a href="{{ url_for('user_profile', username=user.username) }}">User Profile</a>
                     <a href="{{ url_for('del_session') }}">Logout</a>
                 {% else %}
+                    <a href="{{ url_for('set_session') }}">Cart</a>
                     <a href="{{ url_for('set_session') }}">Login</a>
                 {% endif %}
             </div>
