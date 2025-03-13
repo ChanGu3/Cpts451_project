@@ -1,7 +1,6 @@
 import os
-from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g
+from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g, abort
 from dotenv import load_dotenv
-from routes.example_route import example_blueprint
 
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -57,33 +56,44 @@ def before_request():
 def inject_user():
     return dict(user=g.user)
 
+@app.route('/')
+def address():
+    return redirect(url_for('index'))
+
 @app.route('/Home')
 def index():
     return render_template('index.html')
 
-@app.route('/Profile/Base')
-def profile_base():
-    return render_template('Profile/Base.html')
-
 @app.route('/Profile/<username>')
 def user_profile(username):
+    # if user is not logged or username is typed directly in redirect page not found
     if g.user is None:
-        return redirect(url_for('page_not_found'))
-    else:
-        return redirect(url_for('user_profile_page', username=username))
+        abort(404)
+    
+    # if username is typed incorrectly still log them in with their own username
+    if username != g.user.username:
+        return redirect(url_for('user_profile_page', username=g.user.username, page='PersonalInformation'))
+    
+    return redirect(url_for('user_profile_page', username=username, page='PersonalInformation'))
 
-@app.route('/Profile/<username>/PersonalInformation')
+@app.route('/Profile/<username>/<page>')
 def user_profile_page(username, page="PersonalInformation"):
-    if g.user.userType == 'Admin':
-        return render_template(f'Profile/Admin/{page}.html')
-    elif g.user.userType == 'Customer':
-        return render_template(f'Profile/Customer/{page}.html')
+    # if user is not logged  in redirect page not found
+    if g.user is None:
+        abort(404)
+    
+    # if username is typed incorrectly still log them in with their own username
+    if username != g.user.username:
+        redirect(url_for('user_profile_page', username=g.user.username, page=page))
+    
+    try:
+        return render_template(f'Profile/{g.user.userType}/{page}.html')
+    except:
+        abort(404)
 
-@app.route('/404')
-def page_not_found():
-    return render_template('404.html')
-
-app.register_blueprint(example_blueprint) # Register the blueprint from example for routing
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True) # debug false when delpoying
