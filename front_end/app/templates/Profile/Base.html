@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Profile Base{% endblock %}
+
+
+{% block content %}
+<input type="checkbox" id="sidebar-toggle">
+
+<div class="profile-menu-sidebar">
+    <div class="top">
+        <label for="sidebar-toggle" class="three-line-button">
+            <line></line>
+            <line></line>
+            <line></line>
+        </label>
+        <p id="ProfileMenu">Profile Menu</p>
+    </div>
+    <div class="menu-element-buttons">
+        {% block menu_element_buttons %}
+
+        {% endblock %}
+    </div>
+</div>
+
+<label for="sidebar-toggle" class="backdrop"></label>
+
+<div class="ProfileTop">
+    <label for="sidebar-toggle" class="three-line-button">
+            <line></line>
+            <line></line>
+            <line></line>
+    </label>
+    <p id="ProfileMenu">Profile Menu</p>
+    <p id="HelloUser"> Hello,  {{ user.username }}</p>
+</div>
+
+{% block menu_element_content %}
+
+{% endblock %}
+
+{% endblock %}

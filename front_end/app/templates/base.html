@@ -13,7 +13,7 @@
         <nav class="navbar">
             <div class="navbarLeft">
                 <a href="{{ url_for('index') }}">
-                    <img src="./../static/images/amazon2-logo.png" class="logo">
+                    <img src="{{ url_for('static', filename='images/amazon2-logo.png') }}" class="logo">
                 </a>
             </div>
             <div class="navbarCenter">
@@ -22,7 +22,7 @@
             <div class="navbarRight">
                 {% if user %}
                     <a href="{{ url_for('example.other') }}">Cart</a>
-                    <a href="{{ url_for('profile_base') }}">User Profile</a>
+                    <a href="{{ url_for('user_profile', username=user.username) }}">User Profile</a>
                     <a href="{{ url_for('del_session') }}">Logout</a>
                 {% else %}
                     <a href="{{ url_for('set_session') }}">Login</a>
