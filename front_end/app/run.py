@@ -64,6 +64,12 @@ def address():
 def index():
     return render_template('index.html')
 
+@app.route('/SignIn', methods=['GET', 'POST'])
+def signin():
+    if request.method == 'POST':
+        return redirect(url_for('set_session'))
+    return render_template('SignIn.html')
+
 @app.route('/Profile/<username>')
 def user_profile(username):
     # if user is not logged or username is typed directly in redirect page not found
