@@ -7,6 +7,8 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/BrowserTab_Icon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styleProfile.css') }}">
+    {%block Stylesheets %} {% endblock %}
+    {% block HeadScripts %}  {% endblock %}
 </head>
 <body>
     <header>
