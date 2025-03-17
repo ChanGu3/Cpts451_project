@@ -3,7 +3,7 @@
 
 
 {% block menu_element_buttons %}
-<a href="" class="menu-element-button">Personal Information</a>
-<a href="" class="menu-element-button">Orders</a>
-<a href="" class="menu-element-button">Wishlist</a>
+<a href="{{ url_for('user_profile_page', username=user.username, page="PersonalInformation") }}" class="menu-element-button">Personal Information</a>
+<a href="{{ url_for('user_profile_page', username=user.username, page="Orders") }}" class="menu-element-button">Orders</a>
+<a href="{{ url_for('user_profile_page', username=user.username, page="Wishlist") }}" class="menu-element-button">Wishlist</a>
 {% endblock %}

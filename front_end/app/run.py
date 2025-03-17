@@ -25,7 +25,7 @@ def set_session():
     # logging in is hardcoded when we have page for login we will use the form data to set the session cookies
     
     # if Admin
-    session['userType'] = 'Admin'
+    session['userType'] = 'Customer'
     session['username'] = 'JohnDoe'
     session['ID'] = 1
     # if Customer
@@ -71,16 +71,22 @@ def signin():
     return render_template('SignIn.html')
 
 @app.route('/Profile/<username>')
-def user_profile(username):
+def user_profile_menu(username):
     # if user is not logged or username is typed directly in redirect page not found
     if g.user is None:
-        abort(404)
-    
+        return abort(404)
+        
+    if g.user.userType == 'Admin':
+        return render_template(f'Profile/Admin/Menu.html');
+    elif g.user.userType == 'Customer':
+        return render_template(f'Profile/Customer/Menu.html');
+
+    return abort(404)
     # if username is typed incorrectly still log them in with their own username
-    if username != g.user.username:
-        return redirect(url_for('user_profile_page', username=g.user.username, page='PersonalInformation'))
+    #if username != g.user.username:
+    #    return redirect(url_for('user_profile_page', username=g.user.username, page='PersonalInformation'))
     
-    return redirect(url_for('user_profile_page', username=username, page='PersonalInformation'))
+    #return redirect(url_for('user_profile_page', username=username, page='PersonalInformation'))
 
 @app.route('/Profile/<username>/<page>')
 def user_profile_page(username, page):
