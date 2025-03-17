@@ -1,0 +1,8 @@
+{% extends "Profile/Base.html" %}
+{% block title %}Profile Admin Base{% endblock %}
+
+{% block menu_element_buttons %}
+<a href="{{ url_for('user_profile_page', username=user.username, page="PersonalInformation") }}" class="menu-element-button">Personal Information</a>
+<a href="{{ url_for('user_profile_page', username=user.username, page="Products") }}" class="menu-element-button">Products</a>
+<a href="{{ url_for('user_profile_page', username=user.username, page="Analytics") }}" class="menu-element-button">Analytics</a>
+{% endblock %}

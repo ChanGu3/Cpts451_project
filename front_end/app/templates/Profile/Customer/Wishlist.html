@@ -1,0 +1,51 @@
+{% extends "Profile/Customer/Base.html" %}
+{% block title %}WishList{% endblock %}
+
+{% block Stylesheets %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/WishlistStyles.css') }}">
+{% endblock %}
+
+{% block HeadScripts%}
+<script>
+    function removeItem(event) {
+        const item = event.target.closest('.wishlist-item');
+        if (item) {
+            item.remove();
+        }
+    }
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".remove-btn, .add-to-cart-btn").forEach(button => {
+            button.addEventListener("click", removeItem);
+        });
+    });
+</script>
+{% endblock %}
+
+
+{% block menu_element_content %}
+<div class="wishlist-container">
+    <h1>Your Wishlist</h1>
+    <div class="wishlist-items">
+        <div class="wishlist-item">
+            <img src="../static/images/headphones.jpg" alt="Product Image">
+            <div class="wishlist-details">
+                <h2>Wireless Headphones</h2>
+                <p>Price: $99.99</p>
+                <button class="add-to-cart-btn">Add to Cart</button>
+                <button class="remove-btn">Remove</button>
+            </div>
+        </div>
+        <div class="wishlist-item">
+            <img src="../static/images/watch.jpg" alt="Product Image">
+            <div class="wishlist-details">
+                <h2>Smartwatch</h2>
+                <p>Price: $129.99</p>
+                <button class="add-to-cart-btn">Add to Cart</button>
+                <button class="remove-btn">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -14,5 +14,16 @@ WSU Cpts 451 Databases Class Group Project
                                 |Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
     Step 4: Leaving Python Environment, |deactivate
 
-# Secret Keys (Not Sure If We'll need it but most likely)
-    Placed In Our Own .env instead of the config.py file so we dont push secret keys to the remote repository
+# Secret Keys (Environment Variables)
+    To keep sensitive information out of the repository (Ex. hashing cookies for session information) we need 
+    to create a local shortcut .env file and add the environment variable for secret key,
+    
+    Like so,
+    
+    (.env file)
+    ```
+    SECRET_KEY=your_secret_here
+    ```
+
+    This will be your local development key and when we go to deploy we can do the same but actually create the environment variable using bash in the system instead of a local shortcut
+    using the same variable name but a special key. (Ex. 'export Secret_Key=Deployment_Key')

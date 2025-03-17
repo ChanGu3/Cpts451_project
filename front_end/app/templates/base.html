@@ -4,30 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}E-Commerce-Website{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/BrowserTab_Icon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleProfile.css') }}">
+    {%block Stylesheets %} {% endblock %}
+    {% block HeadScripts %}  {% endblock %}
 </head>
 <body>
     <header>
         <nav class="navbar">
             <div class="navbarLeft">
-                <img src="./../static/images/amazon2-logo.png" class="logo">
+                <a href="{{ url_for('index') }}">
+                    <img src="{{ url_for('static', filename='images/amazon2-logo.png') }}" class="logo">
+                </a>
             </div>
             <div class="navbarCenter">
                 <input type="text" placeholder="Search..." class="search-bar">
             </div>
             <div class="navbarRight">
-                <a href="#">Cart</a>
-                <a href="#">User Profile</a>
+                {% if user %}
+                    {% if user.userType == "Customer" %}
+                        <a href="{{ url_for('index') }}">Cart</a>
+                    {% endif %}
+                        <a href="{{ url_for('user_profile_menu', username=user.username) }}">User Profile</a>
+                        <a href="{{ url_for('del_session') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('set_session') }}">Cart</a>
+                    <a href="{{ url_for('signin') }}">Sign In</a>
+                {% endif %}
             </div>
         </nav>
     </header>
-    <main>
-        {% block content %}
-        <!-- Content goes here -->
-        {% endblock %}
-    </main>
-    <footer>
-        <p>&copy; 2025 Amazon 2. All rights reserved.</p>
-    </footer>
+    <div class="container">
+        <main>
+            {% block content %}
+            <!-- Content goes here -->
+            {% endblock %}
+        </main>
+        <footer>
+            <p>&copy; 2025 Amazon 2. All rights reserved.</p>
+        </footer>
+    </div>
 </body>
 </html>
