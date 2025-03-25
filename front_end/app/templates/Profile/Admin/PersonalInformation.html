@@ -2,11 +2,35 @@
 {% block title %}Profile Admin Personal Information{% endblock %}
 
 {% block menu_element_content %}
-
 <h1 class="AdminTitle"> Personal Information</h1>
 
-<div class="AdminPI">
-<p>Username: <input type='text' value={{pageData['username']}} disabled></p>
-<div>
+<div class="AdminPIContainer">
+    <div class="AdminPI">
+        <p>Username: </p>
+        <input type='text' value={{pageData['username']}} disabled>
+    </div>
+    <div class="AdminPI">
+        <p>Password: </p>
+        <input type='Password' value="******" disabled>
+    </div>
+    <br><br>
+    <form action="" method="POST">
+        <h3> Create New Password </h3>
+        <div class="AdminPI">
+            <p>New Password: </p>
+            <input type='Password' value="">
+        </div>
+        <div class="AdminPI">
+            <p>New Password: </p>
+            <input type='Password' value="">
+        </div>
+        <div class="AdminPI">
+            <p>Current Password: </p>
+            <input type='Password' value="">
+        </div>
 
+        <p class="ErrorMessage"> Error Message <p>
+
+        <button class="buttonPI" type="sumbit" onclick=""> Save </button>
+    </form>
 {% endblock %}
