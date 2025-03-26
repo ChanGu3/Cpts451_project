@@ -197,8 +197,19 @@ class Database:
         self.cursor.execute("SELECT CategoryName FROM ProductCategory WHERE Product_ID = ?", (product_id,))
         return self.cursor.fetchone()[0]
 
-    def search_products_by_category(self):
-        pass
+    def search_products_by_category(self, category_name: str):
+        """ select all products with a given category name"""
+        self.cursor.execute(
+            """
+            SELECT * FROM Product 
+            WHERE Product_ID IN (
+                SELECT Product_ID FROM ProductCategory 
+                WHERE CategoryName = ?
+            )
+            """, 
+            (category_name,)
+            )
+        return self.cursor.fetchall()
 
     def search_products_by_name(self):
         pass
