@@ -7,14 +7,9 @@ class Database:
     """
 
     def __init__(self, database_fname: str):
-        
         self.database_fname = database_fname
-
-        # connect to the database
         self.connection = sqlite3.connect(self.database_fname)
         print("Connection to database established...")
-
-        # create cursor
         self.cursor = self.connection.cursor()
         print("Cursor created...")
 
@@ -78,6 +73,17 @@ class Database:
         # verify password hash
         password_hash = res[0]
         return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
+
+    def sign_in(self, username: str, password: str):
+        """Signs in customer or admin and returns their user id and email"""
+        if self.validate_customer_credentials(username, password):
+            self.cursor.execute("SELECT Customer_ID, Email FROM CustomerUser WHERE Username = ?", (username,))
+            return self.cursor.fetchone()
+        elif self.validate_admin_credentials(username, password):
+            self.cursor.execute("SELECT Admin_ID, Email FROM AdminUser WHERE Username = ?", (username,))
+            return self.cursor.fetchone()
+
+        return None
 
     def retrieve_all_product_details(self):
         """Gets all product details from the db"""

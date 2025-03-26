@@ -77,3 +77,26 @@ def test_insert_product_details():
     assert product_details[0][5] == 10
     assert product_details[0][6] == "test"
     assert product_details[0][7] == "2025-03-04"
+
+def test_sign_in_customer():
+    """ensures valid customer credentials return the correct user id and email"""
+    db = Database("database.db")
+    db.customer_account_creation("test", "test", "test@test.com", "1111111111")
+    assert db.sign_in("test", "test") == (0, "test@test.com")
+
+def test_sign_in_admin():
+    """ensures valid admin credentials return the correct user id and email"""
+    db = Database("database.db")
+    db.admin_account_creation("test", "test")
+    assert db.sign_in("test", "test") == (0, "test@test.com")
+
+def test_sign_in_invalid_customer():
+    """ensures invalid customer credentials return None"""
+    db = Database("database.db")
+    assert db.sign_in("bad_customer_1", "bad_password_1") is None
+
+def test_sign_in_invalid_admin():
+    """ensures invalid admin credentials return None"""
+    db = Database("database.db")
+    assert db.sign_in("bad_admin_1", "bad_password_1") is None
+    
