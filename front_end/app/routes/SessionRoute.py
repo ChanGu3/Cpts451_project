@@ -6,11 +6,9 @@ from flask import Blueprint, redirect, url_for, g, session
 
 session_route = Blueprint('session_route', __name__)
 
-# User class for session
 class User:
-    def __init__(self, userType, username, ID):
+    def __init__(self, userType, ID):
         self.userType = userType
-        self.username = username
         self.ID = ID
 
 # Sets the session cookies to a user when logged in (Not using database currently just a test dummy)
@@ -21,7 +19,6 @@ def set_session():
     # if Admin
     session['userType'] = 'Admin'
     session['ID'] = 1
-    session['username'] = 'JohnDoe'
     # if Customer
         # session['userType'] = 'Customer'
         # session['username'] = 'JohnDoe'
@@ -34,18 +31,5 @@ def set_session():
 def del_session():
     g.user = None
     session.pop('userType', None)
-    session.pop('username', None)
     session.pop('ID', None)
     return redirect(url_for('index'))
-
-# Loads the user from the session if it exists
-@session_route.before_request
-def before_request():
-    g.user = None
-    if 'userType' in session and 'username' in session and 'ID' in session:
-        g.user = User(session['userType'], session['username'], session['ID'])
-
-# Injects the user into the context of every template
-@session_route.context_processor
-def inject_user():
-    return dict(user=g.user)
