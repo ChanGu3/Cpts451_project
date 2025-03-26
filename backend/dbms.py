@@ -175,10 +175,27 @@ class Database:
         self.connection.commit()
         return True
 
-    def get_product_categories(self):
+    def get_all_product_categories(self):
         """Get all product categories from the db"""
         self.cursor.execute("SELECT * FROM ProductCategories")
         return self.cursor.fetchall()
+
+    def set_product_category(self, product_id: int, category_name: str) -> bool:
+        """Updates pre-existing product category in db"""
+        self.cursor.execute("INSERT INTO ProductCategory (Product_ID, CategoryName) VALUES (?, ?)", (product_id, category_name))
+        self.connection.commit()
+        return True
+
+    def update_product_category(self, product_id: int, category_name: str) -> bool:
+        """Updates pre-existing product category in db"""
+        self.cursor.execute("UPDATE ProductCategory SET CategoryName = ? WHERE Product_ID = ?", (category_name, product_id))
+        self.connection.commit()
+        return True
+
+    def get_product_category(self, product_id: int):
+        """Get all product categories for a given product from the db"""
+        self.cursor.execute("SELECT CategoryName FROM ProductCategory WHERE Product_ID = ?", (product_id,))
+        return self.cursor.fetchone()[0]
 
     def search_products_by_category(self):
         pass

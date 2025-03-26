@@ -206,7 +206,17 @@ def test_get_product_categories():
     db = Database("database.db")
     db.add_product_category("fishing")
     db.add_product_category("food")
-    categories = db.get_product_categories()
+    categories = db.get_all_product_categories()
     assert len(categories) == 2
     assert categories[0][0] == "fishing"
     assert categories[1][0] == "food"
+
+def test_set_product_category():
+    db = Database("database.db")
+    db.set_product_category(1, "fishing")
+    assert db.get_product_category(1) == "fishing"
+
+def test_update_product_category():
+    db = Database("database.db")
+    db.update_product_category(1, "food")
+    assert db.get_product_category(1) == "food"
