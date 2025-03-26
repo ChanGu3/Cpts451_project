@@ -26,10 +26,9 @@
                     {% if user.userType == "Customer" %}
                         <a href="{{ url_for('index') }}">Cart</a>
                     {% endif %}
-                        <a href="{{ url_for('user_profile_menu', username=user.username) }}">User Profile</a>
-                        <a href="{{ url_for('del_session') }}">Logout</a>
+                        <a href="{{ url_for('profile_route.user_profile') }}">User Profile</a>
+                        <a href="{{ url_for('session_route.del_session') }}">Logout</a>
                 {% else %}
-                    <a href="{{ url_for('set_session') }}">Cart</a>
                     <a href="{{ url_for('signin') }}">Sign In</a>
                 {% endif %}
             </div>
