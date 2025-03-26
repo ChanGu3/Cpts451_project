@@ -202,3 +202,11 @@ def test_sign_in_invalid_admin():
     db = Database("database.db")
     assert db.sign_in("bad_admin_1", "bad_password_1") is None
     
+def test_get_product_categories():
+    db = Database("database.db")
+    db.add_product_category("fishing")
+    db.add_product_category("food")
+    categories = db.get_product_categories()
+    assert len(categories) == 2
+    assert categories[0][0] == "fishing"
+    assert categories[1][0] == "food"

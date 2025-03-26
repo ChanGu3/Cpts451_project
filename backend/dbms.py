@@ -149,6 +149,7 @@ class Database:
         return self.cursor.fetchone()
 
     def admin_remove_product(self, admin_id: int, admin_password: str, product_id: int) -> bool:
+        """Upon validation of admin credentials, remove a product from the db"""
         if not self.validate_admin_id_password(admin_id, admin_password):
             return False
         self.cursor.execute("DELETE FROM Product WHERE Product_ID = ?", (product_id,))
@@ -156,6 +157,7 @@ class Database:
         return True
 
     def admin_update_product(self, admin_id: int, admin_password: str, product_id: int, new_product_details: dict) -> bool:
+        """Upon validation of admin credentials, update specific columns of a particular product"""
         if not self.validate_admin_id_password(admin_id, admin_password):
             return False
         elif not self._does_product_exist(product_id):
@@ -167,8 +169,16 @@ class Database:
         self.connection.commit()
         return True
 
+    def add_product_category(self, category_name: str) -> bool:
+        """Add a new product category to the db"""
+        self.cursor.execute("INSERT INTO ProductCategories (CategoryName) VALUES (?)", (category_name,))
+        self.connection.commit()
+        return True
+
     def get_product_categories(self):
-        pass
+        """Get all product categories from the db"""
+        self.cursor.execute("SELECT * FROM ProductCategories")
+        return self.cursor.fetchall()
 
     def search_products_by_category(self):
         pass
