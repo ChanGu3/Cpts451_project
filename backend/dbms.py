@@ -198,7 +198,7 @@ class Database:
         return self.cursor.fetchone()[0]
 
     def search_products_by_category(self, category_name: str):
-        """ select all products with a given category name"""
+        """ gets all product details with a given category name"""
         self.cursor.execute(
             """
             SELECT * FROM Product 
@@ -211,9 +211,10 @@ class Database:
             )
         return self.cursor.fetchall()
 
-    def search_products_by_name(self):
-        pass
-
+    def search_products_by_name(self, product_name: str):
+        """gets all product details with a given product name """
+        self.cursor.execute("SELECT * FROM Product WHERE Title = ?", (product_name,))
+        return self.cursor.fetchall()
 
     def get_user_info(self, user_id: int):
         pass

@@ -239,3 +239,8 @@ def test_search_products_by_category():
     assert len(products_found) == 2
     assert products_found[0] == (1, "baseball1", 100, 100, "test", 10, "test", "2025-03-04")
     assert products_found[1] == (2, "baseball2", 100, 100, "test", 10, "test", "2025-03-04")
+
+def test_search_products_by_name():
+    products_found = db.search_products_by_name("baseball1");
+    assert len(products_found) == 1
+    assert products_found[0] == (1, "baseball1", 100, 100, "test", 10, "test", "2025-03-04")
