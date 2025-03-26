@@ -148,8 +148,12 @@ class Database:
         self.cursor.execute("SELECT * FROM Product WHERE Product_ID = ?", (product_id,))
         return self.cursor.fetchone()
 
-    def admin_remove_product(self, admin_id: int):
-        pass
+    def admin_remove_product(self, admin_id: int, admin_password: str, product_id: int):
+        if not self.validate_admin_id_password(admin_id, admin_password):
+            return False
+        self.cursor.execute("DELETE FROM Product WHERE Product_ID = ?", (product_id,))
+        self.connection.commit()
+        return True
 
     def admin_update_product(self, admin_id: int):
         pass

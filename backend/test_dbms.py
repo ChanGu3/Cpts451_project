@@ -89,6 +89,25 @@ def test_insert_new_product():
     assert product_details[0][6] == "test"
     assert product_details[0][7] == "2025-03-04"
 
+def test_invalid_admin_add_product():
+    db = Database("database.db")
+    assert not db.admin_add_product(
+        admin_id=0,
+        admin_password="bad_password",
+        product_details=        {
+            "title": "new_product",
+            "price": 100,
+            "stock": 100,
+            "description": "test",
+            "discount_percentage": 10,
+            "website_info": "test",
+            "date_created": "2025-03-04",
+            "product_id": None,
+        }
+    )
+
+    assert not db._does_product_exist(1)
+
 def test_admin_add_product():
     db = Database("database.db")
     assert db.admin_add_product(
@@ -114,6 +133,26 @@ def test_admin_add_product():
     assert product_details[3] == 100
     assert product_details[4] == "test"
     assert product_details[5] == 10
+
+def test_invalid_admin_remove_product():
+    """ensures admin cannot remove product from db if credentials are invalid"""
+    db = Database("database.db")
+    assert not db.admin_remove_product(
+        admin_id=0,
+        admin_password="bad_password",
+        product_id=1
+    )    
+    assert db._does_product_exist(1)
+
+def test_admin_remove_product():
+    """ensures admin can remove product from db"""
+    db = Database("database.db")
+    assert db.admin_remove_product(
+        admin_id=0,
+        admin_password="test",
+        product_id=1
+    )    
+    assert not db._does_product_exist(1)
 
 def test_sign_in_customer():
     """ensures valid customer credentials return the correct user id and email"""
