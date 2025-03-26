@@ -1,36 +1,44 @@
 {% extends "Profile/Admin/Base.html" %}
 {% block title %}Profile Admin Personal Information{% endblock %}
 
+{% block Stylesheets%}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/AdminProfilePageStyles/AdminPI.css') }}">
+{% endblock %}
+
 {% block menu_element_content %}
 <h1 class="AdminTitle"> Personal Information</h1>
 
 <div class="AdminPIContainer">
-    <div class="AdminPI">
-        <p>Username: </p>
-        <input type='text' value={{pageData['username']}} disabled>
+    <div class='AdminPI'>
+        <label for='username'>Username: </label>
+        <input type='text' id='username' value={{displayName}} disabled>
     </div>
     <div class="AdminPI">
-        <p>Password: </p>
-        <input type='Password' value="******" disabled>
+        <label for='password'>Password: </label>
+        <input type='Password'id='password' value="******" disabled>
     </div>
     <br><br>
-    <form action="" method="POST">
+    <form action="{{url_for('profile_route.user_profile_page', displayName=displayName, page="PersonalInformation")}}" method="POST">
         <h3> Create New Password </h3>
         <div class="AdminPI">
-            <p>New Password: </p>
-            <input type='Password' value="">
+            <label for="newpassword1">New Password: </label>
+            <input type='Password' id="newpassword1" value="" name="newpassword1">
         </div>
         <div class="AdminPI">
-            <p>New Password: </p>
-            <input type='Password' value="">
+            <label for='newpassword2'>New Password: </label>
+            <input type='Password' id='newpassword2' value="" name="newpassword2">
         </div>
         <div class="AdminPI">
-            <p>Current Password: </p>
-            <input type='Password' value="">
+            <label for='currentpassword'>Current Password: </label>
+            <input type='Password' id='currentpassword' value="" name="currentpassword">
         </div>
-
-        <p class="ErrorMessage"> Error Message <p>
-
+        {% if actionMessage %}
+            {% if isError %}
+                <p class="ActionMessage ErrorMessage"> {{actionMessage}} </p>
+            {% else %}
+                <p class="ActionMessage SuccessMessage"> {{actionMessage}} </p>
+            {% endif %}
+        {% endif %}
         <button class="buttonPI" type="sumbit" onclick=""> Save </button>
     </form>
 {% endblock %}

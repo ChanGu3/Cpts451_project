@@ -1,0 +1,59 @@
+.AdminPIContainer{
+    justify-content: center;
+    position: relative;
+    top: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 250px;
+    width: 330px;
+    padding: 5px 5px;
+    background-color: #ffffff;
+}
+
+.AdminPIContainer .AdminPI{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.AdminPIContainer .buttonPI{
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    width: 75px;
+    height: 25px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.AdminPIContainer .buttonPI:hover{
+    background-color: #dadada;
+}
+
+.AdminPIContainer .buttonPI:active{
+    background-color: #a1a1a1;
+}
+
+
+.AdminTitle{
+    text-align: center;
+}
+
+.ActionMessage{
+    text-size-adjust: 20px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.ErrorMessage{
+    color: rgb(223, 0, 0);
+}
+
+.SuccessMessage{
+    color: rgb(15, 223, 0);
+}

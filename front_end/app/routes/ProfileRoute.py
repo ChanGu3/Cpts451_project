@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, url_for, g, session, render_template, abort
+from flask import Blueprint, redirect, url_for, g, session, render_template, abort, request
 
 profile_route = Blueprint('profile_route', __name__)
 
@@ -26,7 +26,7 @@ def user_profile_menu(displayName):
 
     return abort(404)
 
-@profile_route.route('<displayName>/<page>')
+@profile_route.route('<displayName>/<page>', methods=['GET', 'POST'])
 def user_profile_page(displayName, page):
     # if user is not logged in redirect page not found
     if g.user is None:
@@ -37,27 +37,49 @@ def user_profile_page(displayName, page):
     
     # if username is typed incorrectly still log them in with their own username
     if displayName != currentDisplayName:
-        redirect(url_for('profile_route.user_profile_page', displayName=currentDisplayName, page=page))
+        return redirect(url_for('profile_route.user_profile_page', displayName=currentDisplayName, page=page))
     
-    #try:        
-    if g.user.userType == 'Admin':
-        if page == 'PersonalInformation':
-            pageData = {'username': currentDisplayName}
-        elif page == 'Products':
-            pageData = {}
-        elif page == 'Analytics':
-            pageData = {}
+    try:        
+        if g.user.userType == 'Admin':
+            if page == 'PersonalInformation':
+                if request.method == 'POST':
+                    actionMessage = "TEST"
+                    isError = True
+                    
+                    #if request.form['newPassword1'] != request.form['newPassword2']:
+                    #    actionMessage = 'New Passwords Do Not Match';
+                    #    error = True;
+                    #elif: try to check current password with database
+                    #    actionMessage = 'Current Password Incorrect';
+                    #  
+                    #elif: request.form['currentPassword'] == request.form['newPassword1'] if new password is the same as current password
+                    #    actionMessage = 'New Password Cannot Be The Same As Current Password';
+                    #    error = True;
+                    #elif: if new password is not long enough request.form['newPassword1'] < 8
+                    #    actionMessage = 'New Password Must Be At Least 8 Characters';
+                    #    error = True;
+                    #else:
+                    #   actionMessage = 'Password Changed';
+                    #   error = False;
+                    
+                    session['actionMessage'] = actionMessage
+                    session['isError'] = isError
+                    return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName))
+                else:
+                    return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName))
+            elif page == 'Products':
+                pageData = {}
+            elif page == 'Analytics':
+                pageData = {}
             
-    elif g.user.userType == 'Customer':    
-        if page == 'PersonalInformation':
-            pageData = {'email': currentDisplayName, 'PhoneNumber': '555-555-5555'}
-        elif page == 'Orders':
-            pageData = {}
-        elif page == 'Wishlist':
-            pageData = {}
-    print("HERE")
+        elif g.user.userType == 'Customer':    
+            if page == 'PersonalInformation':
+                pageData = {'email': currentDisplayName, 'PhoneNumber': '555-555-5555'}
+            elif page == 'Orders':
+                pageData = {}
+            elif page == 'Wishlist':
+                pageData = {}
                 
-    return render_template(f'Profile/{g.user.userType}/{page}.html', displayName=currentDisplayName, pageData=pageData) #WE can refactor this into each if statement if you want to make it more readable by having more than just the pageData in fact we ill need to redirect for each one anyways.
-    #except:
-    #    print("HMM")
-    #    abort(404)
+        return render_template(f'Profile/{g.user.userType}/{page}.html', displayName=currentDisplayName, pageData=pageData) #WE can refactor this into each if statement if you want to make it more readable by having more than just the pageData in fact we ill need to redirect for each one anyways.
+    except:
+        abort(404)

@@ -4,6 +4,7 @@ from flask import Flask, render_template, make_response, request, redirect, url_
 from routes.ErrorRoute import error_route
 from routes.SessionRoute import session_route, User
 from routes.ProfileRoute import profile_route
+from routes.AdminProfileRouting.ProfileInformation import adminPI_route
 
 #App Config
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -16,6 +17,7 @@ app.secret_key = os.getenv('SECRET_KEY') # Secret key for session
 app.register_blueprint(error_route, url_prefix='/error')
 app.register_blueprint(session_route, url_prefix='')
 app.register_blueprint(profile_route, url_prefix='/Profile')
+app.register_blueprint(adminPI_route, url_prefix='/Admin')
 
 # Loads the user from the session if it exists globally
 @app.before_request
