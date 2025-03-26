@@ -35,7 +35,7 @@ class Database:
         self.connection.commit()
         return True
 
-    def admin_account_creation(self, username: str, password: str) -> bool:
+    def admin_account_creation(self, username: str, password: str, email: str) -> bool:
         """ Insert admin data into db if no previous account exists"""
         # don't create account if already exists
         if self._does_admin_exist(username):
@@ -46,13 +46,13 @@ class Database:
         admin_id = self._new_admin_id()
         # insert customer data into db
         self.cursor.execute(            
-            "INSERT INTO AdminUser (Admin_ID, Username, Password) VALUES (?, ?, ?)", 
-            (admin_id, username, pw_hash)
+            "INSERT INTO AdminUser (Admin_ID, Username, Email, Password) VALUES (?, ?, ?, ?)", 
+            (admin_id, username, email, pw_hash)
             )
         self.connection.commit()
         return True
 
-    def validate_customer_credentials(self, username: str, password: str):
+    def validate_customer_username_password(self, username: str, password: str):
         """Verifies that customer username and password hash are within the db"""
         # pull pw and salt from db for the username
         self.cursor.execute("SELECT Password FROM CustomerUser where Username = ?", (username,))
@@ -63,7 +63,15 @@ class Database:
         password_hash = res[0]
         return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
 
-    def validate_admin_credentials(self, username: str, password: str):
+    def validate_customer_id_password(self, customer_id: int, password: str):
+        """Verifies that customer id and password hash are within the db"""
+        self.cursor.execute("SELECT Password FROM CustomerUser where Customer_ID = ?", (customer_id,))
+        res = self.cursor.fetchone()
+        if res is None:
+            return False
+        return bcrypt.checkpw(password.encode('utf-8'), res[0].encode('utf-8'))
+
+    def validate_admin_username_password(self, username: str, password: str):
         """Verifies that admin username and password hash are within the db"""
         # pull pw and salt from db for the username
         self.cursor.execute("SELECT Password FROM AdminUser where Username = ?", (username,))
@@ -74,12 +82,20 @@ class Database:
         password_hash = res[0]
         return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
 
+    def validate_admin_id_password(self, admin_id: int, password: str):
+        """Verifies that admin id and password hash are within the db"""
+        self.cursor.execute("SELECT Password FROM AdminUser where Admin_ID = ?", (admin_id,))
+        res = self.cursor.fetchone()
+        if res is None:
+            return False
+        return bcrypt.checkpw(password.encode('utf-8'), res[0].encode('utf-8'))
+
     def sign_in(self, username: str, password: str):
         """Signs in customer or admin and returns their user id and email"""
-        if self.validate_customer_credentials(username, password):
+        if self.validate_customer_username_password(username, password):
             self.cursor.execute("SELECT Customer_ID, Email FROM CustomerUser WHERE Username = ?", (username,))
             return self.cursor.fetchone()
-        elif self.validate_admin_credentials(username, password):
+        elif self.validate_admin_username_password(username, password):
             self.cursor.execute("SELECT Admin_ID, Email FROM AdminUser WHERE Username = ?", (username,))
             return self.cursor.fetchone()
 

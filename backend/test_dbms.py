@@ -1,6 +1,11 @@
 import pytest
 from dbms import Database
 
+"""
+Note pytest will run these tests sequentially. As a result, the database will be 
+modified at each test. Run ./test_backend.sh to run tests on a newly inititalizeddb.
+"""
+
 def test_first_customer_id():
     db = Database("database.db")
     assert db._new_customer_id() == 0
@@ -27,29 +32,33 @@ def test_customer_account_creation():
 def test_admin_account_creation():
     db = Database("database.db")
     assert db._does_admin_exist("test") == False
-    success = db.admin_account_creation("test", "test")
+    success = db.admin_account_creation("test", "test", "test@test.com")
     assert success == True
     assert db._does_admin_exist("test") == True
 
-def test_valid_customer_password_verification():
+def test_valid_customer_credentials_verification():
     db = Database("database.db")
     assert db._does_customer_exist("test") 
-    assert db.validate_customer_credentials("test", "test")
+    assert db.validate_customer_username_password("test", "test")
+    assert db.validate_customer_id_password(0, "test")
 
 def test_invalid_customer_password_verification():
     db = Database("database.db")
     assert db._does_customer_exist("test")
-    assert not db.validate_customer_credentials("test", "tesstt")
+    assert not db.validate_customer_username_password("test", "tesstt")
+    assert not db.validate_customer_id_password(0, "tesstt")
 
 def test_valid_admin_password_verification():
     db = Database("database.db")
     assert db._does_admin_exist("test") 
-    assert db.validate_admin_credentials("test", "test")
+    assert db.validate_admin_username_password("test", "test")
+    assert db.validate_admin_id_password(0, "test")
 
 def test_invalid_admin_password_verification():
     db = Database("database.db")
     assert db._does_admin_exist("test")
-    assert not db.validate_admin_credentials("test", "tesstt")
+    assert not db.validate_admin_username_password("test", "tesstt")
+    assert not db.validate_admin_id_password(0, "tesstt")
 
 def test_insert_product_details():
     db = Database("database.db")
@@ -81,14 +90,14 @@ def test_insert_product_details():
 def test_sign_in_customer():
     """ensures valid customer credentials return the correct user id and email"""
     db = Database("database.db")
-    db.customer_account_creation("test", "test", "test@test.com", "1111111111")
-    assert db.sign_in("test", "test") == (0, "test@test.com")
+    db.customer_account_creation("new_customer1", "test", "test@test.com", "1111111111")
+    assert db.sign_in("new_customer1", "test") == (1, "test@test.com")
 
 def test_sign_in_admin():
     """ensures valid admin credentials return the correct user id and email"""
     db = Database("database.db")
-    db.admin_account_creation("test", "test")
-    assert db.sign_in("test", "test") == (0, "test@test.com")
+    db.admin_account_creation("new_admin1", "test", "test@test.com")
+    assert db.sign_in("new_admin1", "test") == (1, "test@test.com")
 
 def test_sign_in_invalid_customer():
     """ensures invalid customer credentials return None"""

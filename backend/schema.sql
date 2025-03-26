@@ -6,6 +6,10 @@ create table AdminUser(
 	Password Varchar(64) 
         CONSTRAINT AdminUser_Password_NOTNULL NOT NULL
     ,
+	Email Varchar(254) 
+        CONSTRAINT AdminUser_Email_NOTNULL NOT NULL
+        CONSTRAINT AdminUser_Email_Format CHECK (Email LIKE '%@%.%')
+    ,
 	CONSTRAINT AdminUser_PK PRIMARY KEY (Admin_ID)
 );
 
