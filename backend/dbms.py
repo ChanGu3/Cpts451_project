@@ -226,18 +226,27 @@ class Database:
         self.cursor.execute("SELECT * FROM AdminUser WHERE Admin_ID = ?", (admin_id,))
         return self.cursor.fetchone()
 
-    def update_customer_password(self, customer_id: int, old_password: str, new_password: str):
-        pass
+    def update_customer_password(self, username: str, old_password: str, new_password: str):
+        if self.validate_customer_username_password(username, old_password):
+            pw_hash, salt = self._hash_new_password(new_password)
+            self.cursor.execute("UPDATE CustomerUser SET Password = ? WHERE Username = ?", (pw_hash, username))
+            self.connection.commit()
+            return True
+        return False
+
+    def update_admin_password(self, username: str, old_password: str, new_password: str):
+        if self.validate_admin_username_password(username, old_password):
+            pw_hash, salt = self._hash_new_password(new_password)
+            self.cursor.execute("UPDATE AdminUser SET Password = ? WHERE Username = ?", (pw_hash, username))
+            self.connection.commit()
+            return True
+        return False
 
     def update_customer_email(self, customer_id: int, new_email: str):
         pass
 
-    def update_admin_password(self, admin_id: int, old_password: str, new_password: str):
-        pass
-
     def update_admin_email(self, admin_id: int, new_email: str):
         pass
-
 
 
     def add_product_to_wishlist(self, customer_id: int, product_id: int):

@@ -261,3 +261,12 @@ def test_search_products_by_name():
     products_found = db.search_products_by_name("baseball1");
     assert len(products_found) == 1
     assert products_found[0] == (1, "baseball1", 100, 100, "test", 10, "test", "2025-03-04")
+
+def test_admin_update_customer_password():
+    assert db.update_customer_password(username="test", old_password="test", new_password="test2")
+    assert db.validate_customer_username_password("test", "test2")
+
+def test_admin_update_admin_password():
+    assert db.update_admin_password(username="test", old_password="test", new_password="test2")
+    assert db.validate_admin_username_password("test", "test2")
+    
