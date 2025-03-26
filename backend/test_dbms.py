@@ -134,6 +134,32 @@ def test_admin_add_product():
     assert product_details[4] == "test"
     assert product_details[5] == 10
 
+def test_invalid_admin_update_product():
+    db = Database("database.db")
+    assert not db.admin_update_product(
+        admin_id=0,
+        admin_password="bad_password",
+        product_id=1,
+        new_product_details={
+            "price": 9999
+        }
+    )
+
+def test_admin_update_product():
+    db = Database("database.db")
+    assert db.admin_update_product(
+        admin_id=0,
+        admin_password="test",
+        product_id=1,
+        new_product_details={
+            "price": 9999,
+            "stock": 9999,
+        }
+    )
+    product_details = db.retrieve_specific_product_details(product_id=1)
+    assert product_details[2] == 9999
+    assert product_details[3] == 9999
+
 def test_invalid_admin_remove_product():
     """ensures admin cannot remove product from db if credentials are invalid"""
     db = Database("database.db")

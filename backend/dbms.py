@@ -148,17 +148,24 @@ class Database:
         self.cursor.execute("SELECT * FROM Product WHERE Product_ID = ?", (product_id,))
         return self.cursor.fetchone()
 
-    def admin_remove_product(self, admin_id: int, admin_password: str, product_id: int):
+    def admin_remove_product(self, admin_id: int, admin_password: str, product_id: int) -> bool:
         if not self.validate_admin_id_password(admin_id, admin_password):
             return False
         self.cursor.execute("DELETE FROM Product WHERE Product_ID = ?", (product_id,))
         self.connection.commit()
         return True
 
-    def admin_update_product(self, admin_id: int):
-        pass
+    def admin_update_product(self, admin_id: int, admin_password: str, product_id: int, new_product_details: dict) -> bool:
+        if not self.validate_admin_id_password(admin_id, admin_password):
+            return False
+        elif not self._does_product_exist(product_id):
+            return False
 
-
+        update_cols = ', '.join([f"{k} = ?" for k in new_product_details.keys()])
+        update_vals = tuple(new_product_details.values())
+        self.cursor.execute(f"UPDATE Product SET {update_cols} WHERE Product_ID = ?", update_vals + (product_id,))
+        self.connection.commit()
+        return True
 
     def get_product_categories(self):
         pass
