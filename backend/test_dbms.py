@@ -60,17 +60,19 @@ def test_invalid_admin_password_verification():
     assert not db.validate_admin_username_password("test", "tesstt")
     assert not db.validate_admin_id_password(0, "tesstt")
 
-def test_insert_product_details():
+def test_insert_new_product():
     db = Database("database.db")
-    db.insert_all_product_details(
-        title="test",
-        price=100,
-        stock=100,
-        description="test",
-        discount_percentage=10,
-        website_info="test",
-        date_created="2025-03-04",
-        product_id=None,  # None if no product exists in db already
+    db.insert_new_product(
+        {
+            "title": "test",
+            "price": 100,
+            "stock": 100,
+            "description": "test",
+            "discount_percentage": 10,
+            "website_info": "test",
+            "date_created": "2025-03-04",
+            "product_id": None,
+        }
     )
 
     # retrieve product details
@@ -86,6 +88,32 @@ def test_insert_product_details():
     assert product_details[0][5] == 10
     assert product_details[0][6] == "test"
     assert product_details[0][7] == "2025-03-04"
+
+def test_admin_add_product():
+    db = Database("database.db")
+    assert db.admin_add_product(
+        admin_id=0,
+        admin_password="test",
+        product_details=        {
+            "title": "new_product",
+            "price": 100,
+            "stock": 100,
+            "description": "test",
+            "discount_percentage": 10,
+            "website_info": "test",
+            "date_created": "2025-03-04",
+            "product_id": None,
+        }
+    )
+
+    # ensure product was added to db
+    product_details = db.retrieve_specific_product_details(product_id=1)
+    assert product_details[0] == 1
+    assert product_details[1] == "new_product"
+    assert product_details[2] == 100
+    assert product_details[3] == 100
+    assert product_details[4] == "test"
+    assert product_details[5] == 10
 
 def test_sign_in_customer():
     """ensures valid customer credentials return the correct user id and email"""

@@ -101,10 +101,52 @@ class Database:
 
         return None
 
+    def admin_add_product(self, admin_id: int, admin_password: str, product_details: dict) -> bool:
+        """Add a new product to the db after validating admin credentials"""
+        # validate admin credentials
+        if not self.validate_admin_id_password(admin_id, admin_password):
+            return False
+        # insert product details into db
+        self.insert_new_product(product_details)
+        return True
+        
+    def insert_new_product(self, product_details: dict):
+        """Inserts all product details into the db. Expects all fields to be provided."""
 
+        # create new product id if none provided 
+        product_id = product_details["product_id"]
+        if product_id is None or not self._does_product_exist(product_id): 
+            product_id = self._new_product_id()
 
-    def admin_add_product(self, admin_id: int):
-        pass
+        # insert into db
+        self.cursor.execute(
+            """
+            INSERT INTO Product 
+            (Product_ID, Title, Price, Stock, Description, DiscountPercentage, WebsiteInfo, DateCreated)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            , (
+                product_id, 
+                product_details["title"], 
+                product_details["price"], 
+                product_details["stock"], 
+                product_details["description"], 
+                product_details["discount_percentage"], 
+                product_details["website_info"], 
+                product_details["date_created"]
+                )
+        )
+        self.connection.commit()
+
+    def retrieve_all_product_details(self):
+        """Gets all product details from the db"""
+        self.cursor.execute("SELECT * FROM Product")
+        return self.cursor.fetchall()
+
+    def retrieve_specific_product_details(self, product_id: int):
+        """Gets specific product details from the db"""
+        self.cursor.execute("SELECT * FROM Product WHERE Product_ID = ?", (product_id,))
+        return self.cursor.fetchone()
 
     def admin_remove_product(self, admin_id: int):
         pass
@@ -179,30 +221,6 @@ class Database:
 
     def remove_product_from_cart(self, customer_id: int, product_id: int):
         pass
-
-
-    def retrieve_all_product_details(self):
-        """Gets all product details from the db"""
-        self.cursor.execute("SELECT * FROM Product")
-        return self.cursor.fetchall()
-
-    def insert_new_product(self, title: str, price: float, stock: int, description: str, discount_percentage: int, website_info: str, date_created: str, product_id=None):
-        """Inserts all product details into the db. Expects all fields to be provided."""
-
-        # create new product id if none provided 
-        if product_id is None and not self._does_product_exist(product_id): # type: ignore
-            product_id = self._new_product_id()
-
-        # insert into db
-        self.cursor.execute(
-            """
-            INSERT INTO Product 
-            (Product_ID, Title, Price, Stock, Description, DiscountPercentage, WebsiteInfo, DateCreated)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """
-            , (product_id, title, price, stock, description, discount_percentage, website_info, date_created)
-        )
-        self.connection.commit()
 
     def _hash_new_password(self, password: str) -> tuple[str, str]:
         """Hashes salted password w/ bcrypt"""
