@@ -101,26 +101,96 @@ class Database:
 
         return None
 
+
+
+    def admin_add_product(self, admin_id: int):
+        pass
+
+    def admin_remove_product(self, admin_id: int):
+        pass
+
+    def admin_update_product(self, admin_id: int):
+        pass
+
+
+
+    def get_product_categories(self):
+        pass
+
+    def search_products_by_category(self):
+        pass
+
+    def search_products_by_name(self):
+        pass
+
+
+    def get_user_info(self, user_id: int):
+        pass
+
+    def update_customer_password(self, customer_id: int, old_password: str, new_password: str):
+        pass
+
+    def update_customer_email(self, customer_id: int, new_email: str):
+        pass
+
+    def update_admin_password(self, admin_id: int, old_password: str, new_password: str):
+        pass
+
+    def update_admin_email(self, admin_id: int, new_email: str):
+        pass
+
+
+
+    def add_product_to_wishlist(self, customer_id: int, product_id: int):
+        pass
+
+    def remove_product_from_wishlist(self, customer_id: int, product_id: int):
+        pass
+
+    def update_product_in_wishlist(self, customer_id: int):
+        pass
+
+    def get_all_wishlist_products(self, customer_id: int):
+        pass
+
+
+    def get_order_details(self, order_id: int):
+        pass
+
+    def add_new_order(self, customer_id: int):
+        pass
+
+    def remove_order(self, order_id: int):
+        pass
+
+    def update_order_status(self, admin_id: int, order_id: int):
+        pass
+
+    def get_all_orders_from_user(self, customer_id: int):
+        pass
+
+
+
+    def get_all_products_in_cart(self, customer_id: int):
+        pass
+
+    def add_product_to_cart(self, customer_id: int, product_id: int):
+        pass
+
+    def remove_product_from_cart(self, customer_id: int, product_id: int):
+        pass
+
+
     def retrieve_all_product_details(self):
         """Gets all product details from the db"""
         self.cursor.execute("SELECT * FROM Product")
         return self.cursor.fetchall()
 
-    def insert_all_product_details(
-        self,
-        title: str,
-        price: float,
-        stock: int,
-        description: str,
-        discount_percentage: int,
-        website_info: str,
-        date_created: str,
-        product_id=None,  # None if no product exists in db already
-        ):
-        """Inserts all product details into the db"""
+    def insert_new_product(self, title: str, price: float, stock: int, description: str, discount_percentage: int, website_info: str, date_created: str, product_id=None):
+        """Inserts all product details into the db. Expects all fields to be provided."""
 
         # create new product id if none provided 
-        if product_id is None or self._does_product_exist(product_id):
+        if product_id is None and not self._does_product_exist(product_id): # type: ignore
             product_id = self._new_product_id()
 
         # insert into db
