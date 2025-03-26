@@ -1,5 +1,6 @@
 import pytest
 from dbms import Database
+import bcrypt
 
 """
 Note pytest will run these tests sequentially. As a result, the database will be 
@@ -26,11 +27,27 @@ def test_customer_account_creation():
     assert success == True
     assert db._does_customer_exist("test") == True
 
+def test_get_customer_info():
+    assert len(db.get_customer_info(0)) == 5
+    details = db.get_customer_info(0)
+    assert details[0] == 0
+    assert details[1] == "test"
+    assert details[2] == "test@test.com"
+    assert bcrypt.checkpw("test".encode("utf-8"), details[3].encode("utf-8"))
+    assert details[4] == 1111111111
+
 def test_admin_account_creation():
     assert db._does_admin_exist("test") == False
     success = db.admin_account_creation("test", "test", "test@test.com")
     assert success == True
     assert db._does_admin_exist("test") == True
+
+def test_get_admin_info():
+    details = db.get_admin_info(0)
+    assert details[0] == 0
+    assert details[1] == "test"
+    assert bcrypt.checkpw("test".encode("utf-8"), details[2].encode("utf-8"))
+    assert details[3] == "test@test.com"
 
 def test_valid_customer_credentials_verification():
     assert db._does_customer_exist("test") 

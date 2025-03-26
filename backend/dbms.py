@@ -216,8 +216,15 @@ class Database:
         self.cursor.execute("SELECT * FROM Product WHERE Title = ?", (product_name,))
         return self.cursor.fetchall()
 
-    def get_user_info(self, user_id: int):
-        pass
+    def get_customer_info(self, customer_id: int):
+        """gets customer info from db"""
+        self.cursor.execute("SELECT * FROM CustomerUser WHERE Customer_ID = ?", (customer_id,))
+        return self.cursor.fetchone()
+
+    def get_admin_info(self, admin_id: int):
+        """gets admin info from db"""
+        self.cursor.execute("SELECT * FROM AdminUser WHERE Admin_ID = ?", (admin_id,))
+        return self.cursor.fetchone()
 
     def update_customer_password(self, customer_id: int, old_password: str, new_password: str):
         pass
