@@ -101,7 +101,7 @@ class Database:
 
         return None
 
-    def insert_new_product(self, product_details: dict):
+    def insert_new_product(self, product_details: dict) -> bool:
         """Inserts all product details into the db. Expects all fields to be provided."""
 
         # create new product id if none provided 
@@ -128,6 +128,7 @@ class Database:
                 )
         )
         self.connection.commit()
+        return True
 
     def admin_add_product(self, admin_id: int, admin_password: str, product_details: dict) -> bool:
         """Add a new product to the db after validating admin credentials"""
@@ -216,6 +217,11 @@ class Database:
         self.cursor.execute("SELECT * FROM Product WHERE Title = ?", (product_name,))
         return self.cursor.fetchall()
 
+    def search_product_by_id(self, product_id: int):
+        """gets the product details for a given product id"""
+        self.cursor.execute("SELECT * FROM Product WHERE Product_ID = ?", (product_id,))
+        return self.cursor.fetchone()
+
     def get_customer_info(self, customer_id: int):
         """gets customer info from db"""
         self.cursor.execute("SELECT * FROM CustomerUser WHERE Customer_ID = ?", (customer_id,))
@@ -261,7 +267,7 @@ class Database:
         return False
 
     def add_product_to_wishlist(self, customer_id: int, product_id: int) -> bool:
-        """Inserts pre-existing products"""
+        """Inserts a pre-existing product into the customer's wishlist"""
         customer_exists = self._does_customer_id_exist(customer_id)
         product_exists = self._does_product_exist(product_id)
         if customer_exists and product_exists:
@@ -278,16 +284,39 @@ class Database:
 
     def get_all_wishlist_product_ids(self, customer_id: int):
         """
-        Returns the name of all products in the wishlist. 
-        search_products_by_name() can then beused to get the details.
+        Returns the product ids of all products in the wishlist. 
+        search_product_by_id() can then be used to get the details.
         """
         self.cursor.execute("SELECT Product_ID FROM Wishlist WHERE Customer_ID = ?", (customer_id,))
         return self.cursor.fetchall()
 
-    def get_order_details(self, order_id: int):
-        pass
+    def add_product_to_cart(self, customer_id: int, product_id: int):
+        customer_exists = self._does_customer_id_exist(customer_id)
+        product_exists = self._does_product_exist(product_id)
+        if customer_exists and product_exists:
+            self.cursor.execute("INSERT INTO Cart (Customer_ID, Product_ID) VALUES (?, ?)", (customer_id, product_id))
+            self.connection.commit()
+            return True
+        return False
+
+    def remove_product_from_cart(self, customer_id: int, product_id: int):
+        """Removes a product from the customer's cart"""
+        self.cursor.execute("DELETE FROM Cart WHERE Customer_ID = ? AND Product_ID = ?", (customer_id, product_id))
+        self.connection.commit()
+        return True
+
+    def get_all_product_ids_in_cart(self, customer_id: int):
+        """
+        Returns the product ids of all products in the cart. 
+        search_product_by_id() can then be used to get the details.
+        """
+        self.cursor.execute("SELECT Product_ID FROM Cart WHERE Customer_ID = ?", (customer_id,))
+        return self.cursor.fetchall()
 
     def add_new_order(self, customer_id: int):
+        pass
+
+    def get_order_details(self, order_id: int):
         pass
 
     def remove_order(self, order_id: int):
@@ -298,18 +327,6 @@ class Database:
 
     def get_all_orders_from_user(self, customer_id: int):
         pass
-
-
-
-    def get_all_products_in_cart(self, customer_id: int):
-        pass
-
-    def add_product_to_cart(self, customer_id: int, product_id: int):
-        pass
-
-    def remove_product_from_cart(self, customer_id: int, product_id: int):
-        pass
-
 
 
     def _hash_new_password(self, password: str) -> tuple[str, str]:

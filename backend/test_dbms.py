@@ -40,8 +40,7 @@ def test_get_customer_info():
 
 def test_admin_account_creation():
     assert db._does_admin_username_exist("test") == False
-    success = db.admin_account_creation("test", "test", "test@test.com")
-    assert success == True
+    assert db.admin_account_creation("test", "test", "test@test.com")
     assert db._does_admin_username_exist("test") == True
 
 def test_get_admin_info():
@@ -72,7 +71,7 @@ def test_invalid_admin_password_verification():
     assert not db.validate_admin_id_password(0, "tesstt")
 
 def test_insert_new_product():
-    db.insert_new_product(
+    assert db.insert_new_product(
         {
             "title": "test",
             "price": 100,
@@ -186,12 +185,12 @@ def test_admin_remove_product():
 
 def test_sign_in_customer():
     """ensures valid customer credentials return the correct user id and email"""
-    db.customer_account_creation("new_customer1", "test", "test@test.com", "1111111111")
+    assert db.customer_account_creation("new_customer1", "test", "test@test.com", "1111111111")
     assert db.sign_in("new_customer1", "test") == (1, "test@test.com")
 
 def test_sign_in_admin():
     """ensures valid admin credentials return the correct user id and email"""
-    db.admin_account_creation("new_admin1", "test", "test@test.com")
+    assert db.admin_account_creation("new_admin1", "test", "test@test.com")
     assert db.sign_in("new_admin1", "test") == (1, "test@test.com")
 
 def test_sign_in_invalid_customer():
@@ -203,23 +202,23 @@ def test_sign_in_invalid_admin():
     assert db.sign_in("bad_admin_1", "bad_password_1") is None
     
 def test_get_product_categories():
-    db.add_product_category("fishing")
-    db.add_product_category("food")
+    assert db.add_product_category("fishing")
+    assert db.add_product_category("food")
     categories = db.get_all_product_categories()
     assert len(categories) == 2
     assert categories[0][0] == "fishing"
     assert categories[1][0] == "food"
 
-    db.set_product_category(1, "fishing")
+    assert db.set_product_category(1, "fishing")
     assert db.get_product_category(1) == "fishing"
 
 def test_update_product_category():
-    db.update_product_category(1, "food")
+    assert db.update_product_category(1, "food")
     assert db.get_product_category(1) == "food"
 
 def test_search_products_by_category():
 
-    db.add_product_category("baseball")
+    assert db.add_product_category("baseball")
 
     assert db.admin_add_product(
         admin_id=0,
@@ -287,4 +286,21 @@ def test_wishlist_updates():
     assert db.get_all_wishlist_product_ids(customer_id=0) == [(1,), (2,)]
     # removal
     assert db.remove_product_from_wishlist(customer_id=0, product_id=1)
-    assert db.get_all_wishlist_product_ids(customer_id=0) == [(2,)]
+    # ensure you can get the product details
+    wishlist_products = db.get_all_wishlist_product_ids(customer_id=0)
+    assert wishlist_products[0] == (2,)
+    assert db.search_product_by_id(wishlist_products[0][0]) == (2, "baseball2", 100, 100, "test", 10, "test", "2025-03-04")
+
+def test_cart_updates():
+    # insertion
+    assert db.add_product_to_cart(customer_id=0, product_id=1)
+    assert db.add_product_to_cart(customer_id=0, product_id=2)
+    assert db.get_all_product_ids_in_cart(customer_id=0) == [(1,), (2,)]
+    # removal
+    assert db.remove_product_from_cart(customer_id=0, product_id=1)
+    assert db.get_all_product_ids_in_cart(customer_id=0) == [(2,)]
+    # ensure you can get the product details
+    cart_products = db.get_all_product_ids_in_cart(customer_id=0)
+    assert cart_products[0] == (2,)
+    assert db.search_product_by_id(cart_products[0][0]) == (2, "baseball2", 100, 100, "test", 10, "test", "2025-03-04")
+
