@@ -262,11 +262,18 @@ def test_search_products_by_name():
     assert len(products_found) == 1
     assert products_found[0] == (1, "baseball1", 100, 100, "test", 10, "test", "2025-03-04")
 
-def test_admin_update_customer_password():
+def test_update_customer_password():
     assert db.update_customer_password(username="test", old_password="test", new_password="test2")
     assert db.validate_customer_username_password("test", "test2")
 
-def test_admin_update_admin_password():
+def test_update_admin_password():
     assert db.update_admin_password(username="test", old_password="test", new_password="test2")
     assert db.validate_admin_username_password("test", "test2")
     
+def test_update_customer_email():
+    assert db.update_customer_email(customer_id=0, password="test2", new_email="new_email@test.com")
+    assert db.get_customer_info(customer_id=0)[2] == "new_email@test.com"
+
+def test_update_admin_email():
+    assert db.update_admin_email(admin_id=0, password="test2", new_email="new_email@test.com")
+    assert db.get_admin_info(admin_id=0)[3] == "new_email@test.com"

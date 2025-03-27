@@ -101,15 +101,6 @@ class Database:
 
         return None
 
-    def admin_add_product(self, admin_id: int, admin_password: str, product_details: dict) -> bool:
-        """Add a new product to the db after validating admin credentials"""
-        # validate admin credentials
-        if not self.validate_admin_id_password(admin_id, admin_password):
-            return False
-        # insert product details into db
-        self.insert_new_product(product_details)
-        return True
-        
     def insert_new_product(self, product_details: dict):
         """Inserts all product details into the db. Expects all fields to be provided."""
 
@@ -138,6 +129,36 @@ class Database:
         )
         self.connection.commit()
 
+    def admin_add_product(self, admin_id: int, admin_password: str, product_details: dict) -> bool:
+        """Add a new product to the db after validating admin credentials"""
+        if self.validate_admin_id_password(admin_id, admin_password):
+            self.insert_new_product(product_details)
+            return True
+        return False
+        
+    def admin_remove_product(self, admin_id: int, admin_password: str, product_id: int) -> bool:
+        """Upon validation of admin credentials, remove a product from the db"""
+        if self.validate_admin_id_password(admin_id, admin_password):
+            self.cursor.execute("DELETE FROM Product WHERE Product_ID = ?", (product_id,))
+            self.connection.commit()
+            return True
+        return False
+
+    def admin_update_product(self, admin_id: int, admin_password: str, product_id: int, new_product_details: dict) -> bool:
+        """Upon validation of admin credentials, update specific columns of a particular product"""
+
+        valid_admin = self.validate_admin_id_password(admin_id, admin_password)
+        product_exists = self._does_product_exist(product_id)
+
+        if valid_admin and product_exists:
+            update_cols = ', '.join([f"{k} = ?" for k in new_product_details.keys()])
+            update_vals = tuple(new_product_details.values())
+            self.cursor.execute(f"UPDATE Product SET {update_cols} WHERE Product_ID = ?", update_vals + (product_id,))
+            self.connection.commit()
+            return True
+            
+        return False
+
     def retrieve_all_product_details(self):
         """Gets all product details from the db"""
         self.cursor.execute("SELECT * FROM Product")
@@ -148,29 +169,8 @@ class Database:
         self.cursor.execute("SELECT * FROM Product WHERE Product_ID = ?", (product_id,))
         return self.cursor.fetchone()
 
-    def admin_remove_product(self, admin_id: int, admin_password: str, product_id: int) -> bool:
-        """Upon validation of admin credentials, remove a product from the db"""
-        if not self.validate_admin_id_password(admin_id, admin_password):
-            return False
-        self.cursor.execute("DELETE FROM Product WHERE Product_ID = ?", (product_id,))
-        self.connection.commit()
-        return True
-
-    def admin_update_product(self, admin_id: int, admin_password: str, product_id: int, new_product_details: dict) -> bool:
-        """Upon validation of admin credentials, update specific columns of a particular product"""
-        if not self.validate_admin_id_password(admin_id, admin_password):
-            return False
-        elif not self._does_product_exist(product_id):
-            return False
-
-        update_cols = ', '.join([f"{k} = ?" for k in new_product_details.keys()])
-        update_vals = tuple(new_product_details.values())
-        self.cursor.execute(f"UPDATE Product SET {update_cols} WHERE Product_ID = ?", update_vals + (product_id,))
-        self.connection.commit()
-        return True
-
     def add_product_category(self, category_name: str) -> bool:
-        """Add a new product category to the db"""
+        """Add a new product category to the ProductCategories table"""
         self.cursor.execute("INSERT INTO ProductCategories (CategoryName) VALUES (?)", (category_name,))
         self.connection.commit()
         return True
@@ -181,7 +181,7 @@ class Database:
         return self.cursor.fetchall()
 
     def set_product_category(self, product_id: int, category_name: str) -> bool:
-        """Updates pre-existing product category in db"""
+        """Set a product's category to a pre-existing category in the ProductCategories table"""
         self.cursor.execute("INSERT INTO ProductCategory (Product_ID, CategoryName) VALUES (?, ?)", (product_id, category_name))
         self.connection.commit()
         return True
@@ -227,6 +227,7 @@ class Database:
         return self.cursor.fetchone()
 
     def update_customer_password(self, username: str, old_password: str, new_password: str):
+        """Update customer password if old password is correct"""
         if self.validate_customer_username_password(username, old_password):
             pw_hash, salt = self._hash_new_password(new_password)
             self.cursor.execute("UPDATE CustomerUser SET Password = ? WHERE Username = ?", (pw_hash, username))
@@ -235,6 +236,7 @@ class Database:
         return False
 
     def update_admin_password(self, username: str, old_password: str, new_password: str):
+        """Update admin password if old password is correct"""
         if self.validate_admin_username_password(username, old_password):
             pw_hash, salt = self._hash_new_password(new_password)
             self.cursor.execute("UPDATE AdminUser SET Password = ? WHERE Username = ?", (pw_hash, username))
@@ -242,12 +244,19 @@ class Database:
             return True
         return False
 
-    def update_customer_email(self, customer_id: int, new_email: str):
-        pass
+    def update_customer_email(self, customer_id: int, password: str, new_email: str):
+        if self.validate_customer_id_password(customer_id, password):
+            self.cursor.execute("UPDATE CustomerUser SET Email = ? WHERE Customer_ID = ?", (new_email, customer_id))
+            self.connection.commit()
+            return True
+        return False
 
-    def update_admin_email(self, admin_id: int, new_email: str):
-        pass
-
+    def update_admin_email(self, admin_id: int, password: str, new_email: str):
+        if self.validate_admin_id_password(admin_id, password):
+            self.cursor.execute("UPDATE AdminUser SET Email = ? WHERE Admin_ID = ?", (new_email, admin_id))
+            self.connection.commit()
+            return True
+        return False
 
     def add_product_to_wishlist(self, customer_id: int, product_id: int):
         pass
@@ -287,6 +296,8 @@ class Database:
 
     def remove_product_from_cart(self, customer_id: int, product_id: int):
         pass
+
+
 
     def _hash_new_password(self, password: str) -> tuple[str, str]:
         """Hashes salted password w/ bcrypt"""
