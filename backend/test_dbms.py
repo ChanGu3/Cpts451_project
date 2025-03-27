@@ -16,16 +16,18 @@ def test_first_admin_id():
     assert db._new_admin_id() == 0
 
 def test_no_customer_found():
-    assert db._does_customer_exist("test") == False
+    assert db._does_customer_username_exist("test") == False
 
 def test_no_admin_found():
-    assert db._does_admin_exist("test") == False
+    assert db._does_admin_username_exist("test") == False
 
 def test_customer_account_creation():
-    assert db._does_customer_exist("test") == False
+    assert not db._does_customer_username_exist("test")
+    assert not db._does_customer_id_exist(0) 
     success = db.customer_account_creation("test", "test", "test@test.com", "1111111111")
     assert success == True
-    assert db._does_customer_exist("test") == True
+    assert db._does_customer_username_exist("test") 
+    assert db._does_customer_id_exist(0)
 
 def test_get_customer_info():
     assert len(db.get_customer_info(0)) == 5
@@ -37,10 +39,10 @@ def test_get_customer_info():
     assert details[4] == 1111111111
 
 def test_admin_account_creation():
-    assert db._does_admin_exist("test") == False
+    assert db._does_admin_username_exist("test") == False
     success = db.admin_account_creation("test", "test", "test@test.com")
     assert success == True
-    assert db._does_admin_exist("test") == True
+    assert db._does_admin_username_exist("test") == True
 
 def test_get_admin_info():
     details = db.get_admin_info(0)
@@ -50,22 +52,22 @@ def test_get_admin_info():
     assert details[3] == "test@test.com"
 
 def test_valid_customer_credentials_verification():
-    assert db._does_customer_exist("test") 
+    assert db._does_customer_username_exist("test") 
     assert db.validate_customer_username_password("test", "test")
     assert db.validate_customer_id_password(0, "test")
 
 def test_invalid_customer_password_verification():
-    assert db._does_customer_exist("test")
+    assert db._does_customer_username_exist("test")
     assert not db.validate_customer_username_password("test", "tesstt")
     assert not db.validate_customer_id_password(0, "tesstt")
 
 def test_valid_admin_password_verification():
-    assert db._does_admin_exist("test") 
+    assert db._does_admin_username_exist("test") 
     assert db.validate_admin_username_password("test", "test")
     assert db.validate_admin_id_password(0, "test")
 
 def test_invalid_admin_password_verification():
-    assert db._does_admin_exist("test")
+    assert db._does_admin_username_exist("test")
     assert not db.validate_admin_username_password("test", "tesstt")
     assert not db.validate_admin_id_password(0, "tesstt")
 
@@ -277,3 +279,12 @@ def test_update_customer_email():
 def test_update_admin_email():
     assert db.update_admin_email(admin_id=0, password="test2", new_email="new_email@test.com")
     assert db.get_admin_info(admin_id=0)[3] == "new_email@test.com"
+
+def test_wishlist_updates():
+    # insertion
+    assert db.add_product_to_wishlist(customer_id=0, product_id=1)
+    assert db.add_product_to_wishlist(customer_id=0, product_id=2)
+    assert db.get_all_wishlist_product_ids(customer_id=0) == [(1,), (2,)]
+    # removal
+    assert db.remove_product_from_wishlist(customer_id=0, product_id=1)
+    assert db.get_all_wishlist_product_ids(customer_id=0) == [(2,)]

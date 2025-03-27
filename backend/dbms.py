@@ -21,7 +21,7 @@ class Database:
     def customer_account_creation(self, username: str, password: str, email: str, phone_number: str) -> bool:
         """ Insert customer data into db if no previous account exists"""
         # don't create account if already exists
-        if self._does_customer_exist(username):
+        if self._does_customer_username_exist(username):
             return False
         # hash salted password
         pw_hash, salt = self._hash_new_password(password)
@@ -38,7 +38,7 @@ class Database:
     def admin_account_creation(self, username: str, password: str, email: str) -> bool:
         """ Insert admin data into db if no previous account exists"""
         # don't create account if already exists
-        if self._does_admin_exist(username):
+        if self._does_admin_username_exist(username):
             return False
         # hash salted password
         pw_hash, salt = self._hash_new_password(password)
@@ -244,32 +244,45 @@ class Database:
             return True
         return False
 
-    def update_customer_email(self, customer_id: int, password: str, new_email: str):
+    def update_customer_email(self, customer_id: int, password: str, new_email: str) -> bool:
+        """Updates customer email upon user credential validation"""
         if self.validate_customer_id_password(customer_id, password):
             self.cursor.execute("UPDATE CustomerUser SET Email = ? WHERE Customer_ID = ?", (new_email, customer_id))
             self.connection.commit()
             return True
         return False
 
-    def update_admin_email(self, admin_id: int, password: str, new_email: str):
+    def update_admin_email(self, admin_id: int, password: str, new_email: str) -> bool:
+        """Updates admin email upon user credential validation"""
         if self.validate_admin_id_password(admin_id, password):
             self.cursor.execute("UPDATE AdminUser SET Email = ? WHERE Admin_ID = ?", (new_email, admin_id))
             self.connection.commit()
             return True
         return False
 
-    def add_product_to_wishlist(self, customer_id: int, product_id: int):
-        pass
+    def add_product_to_wishlist(self, customer_id: int, product_id: int) -> bool:
+        """Inserts pre-existing products"""
+        customer_exists = self._does_customer_id_exist(customer_id)
+        product_exists = self._does_product_exist(product_id)
+        if customer_exists and product_exists:
+            self.cursor.execute("INSERT INTO Wishlist (Customer_ID, Product_ID) VALUES (?, ?)", (customer_id, product_id))
+            self.connection.commit()
+            return True
+        return False
 
-    def remove_product_from_wishlist(self, customer_id: int, product_id: int):
-        pass
+    def remove_product_from_wishlist(self, customer_id: int, product_id: int) -> bool:
+        """Removes the specified product id from the customer's wishlist"""
+        self.cursor.execute("DELETE FROM Wishlist WHERE Customer_ID = ? AND Product_ID = ?", (customer_id, product_id))
+        self.connection.commit()
+        return True
 
-    def update_product_in_wishlist(self, customer_id: int):
-        pass
-
-    def get_all_wishlist_products(self, customer_id: int):
-        pass
-
+    def get_all_wishlist_product_ids(self, customer_id: int):
+        """
+        Returns the name of all products in the wishlist. 
+        search_products_by_name() can then beused to get the details.
+        """
+        self.cursor.execute("SELECT Product_ID FROM Wishlist WHERE Customer_ID = ?", (customer_id,))
+        return self.cursor.fetchall()
 
     def get_order_details(self, order_id: int):
         pass
@@ -311,15 +324,22 @@ class Database:
         pw_bytes = password.encode('utf-8')
         return bcrypt.hashpw(pw_bytes, salt)
         
-    def _does_customer_exist(self, username: str) -> bool:
-        """Checks if customer exists in db """
+    def _does_customer_username_exist(self, username: str) -> bool:
+        """Checks if there is a customer in the db with this username"""
         self.cursor.execute("SELECT Username FROM CustomerUser WHERE Username = ?", (username,))
         if len(self.cursor.fetchall()) == 0:
             return False
         return True
 
-    def _does_admin_exist(self, username: str) -> bool:
-        """Checks if admin exists in db"""
+    def _does_customer_id_exist(self, customer_id: int) -> bool:
+        """Checks if there is a customer in the db with this id"""
+        self.cursor.execute("SELECT Customer_ID FROM CustomerUser WHERE Customer_ID = ?", (customer_id,))
+        if len(self.cursor.fetchall()) == 0:
+            return False
+        return True
+
+    def _does_admin_username_exist(self, username: str) -> bool:
+        """Checks if there is an admin in the db with this username"""
         self.cursor.execute("SELECT Username FROM AdminUser WHERE Username = ?", (username,))
         if len(self.cursor.fetchall()) == 0:
             return False
