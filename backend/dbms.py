@@ -25,6 +25,8 @@ class Database:
             return False
         # hash salted password
         pw_hash, salt = self._hash_new_password(password)
+        print(pw_hash)
+        print(salt)
         # generate customer id artificial key
         customer_id = self._new_customer_id()
         # insert customer data into db
@@ -42,6 +44,8 @@ class Database:
             return False
         # hash salted password
         pw_hash, salt = self._hash_new_password(password)
+        print(pw_hash)
+        print(salt)
         # generate customer id artificial key
         admin_id = self._new_admin_id()
         # insert customer data into db

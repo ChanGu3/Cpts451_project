@@ -74,6 +74,9 @@ create table Product(
 
 create table ProductImages(
 	Product_ID INT,
+	Name Varchar(255)
+		CONSTRAINT ProductImages_Name_NOTNULL NOT NULL
+	,
 	Image BLOB
         CONSTRAINT ProductImages_Image_NOTNULL NOT NULL
     ,

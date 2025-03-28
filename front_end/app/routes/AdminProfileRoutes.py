@@ -8,7 +8,7 @@ adminPI_route = Blueprint('adminPI_route', __name__)
 def profile_pi(displayName):
     actionMessage = None
     isError = None
-    
+
     if session.get('actionMessage') is not None and session.get('isError') is not None:
         actionMessage = session['actionMessage'] 
         isError = session['isError']

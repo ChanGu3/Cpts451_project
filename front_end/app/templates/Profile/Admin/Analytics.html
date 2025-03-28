@@ -1,8 +1,42 @@
 {% extends "Profile/Admin/Base.html" %}
 {% block title %}Profile Admin Analytics{% endblock %}
 
+{% block Stylesheets%}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/AdminProfilePageStyles/AdminAnalytics.css') }}">
+{% endblock %}
+
 {% block menu_element_content %}
 
-<p> Analytics </p>
+<div class="AnalyticBase">
+    <div class="AnalyticLeft">
+        <h3>Search Products By Name</h3>
+        <input class="SearchBar" type="text" placeholder="Search..." class="search-bar">
+    </div>
+
+    <div class="AnalyicSplitBar"> </div>
+
+    <div class="AnalyticRight">
+        <h3>Top 10 Popular Products</h3>
+        <br> <br>
+        <div class="PPContainer"> 
+            <paproduct>
+                <div class="Top">
+                    <p>#1 Potato</p>
+                </div>
+                <div class="Bottom">
+                    <div class="BottomLeft">
+                        <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="Product 1">
+                    </div>
+                    <div class="BottomRight">
+                        <p>Total Sales: 0</p>
+                        <p>Total Bought: 000</p>
+                        <p>Date Created: 01/01/01</p>
+                    </div>
+                </div>
+            </paproduct>
+
+        </div>
+    </div>
+</div>
 
 {% endblock %}

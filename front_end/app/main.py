@@ -1,10 +1,11 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g, abort
+from dbmsInstance import GetDatabase
+from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g, abort, send_file
 from routes.ErrorRoute import error_route
 from routes.SessionRoute import session_route, User
 from routes.ProfileRoute import profile_route
-from routes.AdminProfileRouting.ProfileInformation import adminPI_route
+from routes.AdminProfileRoutes import adminPI_route
 
 #App Config
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -32,6 +33,16 @@ def inject_user():
     if g.get('user') is not None:
         user = g.user
     return dict(user=user)
+
+# All Images that are retrieved here we can then use the link to get the images from here using the productName and imageName we get from the database
+# plus it allows us to go to the images directly if we want to by just looking it up 
+# Example: <img src="{{ url_for('get_image', productName='Product1', imageName='Image1') }}" alt="Image1">
+@app.route('/Images/<string:productName>/<string:imageName>')
+def get_image(productName, imageName):
+    #database. Get image through database converting it into a byte stream using productName and imageName.
+    #return send_file(image_stream, mimetype='image/png')
+    #redirect to a folder with a error image if image is not found
+    return redirect(url_for('index')) # here for now until database is implemented propelrly with this
 
 @app.route('/')
 def domain():
