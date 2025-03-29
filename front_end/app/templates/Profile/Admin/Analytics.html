@@ -13,28 +13,26 @@
         <input class="SearchBar" type="text" placeholder="Search..." class="search-bar">
     </div>
 
-    <div class="AnalyicSplitBar"> </div>
-
     <div class="AnalyticRight">
         <h3>Top 10 Popular Products</h3>
         <br> <br>
         <div class="PPContainer"> 
-            <paproduct>
-                <div class="Top">
-                    <p>#1 Potato</p>
-                </div>
-                <div class="Bottom">
-                    <div class="BottomLeft">
-                        <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="Product 1">
+            {% for paproduct in paproducts %}
+                <paproduct>
+                    <div class="Top">
+                        <p>#{{loop.index}} {{paproduct[1]}}</p>
                     </div>
-                    <div class="BottomRight">
-                        <p>Total Sales: 0</p>
-                        <p>Total Bought: 000</p>
-                        <p>Date Created: 01/01/01</p>
+                    <div class="Bottom">
+                        <div class="BottomLeft">
+                            <img src="{{ url_for('get_thumbnail', productName=paproduct[1], imageName=paproduct[2]) }}" alt={{paproduct[1]}} class="ProductImage">
+                        </div>
+                        <div class="BottomRight">
+                            <p>Total Sales: {{paproduct[4]}}</p>
+                            <p>Total Bought: {{paproduct[3]}}</p>
+                        </div>
                     </div>
-                </div>
-            </paproduct>
-
+                </paproduct>
+            {% endfor %}
         </div>
     </div>
 </div>

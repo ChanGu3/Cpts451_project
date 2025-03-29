@@ -24,6 +24,7 @@
     align-items: center;
     width: 29%;
     height: 100%;
+    border-left: 2.5px solid #cfcb96;
 }
 
 .AnalyticRight .PPContainer
@@ -70,7 +71,7 @@ paproduct .BottomLeft
 {
     width: 40%;
     height: auto;
-    border-right: #000000;
+    border-right: 0.5px solid #000000;
 }
 
 paproduct .BottomLeft img
@@ -84,14 +85,7 @@ paproduct .BottomRight
     align-items: center;
     width: 60%;
     height: auto;
-    border-left: #000000;
-}
-
-.AnalyicSplitBar
-{
-    width: 2%;
-    height: 100vh;
-    background-color: #cfcb96;
+    border-left: 0.5px solid #000000;
 }
 
 .AnalyticLeft
@@ -101,6 +95,7 @@ paproduct .BottomRight
     align-items: center;
     width: 69%;
     height: auto;
+    border-right: 2.5px solid #cfcb96;
 }
 
 .AnalyticLeft .SearchBar

@@ -1,4 +1,6 @@
 import os
+import io
+import magic
 from dotenv import load_dotenv
 from dbmsInstance import GetDatabase
 from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g, abort, send_file
@@ -6,6 +8,8 @@ from routes.ErrorRoute import error_route
 from routes.SessionRoute import session_route, User
 from routes.ProfileRoute import profile_route
 from routes.AdminProfileRoutes import adminPI_route
+
+STATIC_IMAGE_PATH_TO_NOT_FOUND = 'static/images/no_image_found.png'
 
 #App Config
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -24,7 +28,7 @@ app.register_blueprint(adminPI_route, url_prefix='/Admin')
 @app.before_request
 def before_request():
     if session.get('userType') is not None and session.get('ID') is not None:
-        g.user = User(session['userType'], session['ID'])
+        g.user = User(session['userType'], session['username'], session['ID'])
 
 # Injects the user into the context of every template gloablly
 @app.context_processor
@@ -37,12 +41,35 @@ def inject_user():
 # All Images that are retrieved here we can then use the link to get the images from here using the productName and imageName we get from the database
 # plus it allows us to go to the images directly if we want to by just looking it up 
 # Example: <img src="{{ url_for('get_image', productName='Product1', imageName='Image1') }}" alt="Image1">
-@app.route('/Images/<string:productName>/<string:imageName>')
+@app.route('/Product/Images/<string:productName>/<string:imageName>')
 def get_image(productName, imageName):
-    #database. Get image through database converting it into a byte stream using productName and imageName.
-    #return send_file(image_stream, mimetype='image/png')
-    #redirect to a folder with a error image if image is not found
-    return redirect(url_for('index')) # here for now until database is implemented propelrly with this
+    image_tuple = GetDatabase().get_specific_product_image(productName, imageName)
+    
+    if image_tuple is not None:
+        image_data = image_tuple[0]
+        mime = magic.Magic(mime=True)
+        image_type = mime.from_buffer(image_data)
+        image_stream = io.BytesIO(image_data)
+        return send_file(image_stream, mimetype=f'{image_type}')
+    else:
+         return send_file(STATIC_IMAGE_PATH_TO_NOT_FOUND, mimetype=f'image/png')
+
+# All Images that are retrieved here we can then use the link to get the images from here using the productName and imageName we get from the database
+# plus it allows us to go to the images directly if we want to by just looking it up 
+# Example: <img src="{{ url_for('get_thumbnail', productName='Product1', imageName='Image1') }}" alt="Image1">
+@app.route('/Product/Thumbnail/<string:productName>/<string:imageName>')
+def get_thumbnail(productName, imageName):
+    image_tuple = GetDatabase().get_specific_product_thumbnail(productName, imageName)
+    
+    if image_tuple is not None:
+        image_data = image_tuple[0]
+        mime = magic.Magic(mime=True)
+        image_type = mime.from_buffer(image_data)
+        image_stream = io.BytesIO(image_data)
+        
+        return send_file(image_stream, mimetype=f'{image_type}')
+    else:
+        return send_file(STATIC_IMAGE_PATH_TO_NOT_FOUND, mimetype=f'image/jpeg')
 
 @app.route('/')
 def domain():

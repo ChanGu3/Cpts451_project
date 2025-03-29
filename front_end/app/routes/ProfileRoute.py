@@ -12,7 +12,7 @@ def user_profile():
         return abort(404)
     
     # Get current display name from database (TO-DO)
-    currentdDisplayName = "Username|Email"
+    currentdDisplayName = g.user.username
     
     return redirect(url_for('profile_route.user_profile_menu', displayName=currentdDisplayName))
 
@@ -36,48 +36,20 @@ def user_profile_page(displayName, page):
         abort(404)
     
     # Get current display name from database (TO-DO)
-    currentDisplayName = "Username|Email"
+    currentDisplayName = g.user.username
     
     # if username is typed incorrectly still log them in with their own username
     if displayName != currentDisplayName:
-        return redirect(url_for('profile_route.user_profile_page', displayName=currentDisplayName, page=page))
-    
-    database = GetDatabase()
+        return redirect(url_for('profile_route.user_profile_page', displayName=currentDisplayName, page=page), code=308)
     
     #try:        
     if g.user.userType == 'Admin':
         if page == 'PersonalInformation':
-            if request.method == 'POST':
-                actionMessage = None
-                isError = None
-                    
-                if request.form['newpassword1'] != request.form['newpassword2']:
-                    actionMessage = 'New Passwords Do Not Match';
-                    isError = True
-                elif database.validate_admin_id_password(g.user.ID,  request.form['currentpassword']) is False:
-                    actionMessage = 'Current Password Incorrect'
-                #elif request.form['currentpassword'] == request.form['newpassword1']:
-                #    actionMessage = 'New Password Cannot Be The Same As Current Password'
-                #    error = True
-                #elif: if new password is not long enough request.form['newPassword1'] < 8
-                #    actionMessage = 'New Password Must Be At Least 8 Characters';
-                #    error = True;
-                #else:
-                #   actionMessage = 'Password Changed';
-                #   error = False;
-                    
-                session['actionMessage'] = actionMessage
-                session['isError'] = isError
-                #del database
-                return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName))
-            else:
-                #del database
-                return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName))
+            return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName), code=308)
         elif page == 'Products':
             pageData = {}
         elif page == 'Analytics':
-            pageData = {}
-            
+            return redirect(url_for('adminPI_route.profile_analytics', displayName=currentDisplayName), code=308)
     elif g.user.userType == 'Customer':    
         if page == 'PersonalInformation':
             pageData = {'email': currentDisplayName, 'PhoneNumber': '555-555-5555'}
@@ -85,9 +57,7 @@ def user_profile_page(displayName, page):
             pageData = {}
         elif page == 'Wishlist':
             pageData = {}
-    
     print(page)            
-    
     return render_template(f'Profile/{g.user.userType}/{page}.html', displayName=currentDisplayName) #WE can refactor this into each if statement if you want to make it more readable by having more than just the pageData in fact we ill need to redirect for each one anyways.
     #except:
     #    abort(404)

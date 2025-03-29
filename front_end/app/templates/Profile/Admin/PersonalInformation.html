@@ -17,20 +17,24 @@
         <label for='password'>Password: </label>
         <input type='Password'id='password' value="******" disabled>
     </div>
+    <div class="AdminPI">
+        <label for='email'>Email: </label>
+        <input type='text'id='email' value={{email}} disabled>
+    </div>
     <br><br>
     <form action="{{url_for('profile_route.user_profile_page', displayName=displayName, page="PersonalInformation")}}" method="POST">
         <h3> Create New Password </h3>
         <div class="AdminPI">
             <label for="newpassword1">New Password: </label>
-            <input type='Password' id="newpassword1" value="" name="newpassword1">
+            <input type='Password' id="newpassword1" value="" name="newpassword1" required>
         </div>
         <div class="AdminPI">
             <label for='newpassword2'>New Password: </label>
-            <input type='Password' id='newpassword2' value="" name="newpassword2">
+            <input type='Password' id='newpassword2' value="" name="newpassword2" required>
         </div>
         <div class="AdminPI">
             <label for='currentpassword'>Current Password: </label>
-            <input type='Password' id='currentpassword' value="" name="currentpassword">
+            <input type='Password' id='currentpassword' value="" name="currentpassword" required>
         </div>
         {% if actionMessage %}
             {% if isError %}
