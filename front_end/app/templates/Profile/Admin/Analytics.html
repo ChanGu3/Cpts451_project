@@ -3,6 +3,7 @@
 
 {% block Stylesheets%}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/AdminProfilePageStyles/AdminAnalytics.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/AdminProfilePageStyles/AdminAll.css') }}">
 {% endblock %}
 
 {% block menu_element_content %}
@@ -10,7 +11,41 @@
 <div class="AnalyticBase">
     <div class="AnalyticLeft">
         <h3>Search Products By Name</h3>
-        <input class="SearchBar" type="text" placeholder="Search..." class="search-bar">
+        <form class='FormSearchBar' action="{{ url_for('adminPI_route.profile_analytics', displayName=displayName, page=1) }}" method="POST">
+            <input class="SearchBar" type="text" placeholder="Search..." id='productsearch' name='productsearch' value=''>
+        </form>
+        {% for displayedProduct in displayedProducts %}
+            <div class='barcontainer'>
+                <div class='top'>
+                    <p> {{displayedProduct[1]}} </p>
+                </div>
+                <div class='bottom'>
+                    <img src="{{ url_for('get_thumbnail', productName=displayedProduct[1], imageName=displayedProduct[8]) }}" alt="Test">
+                    <div class='text3container'>        
+                        <p> Stock: {{displayedProduct[3]}} </p>
+                        <p> Total Purchased: {{displayedProduct[9]}}</p>
+                        <p> Total Sales: {{displayedProduct[10]}}</p>
+                    </div>
+                    <div class='text3container'>        
+                        <p> Current Price: {{displayedProduct[2]}} </p>
+                        <p> Discount: {{displayedProduct[5]}}%</p>
+                        {% set priceWDis = (displayedProduct[2] * ((100-displayedProduct[5]) / 100)) | round(2) %}
+                        <p> Price W/ Discount: {{priceWDis}}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class='switchpages'>
+            {% if pageLeftURL %}
+                {% set prevPage = page - 1 %}
+                <a href="{{ url_for('adminPI_route.profile_analytics', displayName=displayName, page=prevPage, currentSearch=currentSearch) }}">Page {{prevPage}}</a> 
+            {% endif %}
+
+            {% if pageRightURL %}
+                {% set nextPage = page + 1 %}
+                <a href="{{ url_for('adminPI_route.profile_analytics', displayName=displayName, page=nextPage, currentSearch=currentSearch) }}">Page {{nextPage}}</a> 
+            {% endif %}
+        </div>
     </div>
 
     <div class="AnalyticRight">
@@ -28,7 +63,7 @@
                         </div>
                         <div class="BottomRight">
                             <p>Total Sales: {{paproduct[4]}}</p>
-                            <p>Total Bought: {{paproduct[3]}}</p>
+                            <p>Total Purchased: {{paproduct[3]}}</p>
                         </div>
                     </div>
                 </paproduct>
