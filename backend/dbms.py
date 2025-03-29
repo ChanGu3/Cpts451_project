@@ -25,6 +25,8 @@ class Database:
             return False
         # hash salted password
         pw_hash, salt = self._hash_new_password(password)
+        print(pw_hash)
+        print(salt)
         # generate customer id artificial key
         customer_id = self._new_customer_id()
         # insert customer data into db
@@ -42,6 +44,8 @@ class Database:
             return False
         # hash salted password
         pw_hash, salt = self._hash_new_password(password)
+        print(pw_hash)
+        print(salt)
         # generate customer id artificial key
         admin_id = self._new_admin_id()
         # insert customer data into db
@@ -130,6 +134,50 @@ class Database:
         self.connection.commit()
         return True
 
+    def insert_new_product_image(self, product_id: int, image_name: str, image_data: bytes) -> bool:
+        """Inserts product image details into the db. Expects all fields to be provided."""
+        if product_id is None or not self._does_product_exist(product_id): 
+            return False
+        
+        self.cursor.execute(
+            """
+            INSERT INTO ProductImages 
+            (Product_ID, ImageName, ImageData)
+            VALUES (?, ?, ?)
+            """
+            , (product_id, image_name, image_data)
+        )
+        self.connection.commit()
+        return True
+    
+    def insert_new_product_thumbnail(self, product_id: int, image_name: str, image_data: bytes) -> bool:
+        """Inserts product thumbnail details into the db. Expects all fields to be provided."""
+        if product_id is None or not self._does_product_exist(product_id): 
+            return False
+        
+        if self._does_product_thumbnail_exist(product_id):
+            self.cursor.execute(
+                """
+                UPDATE ProductThumbnail 
+                SET ImageName = ?, ImageData = ?
+                WHERE Product_ID = ?
+                """
+                , (image_name, image_data, product_id)
+            )
+        else:
+            self.cursor.execute(
+                """
+                INSERT INTO ProductThumbnail
+                (Product_ID, ImageName, ImageData)
+                VALUES (?, ?, ?)
+                """
+                , (product_id, image_name, image_data)
+            )
+        
+        self.connection.commit()
+        return True
+        
+
     def admin_add_product(self, admin_id: int, admin_password: str, product_details: dict) -> bool:
         """Add a new product to the db after validating admin credentials"""
         if self.validate_admin_id_password(admin_id, admin_password):
@@ -157,7 +205,7 @@ class Database:
             self.cursor.execute(f"UPDATE Product SET {update_cols} WHERE Product_ID = ?", update_vals + (product_id,))
             self.connection.commit()
             return True
-            
+    
         return False
 
     def retrieve_all_product_details(self):
@@ -165,10 +213,40 @@ class Database:
         self.cursor.execute("SELECT * FROM Product")
         return self.cursor.fetchall()
 
+    def retrieve_all_product_details_With_Thumbnail(self):
+        """Gets all product details from the db"""
+        self.cursor.execute("SELECT Product.*, ProductThumbnail.ImageName FROM Product INNER JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID")
+        return self.cursor.fetchall()
+
     def retrieve_specific_product_details(self, product_id: int):
         """Gets specific product details from the db"""
         self.cursor.execute("SELECT * FROM Product WHERE Product_ID = ?", (product_id,))
         return self.cursor.fetchone()
+
+    def retrieve_specific_product_images_details(self, product_id: int):
+        """Gets specific product images details from the db"""
+        self.cursor.execute("SELECT * FROM ProductImages WHERE Product_ID = ?", (product_id,))
+        return self.cursor.fetchall()
+
+    def retrieve_specific_product_thumbnail_details(self, product_id: int):
+        """Gets specific product thumbnail details from the db"""
+        self.cursor.execute("SELECT * FROM ProductThumbnail WHERE Product_ID = ?", (product_id,))
+        return self.cursor.fetchone()
+
+    def get_specific_product_thumbnail(self, productName: int, imageName: str):
+        """Gets specific product thumbnail from the db"""
+        self.cursor.execute("SELECT ProductThumbnail.ImageData FROM Product inner join ProductThumbnail on Product.product_id = ProductThumbnail.product_id WHERE Product.title = ? AND ProductThumbnail.ImageName = ?", (productName, imageName))
+        return self.cursor.fetchone()
+
+    def get_specific_product_image(self, productName: int, imageName: str):
+        """Gets specific product image from the db"""
+        self.cursor.execute("SELECT ProductImages.ImageData FROM Product inner join ProductImages on Product.product_id = ProductImages.product_id WHERE Product.title = ? AND ProductImages.ImageName = ?", (productName, imageName))
+        return self.cursor.fetchone()
+
+    def retrieve_Top_10_product_details(self):
+        """Gets top 10 product details from the db"""
+        self.cursor.execute("SELECT Product.product_id, Product.title, ProductThumbnail.ImageName, sum(ProductsInOrder.Quantity), sum(ProductsInOrder.pricesold * ProductsInOrder.Quantity) FROM ProductsInOrder INNER JOIN Product on Product.product_id = ProductsInOrder.product_id INNER JOIN ProductThumbnail on ProductThumbnail.product_id = ProductsInOrder.product_id GROUP BY Product.product_id ORDER BY sum(ProductsInOrder.Quantity) DESC LIMIT 10")
+        return self.cursor.fetchall()
 
     def add_product_category(self, category_name: str) -> bool:
         """Add a new product category to the ProductCategories table"""
@@ -365,6 +443,13 @@ class Database:
     def _does_product_exist(self, product_id: int) -> bool:
         """Checks if product exists in db"""
         self.cursor.execute("SELECT Product_ID FROM Product WHERE Product_ID = ?", (product_id,))
+        if len(self.cursor.fetchall()) == 0:
+            return False
+        return True
+
+    def _does_product_thumbnail_exist(self, product_id: int) -> bool:
+        """Checks if product thumbnail exists in db"""
+        self.cursor.execute("SELECT Product_ID FROM ProductThumbnail WHERE Product_ID = ?", (product_id,))
         if len(self.cursor.fetchall()) == 0:
             return False
         return True

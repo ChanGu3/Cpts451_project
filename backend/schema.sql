@@ -74,11 +74,26 @@ create table Product(
 
 create table ProductImages(
 	Product_ID INT,
-	Image BLOB
+	ImageName Varchar(255)
+		CONSTRAINT ProductImages_Name_NOTNULL NOT NULL
+	,
+	ImageData BLOB
         CONSTRAINT ProductImages_Image_NOTNULL NOT NULL
     ,
-	CONSTRAINT ProductImages_PK PRIMARY KEY(Product_ID, Image)
+	CONSTRAINT ProductImages_PK PRIMARY KEY(Product_ID, ImageName)
 );
+
+create table ProductThumbnail(
+	Product_ID INT,
+	ImageName Varchar(255)
+		CONSTRAINT ProductImages_Name_NOTNULL NOT NULL
+	,
+	ImageData BLOB
+        CONSTRAINT ProductImages_Image_NOTNULL NOT NULL
+    ,
+	CONSTRAINT ProductImages_PK PRIMARY KEY(Product_ID)
+);
+
 
 create table ProductCategories(
 	CategoryName Varchar(100),
@@ -136,10 +151,17 @@ create table Orders(
 create table ProductsInOrder(
 	Order_ID INT,
 	Product_ID INT,
+	Quantity INT
+		CONSTRAINT ProductsInOrder_Quantity_NOTNULL NOT NULL
+		CONSTRAINT ProductsInOrder_Quantity_NonNegative CHECK (Quantity >= 0)
+	,
 	PriceSold Numeric(8,2)
         CONSTRAINT ProductsInOrder_PriceSold_NOTNULL NOT NULL
     	CONSTRAINT ProductsInOrder_PriceSold_NonNegative CHECK (PriceSold >= 0)
     ,
+	DateSold Date 
+		CONSTRAINT ProductsInOrder_DateSold_NOTNULL NOT NULL
+	,
 	CONSTRAINT ProductsInOrder_PK PRIMARY KEY(Order_ID, Product_ID),
 	CONSTRAINT ProductsInOrder_Order_ID_FK FOREIGN KEY(Order_ID) REFERENCES Orders(Order_ID) ON DELETE CASCADE,
 	CONSTRAINT ProductsInOrder_Product_ID_FK FOREIGN KEY(Product_ID) REFERENCES Product(Product_ID) ON DELETE CASCADE

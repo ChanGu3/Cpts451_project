@@ -1,3 +1,6 @@
+import os
+import sys
+from dbmsInstance import GetDatabase
 from flask import Blueprint, redirect, url_for, g, session, render_template, abort, request
 
 profile_route = Blueprint('profile_route', __name__)
@@ -9,7 +12,7 @@ def user_profile():
         return abort(404)
     
     # Get current display name from database (TO-DO)
-    currentdDisplayName = "Username|Email"
+    currentdDisplayName = g.user.username
     
     return redirect(url_for('profile_route.user_profile_menu', displayName=currentdDisplayName))
 
@@ -33,53 +36,28 @@ def user_profile_page(displayName, page):
         abort(404)
     
     # Get current display name from database (TO-DO)
-    currentDisplayName = "Username|Email"
+    currentDisplayName = g.user.username
     
     # if username is typed incorrectly still log them in with their own username
     if displayName != currentDisplayName:
-        return redirect(url_for('profile_route.user_profile_page', displayName=currentDisplayName, page=page))
+        return redirect(url_for('profile_route.user_profile_page', displayName=currentDisplayName, page=page), code=308)
     
-    try:        
-        if g.user.userType == 'Admin':
-            if page == 'PersonalInformation':
-                if request.method == 'POST':
-                    actionMessage = "TEST"
-                    isError = True
-                    
-                    #if request.form['newPassword1'] != request.form['newPassword2']:
-                    #    actionMessage = 'New Passwords Do Not Match';
-                    #    error = True;
-                    #elif: try to check current password with database
-                    #    actionMessage = 'Current Password Incorrect';
-                    #  
-                    #elif: request.form['currentPassword'] == request.form['newPassword1'] if new password is the same as current password
-                    #    actionMessage = 'New Password Cannot Be The Same As Current Password';
-                    #    error = True;
-                    #elif: if new password is not long enough request.form['newPassword1'] < 8
-                    #    actionMessage = 'New Password Must Be At Least 8 Characters';
-                    #    error = True;
-                    #else:
-                    #   actionMessage = 'Password Changed';
-                    #   error = False;
-                    
-                    session['actionMessage'] = actionMessage
-                    session['isError'] = isError
-                    return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName))
-                else:
-                    return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName))
-            elif page == 'Products':
-                pageData = {}
-            elif page == 'Analytics':
-                pageData = {}
-            
-        elif g.user.userType == 'Customer':    
-            if page == 'PersonalInformation':
-                pageData = {'email': currentDisplayName, 'PhoneNumber': '555-555-5555'}
-            elif page == 'Orders':
-                pageData = {}
-            elif page == 'Wishlist':
-                pageData = {}
-                
-        return render_template(f'Profile/{g.user.userType}/{page}.html', displayName=currentDisplayName, pageData=pageData) #WE can refactor this into each if statement if you want to make it more readable by having more than just the pageData in fact we ill need to redirect for each one anyways.
-    except:
-        abort(404)
+    #try:        
+    if g.user.userType == 'Admin':
+        if page == 'PersonalInformation':
+            return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName), code=308)
+        elif page == 'Products':
+            pageData = {}
+        elif page == 'Analytics':
+            return redirect(url_for('adminPI_route.profile_analytics', displayName=currentDisplayName), code=308)
+    elif g.user.userType == 'Customer':    
+        if page == 'PersonalInformation':
+            pageData = {'email': currentDisplayName, 'PhoneNumber': '555-555-5555'}
+        elif page == 'Orders':
+            pageData = {}
+        elif page == 'Wishlist':
+            pageData = {}
+    print(page)            
+    return render_template(f'Profile/{g.user.userType}/{page}.html', displayName=currentDisplayName) #WE can refactor this into each if statement if you want to make it more readable by having more than just the pageData in fact we ill need to redirect for each one anyways.
+    #except:
+    #    abort(404)

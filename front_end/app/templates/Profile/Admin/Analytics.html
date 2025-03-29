@@ -1,8 +1,40 @@
 {% extends "Profile/Admin/Base.html" %}
 {% block title %}Profile Admin Analytics{% endblock %}
 
+{% block Stylesheets%}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/AdminProfilePageStyles/AdminAnalytics.css') }}">
+{% endblock %}
+
 {% block menu_element_content %}
 
-<p> Analytics </p>
+<div class="AnalyticBase">
+    <div class="AnalyticLeft">
+        <h3>Search Products By Name</h3>
+        <input class="SearchBar" type="text" placeholder="Search..." class="search-bar">
+    </div>
+
+    <div class="AnalyticRight">
+        <h3>Top 10 Popular Products</h3>
+        <br> <br>
+        <div class="PPContainer"> 
+            {% for paproduct in paproducts %}
+                <paproduct>
+                    <div class="Top">
+                        <p>#{{loop.index}} {{paproduct[1]}}</p>
+                    </div>
+                    <div class="Bottom">
+                        <div class="BottomLeft">
+                            <img src="{{ url_for('get_thumbnail', productName=paproduct[1], imageName=paproduct[2]) }}" alt={{paproduct[1]}} class="ProductImage">
+                        </div>
+                        <div class="BottomRight">
+                            <p>Total Sales: {{paproduct[4]}}</p>
+                            <p>Total Bought: {{paproduct[3]}}</p>
+                        </div>
+                    </div>
+                </paproduct>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 
 {% endblock %}
