@@ -238,3 +238,21 @@ create table CreditCard(
 	CONSTRAINT CreditCard_PK PRIMARY KEY(Payment_ID),
     CONSTRAINT CreditCard_Payment_ID_FK FOREIGN KEY(Payment_ID) REFERENCES Payment(Payment_ID)
 );
+
+create table ProductReviews(
+	Product_ID INT,
+	Customer_ID INT,
+	Rating INT
+		CONSTRAINT ProductReviews_Rating_NOTNULL NOT NULL
+		CONSTRAINT ProductReviews_Rating_Format CHECK (Rating BETWEEN 1 AND 5)
+	,
+	Review Varchar(1000)
+		CONSTRAINT ProductReviews_Review_NOTNULL NOT NULL
+	,
+	DateOfReview Date 
+		CONSTRAINT ProductReviews_DateOfReview_NOTNULL NOT NULL
+	,
+	CONSTRAINT ProductReviews_PK PRIMARY KEY(Product_ID, Customer_ID),
+	CONSTRAINT ProductReviews_Product_ID_FK FOREIGN KEY(Product_ID) REFERENCES Product(Product_ID) ON DELETE CASCADE,
+	CONSTRAINT ProductReviews_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE
+);

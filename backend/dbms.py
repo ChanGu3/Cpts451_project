@@ -134,6 +134,34 @@ class Database:
         self.connection.commit()
         return True
 
+    def insert_new_product_return_id(self, product_details: dict) -> int:
+        """Inserts all product details into the db. Expects all fields to be provided. Gives back the product id of the inserted product."""
+
+        # create new product id if none provided 
+        product_id = product_details.get("product_id")
+        if product_id is None or not self._does_product_exist(product_id): 
+            product_id = self._new_product_id()
+
+        # insert into db
+        self.cursor.execute(
+            """
+            INSERT INTO Product 
+            (Product_ID, Title, Price, Stock, Description, DiscountPercentage, WebsiteInfo, DateCreated)
+            VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%d', 'now'))
+            """
+            , (
+                product_id, 
+                product_details["Title"], 
+                product_details["Price"], 
+                product_details["Stock"], 
+                product_details["Description"], 
+                product_details["DiscountPercentage"], 
+                product_details["WebsiteInfo"]
+                )
+        )
+        self.connection.commit()
+        return product_id
+
     def insert_new_product_image(self, product_id: int, image_name: str, image_data: bytes) -> bool:
         """Inserts product image details into the db. Expects all fields to be provided."""
         if product_id is None or not self._does_product_exist(product_id): 
@@ -193,13 +221,21 @@ class Database:
             return True
         return False
 
-    def admin_update_product(self, admin_id: int, admin_password: str, product_id: int, new_product_details: dict) -> bool:
-        """Upon validation of admin credentials, update specific columns of a particular product"""
+    def admin_remove_product_WithOutAdmin(self, product_id: int) -> bool:
+        """Upon validation of admin credentials, remove a product from the db"""
+        if product_id is None or not self._does_product_exist(product_id): 
+            return False
+        
+        self.cursor.execute("DELETE FROM Product WHERE Product_ID = ?", (product_id,))
+        self.connection.commit()
+        return True
 
-        valid_admin = self.validate_admin_id_password(admin_id, admin_password)
+
+    def admin_update_product(self, product_id: int, new_product_details: dict) -> bool:
+        """Upon validation of admin credentials, update specific columns of a particular product"""
         product_exists = self._does_product_exist(product_id)
 
-        if valid_admin and product_exists:
+        if product_exists:
             update_cols = ', '.join([f"{k} = ?" for k in new_product_details.keys()])
             update_vals = tuple(new_product_details.values())
             self.cursor.execute(f"UPDATE Product SET {update_cols} WHERE Product_ID = ?", update_vals + (product_id,))
@@ -213,9 +249,9 @@ class Database:
         self.cursor.execute("SELECT * FROM Product")
         return self.cursor.fetchall()
 
-    def retrieve_all_product_details_With_Thumbnail(self):
+    def retrieve_all_product_details_With_Thumbnail_With_Analytics(self):
         """Gets all product details from the db"""
-        self.cursor.execute("SELECT Product.*, ProductThumbnail.ImageName FROM Product INNER JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID")
+        self.cursor.execute("SELECT Product.*, ProductThumbnail.ImageName, sum(ProductsInOrder.Quantity), sum(ProductsInOrder.Quantity * ProductsInOrder.PriceSold) FROM Product INNER JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID LEFT JOIN ProductsInOrder ON Product.Product_ID = ProductsInOrder.Product_ID GROUP BY Product.Product_ID ORDER BY (CURRENT_DATE - Product.DateCreated) ASC")
         return self.cursor.fetchall()
 
     def retrieve_specific_product_details(self, product_id: int):
@@ -245,7 +281,7 @@ class Database:
 
     def retrieve_Top_10_product_details(self):
         """Gets top 10 product details from the db"""
-        self.cursor.execute("SELECT Product.product_id, Product.title, ProductThumbnail.ImageName, sum(ProductsInOrder.Quantity), sum(ProductsInOrder.pricesold * ProductsInOrder.Quantity) FROM ProductsInOrder INNER JOIN Product on Product.product_id = ProductsInOrder.product_id INNER JOIN ProductThumbnail on ProductThumbnail.product_id = ProductsInOrder.product_id GROUP BY Product.product_id ORDER BY sum(ProductsInOrder.Quantity) DESC LIMIT 10")
+        self.cursor.execute("SELECT Product.product_id, Product.title, ProductThumbnail.ImageName, sum(ProductsInOrder.Quantity), sum(ProductsInOrder.pricesold * ProductsInOrder.Quantity) FROM ProductsInOrder INNER JOIN Product on Product.product_id = ProductsInOrder.product_id LEFT JOIN ProductThumbnail on ProductThumbnail.product_id = ProductsInOrder.product_id GROUP BY Product.product_id ORDER BY sum(ProductsInOrder.Quantity) DESC LIMIT 10")
         return self.cursor.fetchall()
 
     def add_product_category(self, category_name: str) -> bool:
@@ -265,6 +301,16 @@ class Database:
         self.connection.commit()
         return True
 
+    def set_product_category_OnlyOne(self, product_id: int, category_name: str) -> bool:
+        """Set a product's category to a pre-existing category in the ProductCategories table"""
+        if self.cursor.execute("SELECT COUNT(*) FROM ProductCategory WHERE Product_ID = ?", (product_id,)).fetchone()[0] > 0:
+            # If there is already a category for this product, remove it before inserting the new one
+            self.cursor.execute("DELETE FROM ProductCategory WHERE Product_ID = ?", (product_id,))
+        
+        self.cursor.execute("INSERT INTO ProductCategory (Product_ID, CategoryName) VALUES (?, ?)", (product_id, category_name))
+        self.connection.commit()
+        return True
+
     def update_product_category(self, product_id: int, category_name: str) -> bool:
         """Updates pre-existing product category in db"""
         self.cursor.execute("UPDATE ProductCategory SET CategoryName = ? WHERE Product_ID = ?", (category_name, product_id))
@@ -274,7 +320,7 @@ class Database:
     def get_product_category(self, product_id: int):
         """Get all product categories for a given product from the db"""
         self.cursor.execute("SELECT CategoryName FROM ProductCategory WHERE Product_ID = ?", (product_id,))
-        return self.cursor.fetchone()[0]
+        return self.cursor.fetchone()
 
     def search_products_by_category(self, category_name: str):
         """ gets all product details with a given category name"""
@@ -293,6 +339,11 @@ class Database:
     def search_products_by_name(self, product_name: str):
         """gets all product details with a given product name """
         self.cursor.execute("SELECT * FROM Product WHERE Title = ?", (product_name,))
+        return self.cursor.fetchall()
+
+    def search_products_by_name_With_Thumbnail_With_Analytics(self, product_name: str):
+        """gets all product details with a given product name """
+        self.cursor.execute("SELECT Product.*, ProductThumbnail.ImageName FROM Product INNER JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID LEFT JOIN ProductsInOrder ON Product.Product_ID = ProductsInOrder.Product_ID WHERE Product.Title = ? GROUP BY Product.Product_ID ORDER BY (CURRENT_DATE - Product.DateCreated) ASC;", (product_name,))
         return self.cursor.fetchall()
 
     def search_product_by_id(self, product_id: int):

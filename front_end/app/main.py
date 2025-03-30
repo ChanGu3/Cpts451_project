@@ -71,6 +71,24 @@ def get_thumbnail(productName, imageName):
     else:
         return send_file(STATIC_IMAGE_PATH_TO_NOT_FOUND, mimetype=f'image/jpeg')
 
+# Sends user to products Page
+@app.route('/Product/<int:productID>')
+def product_page(productID):
+    database = GetDatabase()
+    
+    product_details = database.retrieve_specific_product_details(productID)
+    if product_details is not None:
+        product_category = database.get_product_category(productID)
+        if product_category is not None:
+            product_details = product_details + (product_category[0],)
+        product_thumbnail = database.retrieve_specific_product_thumbnail_details(productID)
+        if product_thumbnail is not None:
+            product_thumbnail_name = product_thumbnail[1]
+        print(product_details)
+        return render_template('Product.html', product_details=product_details, product_thumbnail_name=product_thumbnail_name)
+    else:
+        return abort(404)
+    
 @app.route('/')
 def domain():
     return redirect(url_for('index'))

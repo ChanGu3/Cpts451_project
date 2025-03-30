@@ -1,0 +1,168 @@
+.ProductsCenter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.ProductsCenter .FormSearchBar
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: inherit;
+    height: inherit;
+    max-width: 50vw;
+    max-height: 10vh;
+    margin: 10px;
+}
+
+.ProductsCenter .FormSearchBar .SearchBar
+{
+    width: inherit;
+    height: inherit;
+    max-width: inherit;
+    max-height: inherit;
+}
+
+.ProductsCenter button
+{
+    cursor: pointer; 
+}
+
+.ProductsCenter button:hover
+{
+    background-color: #777777; /* Light background on hover */
+    transition: background-color 0.3s ease; /* Smooth transition for the background color */
+}
+
+.ProductsCenter button:active
+{
+    background-color: #2f2f2f; /* Light background on hover */
+}
+
+.ProductsCenter .AddProductButton
+{
+    background-color: rgb(0, 255, 0);
+    padding: 1.5vh 3vw; 
+    font-size: 1rem; 
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.RemoveProductButton
+{
+    background-color: rgb(255, 0, 0);
+    padding: 7.5px 10px; 
+}
+
+.EditProductButton
+{
+    background-color: rgb(0, 153, 255);
+    padding: 7.5px 10px;  
+}
+
+#AddProductModal,
+#EditProductModal{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#AddProductModal:target,
+#EditProductModal:target {
+    pointer-events: auto;
+
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+#AddProductModal .modal-content,
+#EditProductModal .modal-content {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    width: 50%;
+    max-width: 500px; 
+    height: 80%;
+    max-height: 800px;
+    background-color: #b1b1b1;
+    position: relative;
+    gap: 10px;
+}
+
+#AddProductModal .modal-content .ContainerRow,
+#AddProductModal .modal-content .ContainerCol,
+#EditProductModal .modal-content .ContainerRow,
+#EditProductModal .modal-content .ContainerCol {
+    width: 100%; /* Make them take up the full width inside the modal */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+#AddProductModal .modal-content .ContainerRow,
+#EditProductModal .modal-content .ContainerRow {
+    flex-direction: row;
+}
+
+#AddProductModal .modal-content .ContainerCol, 
+#EditProductModal .modal-content .ContainerCol {
+    flex-direction: column;
+}
+
+#AddProductModal .modal-content .ContainerRow input,
+#AddProductModal .modal-content .ContainerCol input, 
+#EditProductModal .modal-content .ContainerRow input,
+#EditProductModal .modal-content .ContainerCol input {
+    margin-left: 10px;
+    margin-right: 10px;
+    width: 100%; /* Make inputs fill the container width */
+    font-size: 1rem;
+}
+
+#AddProductModal .modal-content .ContainerRow p,
+#AddProductModal .modal-content .ContainerCol p, 
+#EditProductModal .modal-content .ContainerRow p,
+#EditProductModal .modal-content .ContainerCol p {
+    margin-left: 10px;
+    margin-right: 10px;
+    width: 100%; /* Make inputs fill the container width */
+    font-size: 1rem;
+}
+
+#AddProductModal .modal-content .close, 
+#EditProductModal .modal-content .close {
+    cursor: pointer;
+    position: absolute;
+    top: -1vw;
+    right: 1vw;
+    font-size: 3vw;
+}
+
+.required::placeholder
+{
+    color: #b90000; 
+}
+
+#AddProductModal .modal-content .textarea,
+#EditProductModal .modal-content .textarea
+{
+    resize: none;
+    width: 100%;         /* Ensures the textarea takes the full width */
+    font-size: 1rem;
+}

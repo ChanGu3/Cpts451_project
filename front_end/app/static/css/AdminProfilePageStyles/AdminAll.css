@@ -1,0 +1,52 @@
+.barcontainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: auto;
+    height: auto;
+    border: 2px solid #000000;
+    border-radius: 5px;
+    background-color: #ffffff;
+    padding: 3px;
+    margin-top: 20px;
+}
+
+.barcontainer img{
+    object-fit: cover;
+    width: auto;
+    height: auto;
+    max-width: 12vw;
+    max-height: 12vh;
+    border-radius: 5px;
+}
+
+.barcontainer p{
+    font-size: 1.25vw;
+}
+
+.barcontainer .top
+{
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    height: auto;
+}
+
+.barcontainer .bottom
+{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+    height: auto;
+}
+
+.barcontainer .bottom .text3Container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: auto;
+    height: auto;
+}

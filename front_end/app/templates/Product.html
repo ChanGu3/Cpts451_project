@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+
+{% block Stylesheets %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Product.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="SuperBase">
+    <div class="BaseTop">
+        <div class="Left">
+            <div class="OtherContentTop">
+                <div class="ImageContainer">
+                    <img src="{{ url_for('get_thumbnail', productName=product_details[1], imageName=product_thumbnail_name) }}" alt="No Image">
+                </div>
+                <div class="ProductInfo">
+                    <p> {{product_details[1]}} </p>
+                    <div class="TitleLine"> </div> 
+                    {% if product_details[5] > 0 %}
+                        <p> Original Price: <s> ${{product_details[2]}} </s> </p>
+                        <p> Discount: {{product_details[5]}}% </p>
+                        {% set discounted_price = (product_details[2] * (1 - (product_details[5] / 100)))|round(2) %}
+                        <p> Discounted Price: ${{discounted_price}} </p>
+                    {% else %}
+                        <p> Original Price: ${{product_details[2]}} </p>
+                    {% endif %}
+                    <div class="RowContainer">
+                        <p> WebsiteURL: </p>
+                        <a href="https://{{product_details[6]}}" target="_blank"> {{product_details[6]}} </a>
+                    </div>
+                </div>
+            </div>
+            <div class="DescriptionBottom">
+                <p> Description: </p>
+                <p> {{product_details[4]}} </p>
+            </div>
+        </div>
+        <div class="Right">
+            <br> </br>
+            {% if product_details[5] > 0 %}
+                {% set discounted_price = (product_details[2] * (1 - (product_details[5] / 100)))|round(2) %}
+                <p> Price: ${{discounted_price}} </p>
+            {% else %}
+                <p> Price: ${{product_details[2]}} </p>
+            {% endif %}
+            {% if product_details[3] > 0 %}
+                <p> In Stock: {{product_details[3]}} </p>
+            {% else %}
+                <p> Out of Stock </p>
+            {% endif %}
+            <div class="RowContainer">
+                <p> Quantity: </p>
+                <select id="ProductQuantity" name="quantity"> 
+                    {% if product_details[3] > 0 %}
+                        <option value="1" selected> 1 </option> 
+                        {% for i in range(2, product_details[3]+1) %}
+                            <option value="{{i}}">{{i}}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="0" selected> Out of Stock </option> 
+                        <script>
+                            document.getElementById("ProductQuantity").disabled = true;
+                        </script>
+                    {% endif %}
+                </select> 
+            </div>
+            <button> Add to Cart </button>
+            <br> </br>
+            <button> Add to Wishlist </button>
+        </div>
+    </div>
+    <div class="BaseBottom">
+        <h2> Reviews </h2>
+        <div>
+            <p> Hey, Username Looks Like You Ordered This Product Leave A Review To Let Others Know About The Product! </p>
+            <p> TextBox </p>
+            <button> Sumbit Review </button> 
+        </div>
+        <div class="ReviewContainer">
+            <div class="Top">
+                <p> Username <p>
+                <p> Rating </p>
+            </div>
+            <div class="Bottom">
+                <p> Review <p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
