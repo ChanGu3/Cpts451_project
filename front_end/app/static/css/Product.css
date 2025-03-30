@@ -1,0 +1,21 @@
+.Base{
+    display: flex; 
+    flex-direction: row;
+    padding: 10px;
+    width: 100%;
+    height: 100vh; /* Full height of the viewport */
+    background-color: #f9f9f9;;
+}
+
+.Base .Left{
+    width: 65%;
+    height: inherit;
+}
+
+.Base .Right{
+    width: 35%;
+    height: 80%;
+    margin-top: 80px;
+    border: 2px solid #000000;
+    border-radius: 3px; 
+}

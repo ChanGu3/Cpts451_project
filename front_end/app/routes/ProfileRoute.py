@@ -1,6 +1,5 @@
 import os
 import sys
-from dbmsInstance import GetDatabase
 from flask import Blueprint, redirect, url_for, g, session, render_template, abort, request
 
 profile_route = Blueprint('profile_route', __name__)
@@ -45,11 +44,20 @@ def user_profile_page(displayName, page):
     #try:        
     if g.user.userType == 'Admin':
         if page == 'PersonalInformation':
-            return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName), code=308)
+            if request.method == 'POST':
+                return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName), code=308)
+            else:
+                return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName))
         elif page == 'Products':
-            pageData = {}
+            if request.method == 'POST':
+                return redirect(url_for('adminPI_route.profile_products', displayName=currentDisplayName), code=308)
+            else:
+                return redirect(url_for('adminPI_route.profile_products', displayName=currentDisplayName))
         elif page == 'Analytics':
-            return redirect(url_for('adminPI_route.profile_analytics', displayName=currentDisplayName), code=308)
+            if request.method == 'POST':
+                return redirect(url_for('adminPI_route.profile_analytics', displayName=currentDisplayName), code=308)
+            else:
+                return redirect(url_for('adminPI_route.profile_analytics', displayName=currentDisplayName))
     elif g.user.userType == 'Customer':    
         if page == 'PersonalInformation':
             pageData = {'email': currentDisplayName, 'PhoneNumber': '555-555-5555'}
@@ -57,7 +65,7 @@ def user_profile_page(displayName, page):
             pageData = {}
         elif page == 'Wishlist':
             pageData = {}
-    print(page)            
+    print(page)           
     return render_template(f'Profile/{g.user.userType}/{page}.html', displayName=currentDisplayName) #WE can refactor this into each if statement if you want to make it more readable by having more than just the pageData in fact we ill need to redirect for each one anyways.
     #except:
     #    abort(404)

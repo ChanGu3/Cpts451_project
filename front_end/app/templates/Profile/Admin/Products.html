@@ -1,8 +1,177 @@
 {% extends "Profile/Admin/Base.html" %}
 {% block title %}Profile Admin Products{% endblock %}
 
+{% block Stylesheets%}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/AdminProfilePageStyles/AdminProducts.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/AdminProfilePageStyles/AdminAll.css') }}">
+{% endblock %}
+
 {% block menu_element_content %}
 
-<p> Products </p>
+<div id="AddProductModal" class="modal">
+    <form class="modal-content" action="{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch) }}" enctype="multipart/form-data" method="POST">
+        <a href="#" class="close">&times;</a>
+        <br> </br>
+        <div class="Container">
+            <h2>Add Product</h2>
+        </div>
+        <div class="ContainerRow">
+            <p> ProductName: </p>
+            <input class='required' type="text" name="product_name" maxlength="255" placeholder="Product Name" required>
+        </div>
+        <div class="ContainerRow">
+            <p> Stock: </p>
+            <input  class='required' min="0" type="number" name="stock" placeholder="Stock" required>
+        </div>
+        <div class="ContainerRow">
+            <p> Price: </p>
+            <input class='required' step="0.01" min="0" type="number" name="price" placeholder="Price" required>
+        </div> 
+        <div class="ContainerRow">
+            <p> Discount: </p>
+            <input class='required' min="0" max="100" type="number" name="discount" placeholder="Discount" required>
+        </div>
+        <div class="ContainerRow">
+            <textarea class='required textarea' rows="4" cols="50" type="text" name="description" maxlength="1000" placeholder="Description (max 1000 char)" required></textarea>
+        </div>
+        <div  class="ContainerRow">
+            <p> Website URL: </p>
+            <input type="text" name="websiteURL" max="500" placeholder="Website URL (Optional)"> 
+        </div>
+        <div  class="ContainerRow">
+            <p class="required">Thumbnail: </p>
+            <input type="file" accept="image/jpeg, image/png," name="thumbnail" required>
+        </div>
+        <div  class="ContainerRow">
+            <p class="required">Category: </p>
+            <select id="categorySelectADD" name="category"> 
+                <option value="None" selected> None </option> 
+                {% for category in categories %}
+                    <option value="{{category[0]}}">{{category[0]}}</option>
+                {% endfor %}
+            </select> 
+        </div>
+        <br> </br>
+        <button name="submitButton" value="add" type="submit">Submit</button>
+    </form>
+</div>
+
+{% if currentEditProductValues %}
+    {% set productID = currentEditProductValues[0] %}
+    {% set productName = currentEditProductValues[1] %}
+    {% set stock = currentEditProductValues[3] %}
+    {% set price = currentEditProductValues[2] %}
+    {% set discount = currentEditProductValues[5] %}
+    {% set description = currentEditProductValues[4] %}
+    {% set websiteURL = currentEditProductValues[6] %}  {# Assuming website is at index 6 #}
+    {% set currentCategory = currentEditProductValues[8] %} {# Assuming categories are passed in for the edit #}
+
+    <div id="EditProductModal" class="modal">
+        <form class="modal-content" action="{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch) }}" enctype="multipart/form-data" method="POST">
+            <a href="#" class="close">&times;</a>
+            <br> </br>
+            <div class="Container">
+                <h2>Edit Product</h2>
+            </div>
+            <div class="ContainerRow">
+                <p> ID: </p>
+                <input type="text" name="product_id" value={{productID}} readonly>
+            </div>
+            <div class="ContainerRow">
+                <p> ProductName: </p>
+                <input class='required' type="text" name="product_name" maxlength="255" value="{{productName}}" placeholder="Product Name" required>
+            </div>
+            <div class="ContainerRow">
+                <p> Stock: </p>
+                <input  class='required' min="0" type="number" name="stock" placeholder="Stock" value={{stock}} required>
+            </div>
+            <div class="ContainerRow">
+                <p> Price: </p>
+                <input class='required' step="0.01" min="0" type="number" name="price" placeholder="Price" value={{price}} required>
+            </div> 
+            <div class="ContainerRow">
+                <p> Discount: </p>
+                <input class='required' min="0" max="100" type="number" name="discount" placeholder="Discount (Optional)" value={{discount}} required>
+            </div> 
+            <div class="ContainerRow">
+                <textarea class='required textarea' rows="4" cols="50" type="text" name="description" maxlength="1000" placeholder="Description (max 1000 char)" required>{{description}}</textarea>
+            </div>
+            <div  class="ContainerRow">
+                <p> Website URL: </p>
+                <input type="text" name="websiteURL" max="500" placeholder="Website URL (Optional)" value={{websiteURL}}> 
+            </div>
+            <div  class="ContainerRow">
+                <p class="required">Thumbnail: </p>
+                <input type="file" accept="image/jpeg, image/png," name="thumbnail">
+            </div>
+            <div  class="ContainerRow">
+                <p class="required">Category: </p>
+                <select id="categorySelectEDIT" name="category"> 
+                    <option value="None" selected> None </option> 
+                    {% for category in categories %}
+                        <option value="{{category[0]}}">{{category[0]}}</option>
+                    {% endfor %}
+                </select>
+                {% if currentCategory %} 
+                    <script>
+                        document.getElementById("categorySelectEDIT").value = "{{currentCategory}}";  // Sets "Sports" as selected
+                    </script>
+                {% endif %}
+            </div>
+            <br> </br>
+            <button name="submitButton" value="edit" type="submit">Submit Changes</button>
+        </form>
+    </div>
+{% endif %}
+
+<div class="ProductsCenter">
+    <button onclick="location.href='#AddProductModal'" class="AddProductButton">Add Product</button>
+    <h3>Search Products By Name</h3>
+    <form class='FormSearchBar' action="{{ url_for('adminPI_route.profile_products', displayName=displayName, page=1) }}" method="POST">
+        <input class="SearchBar" type="text" placeholder="Search..." id='productsearch' name='productsearch' value=''>
+    </form>
+    {% for displayedProduct in displayedProducts %}
+        <div class='barcontainer'>
+            <div class='top'>
+                <p> {{displayedProduct[1]}} </p>
+            </div>
+            <div class='bottom'>
+                <img src="{{ url_for('get_thumbnail', productName=displayedProduct[1], imageName=displayedProduct[8]) }}" alt="Test">
+                <div class='text3container'>        
+                    <p> Stock: {{displayedProduct[3]}} </p>
+                    <p> Total Purchased: {{displayedProduct[9]}}</p>
+                    <p> Total Sales: {{displayedProduct[10]}}</p>
+                </div>
+                <div class='text3container'>        
+                    <p> Current Price: {{displayedProduct[2]}} </p>
+                    <p> Discount: {{displayedProduct[5]}}% </p>
+                    {% set priceWDis = (displayedProduct[2] * ((100-displayedProduct[5]) / 100)) | round(2) %}
+                    <p> Price W/ Discount: {{priceWDis}} </p>
+                </div>
+                <div class='text3container'>        
+                    <p> Description: </p>
+                    <p>{{displayedProduct[4][:30]}}{% if displayedProduct[4]|length > 30%}-{% endif %}<p>
+                    <p>{{displayedProduct[4][30:60]}}{% if displayedProduct[4]|length > 60%}...{% endif %}<p>
+                </div>
+                <div class='text3container'>        
+                    <p> Date Created: {{displayedProduct[7]}} </p>
+                </div>
+                <button onclick="location.href='{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch, buttonClicked='EditProduct', productID=displayedProduct[0]) }}';" class="EditProductButton">Edit Product</button>
+                <button onclick="location.href='{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch, buttonClicked='DeleteProduct', productID=displayedProduct[0]) }}';" class="RemoveProductButton">Remove Product</button>
+            </div>
+        </div>
+    {% endfor %}
+    <div class='switchpages'>
+        {% if pageLeftURL %}
+            {% set prevPage = page - 1 %}
+            <a href="{{ url_for('adminPI_route.profile_products', displayName=displayName, page=prevPage, currentSearch=currentSearch) }}">Page {{prevPage}}</a> 
+        {% endif %}
+
+        {% if pageRightURL %}
+            {% set nextPage = page + 1 %}
+            <a href="{{ url_for('adminPI_route.profile_products', displayName=displayName, page=nextPage, currentSearch=currentSearch) }}">Page {{nextPage}}</a> 
+        {% endif %}
+    </div>
+</div>
 
 {% endblock %}
