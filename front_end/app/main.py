@@ -81,10 +81,14 @@ def product_page(productID):
         product_category = database.get_product_category(productID)
         if product_category is not None:
             product_details = product_details + (product_category[0],)
-        return render_template('Product.html', product_details=product_details)
+        product_thumbnail = database.retrieve_specific_product_thumbnail_details(productID)
+        if product_thumbnail is not None:
+            product_thumbnail_name = product_thumbnail[1]
+        print(product_details)
+        return render_template('Product.html', product_details=product_details, product_thumbnail_name=product_thumbnail_name)
     else:
         return abort(404)
-
+    
 @app.route('/')
 def domain():
     return redirect(url_for('index'))
