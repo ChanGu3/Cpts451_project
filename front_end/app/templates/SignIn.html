@@ -6,10 +6,11 @@
         <section class = signin-container>
             <h2>Sign In</h2>
             <form action ="{{ url_for('signin') }}" method="post">
-                <input type="text" placeholder="Username" required>
-                <input type="password" placeholder="Password" required>
+                <input type="text" placeholder="Username" required name="Username">
+                <input type="password" placeholder="Password" required name="Password">
                 <button type="submit">Sign In</button>
             </form>
+            <a href="{{ url_for('createaccount') }}" class="btn">Create an account</a>
         </section>
     </body>
 {% endblock %}

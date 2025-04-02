@@ -3,7 +3,7 @@ import io
 import magic
 from dotenv import load_dotenv
 from dbmsInstance import GetDatabase
-from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g, abort, send_file
+from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g, abort, send_file, flash
 from routes.ErrorRoute import error_route
 from routes.SessionRoute import session_route, User
 from routes.ProfileRoute import profile_route
@@ -99,9 +99,61 @@ def index():
 
 @app.route('/SignIn', methods=['GET', 'POST'])
 def signin():
+    database = GetDatabase()
+
     if request.method == 'POST':
-        return redirect(url_for('session_route.set_session'))
+        # Get form data
+        username = request.form.get('Username')
+        password = request.form.get('Password')
+
+        # Validate input
+        if not username or not password:
+            return redirect(url_for('signin'))
+
+        try:
+            user = database.sign_in(username, password)
+
+            if user:
+                user_id, email = user
+                session['username'] = username
+                return redirect(url_for('index')) 
+            else:
+                return redirect(url_for('signin'))
+
+        except Exception as e:
+            print("Error occurred:", e)
+            return redirect(url_for('signin'))
+
     return render_template('SignIn.html')
+
+@app.route('/CreateAccount', methods=['GET', 'POST'])
+def createaccount():
+    database = GetDatabase()
+
+    if request.method == 'POST':
+        # Get form data
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        phone = request.form.get('phone_number')
+        is_admin = request.form.get('is_admin')  # Will be 'on' if checked, None otherwise
+
+        print(f"Name: {name}, Email: {email}, Password: {password}, Phone: {phone}, Is Admin: {is_admin}") # Debug check
+
+        try:
+            if is_admin:  # Checkbox is checked, this can be expanded upon in the future
+                # Insert into AdminUser table
+                database.admin_account_creation(name, email, password)
+            else:
+                # Insert into CustomerUser table
+                database.customer_account_creation(name, email, password, phone)
+            return redirect(url_for('signin')) 
+
+        except Exception as e:
+            print("Error occurred:", e)
+            return redirect(url_for('createaccount'))
+            
+    return render_template('CreateAccount.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True) # debug false when delpoying
