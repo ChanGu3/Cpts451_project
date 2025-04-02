@@ -116,6 +116,7 @@ def signin():
             if user:
                 user_id, email = user
                 session['username'] = username
+                session['ID'] = user_id
                 return redirect(url_for('index')) 
             else:
                 return redirect(url_for('signin'))
@@ -147,6 +148,7 @@ def createaccount():
             else:
                 # Insert into CustomerUser table
                 database.customer_account_creation(name, email, password, phone)
+                database.customer_account_creation(name, password, email, phone)
             return redirect(url_for('signin')) 
 
         except Exception as e:

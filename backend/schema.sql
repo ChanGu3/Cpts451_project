@@ -8,7 +8,7 @@ create table AdminUser(
     ,
 	Email Varchar(254) 
         CONSTRAINT AdminUser_Email_NOTNULL NOT NULL
-        CONSTRAINT AdminUser_Email_Format CHECK (Email LIKE '%@%.%')
+        CONSTRAINT AdminUser_Email_Format CHECK (Email LIKE '_%@_%._%')
     ,
 	CONSTRAINT AdminUser_PK PRIMARY KEY (Admin_ID)
 );
@@ -20,7 +20,7 @@ create table CustomerUser(
     ,
 	Email Varchar(254) 
         CONSTRAINT CustomerUser_Email_NOTNULL NOT NULL
-        CONSTRAINT CustomerUser_Email_Format CHECK (Email LIKE '%@%.%')
+        CONSTRAINT CustomerUser_Email_Format CHECK (Email LIKE '_%@_%._%')
     ,
 	Password Varchar(64) 
         CONSTRAINT CustomerUser_Password_NOTNULL NOT NULL
