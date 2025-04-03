@@ -3,7 +3,7 @@ import io
 import magic
 from dotenv import load_dotenv
 from dbmsInstance import GetDatabase
-from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g, abort, send_file, flash
+from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g, abort, send_file, flash, get_flashed_messages
 from routes.ErrorRoute import error_route
 from routes.SessionRoute import session_route, User
 from routes.ProfileRoute import profile_route
@@ -111,13 +111,15 @@ def signin():
             return redirect(url_for('signin'))
 
         try:
+            print(f"Username: {username}, Password: {password}")  # Debug check
             user = database.sign_in(username, password)
+            print(f"User: {user}")  # Debug check
 
             if user:
                 user_id, email = user
                 session['username'] = username
                 session['ID'] = user_id
-                return redirect(url_for('index')) 
+                return redirect(url_for('session_route.set_session'))
             else:
                 return redirect(url_for('signin'))
 
@@ -130,6 +132,8 @@ def signin():
 @app.route('/CreateAccount', methods=['GET', 'POST'])
 def createaccount():
     database = GetDatabase()
+    actionMessage = None
+    isError = False
 
     if request.method == 'POST':
         # Get form data
@@ -144,18 +148,24 @@ def createaccount():
         try:
             if is_admin:  # Checkbox is checked, this can be expanded upon in the future
                 # Insert into AdminUser table
-                database.admin_account_creation(name, email, password)
+                print("Creating admin account...")
+                database.admin_account_creation(name, password, email)
+                actionMessage = "Admin account created successfully!"
             else:
                 # Insert into CustomerUser table
-                database.customer_account_creation(name, email, password, phone)
+                # database.customer_account_creation(name, email, password, phone)
+                print("Creating customer account...")
                 database.customer_account_creation(name, password, email, phone)
-            return redirect(url_for('signin')) 
+                actionMessage = "Account created successfully!"
+            return render_template('SignIn.html', actionMessage=actionMessage, isError=isError) 
 
         except Exception as e:
             print("Error occurred:", e)
-            return redirect(url_for('createaccount'))
+            actionMessage = "An error occurred while creating the account. Please try again."
+            isError = True
+            return render_template('CreateAccount.html', actionMessage=actionMessage, isError=isError)
             
-    return render_template('CreateAccount.html')
+    return render_template('CreateAccount.html', actionMessage=actionMessage)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True) # debug false when delpoying

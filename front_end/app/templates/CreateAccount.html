@@ -4,6 +4,13 @@
 {% block content %}
 <body class = signin-body>
     <section class = signin-container>
+        {% if actionMessage %}
+            {% if isError %}
+                <p class="ActionMessage ErrorMessage"> {{actionMessage}} </p>
+            {% else %}
+                <p class="ActionMessage SuccessMessage"> {{actionMessage}} </p>
+            {% endif %}
+        {% endif %}
         <h2>Create your account</h2>
         <form action ="{{ url_for('createaccount') }}" method="post">
             <input type="text" placeholder="Name" required name="name">
