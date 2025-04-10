@@ -343,7 +343,7 @@ class Database:
 
     def search_products_by_name_With_Thumbnail_With_Analytics(self, product_name: str):
         """gets all product details with a given product name """
-        self.cursor.execute("SELECT Product.*, ProductThumbnail.ImageName FROM Product INNER JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID LEFT JOIN ProductsInOrder ON Product.Product_ID = ProductsInOrder.Product_ID WHERE Product.Title = ? GROUP BY Product.Product_ID ORDER BY (CURRENT_DATE - Product.DateCreated) ASC;", (product_name,))
+        self.cursor.execute("SELECT Product.*, ProductThumbnail.ImageName FROM Product INNER JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID LEFT JOIN ProductsInOrder ON Product.Product_ID = ProductsInOrder.Product_ID WHERE Product.Title LIKE ? GROUP BY Product.Product_ID ORDER BY (CURRENT_DATE - Product.DateCreated) ASC;", ('%' + product_name + '%',))
         return self.cursor.fetchall()
 
     def search_product_by_id(self, product_id: int):
