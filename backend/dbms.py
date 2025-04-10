@@ -31,8 +31,8 @@ class Database:
         customer_id = self._new_customer_id()
         # insert customer data into db
         self.cursor.execute(            
-            "INSERT INTO CustomerUser (Customer_ID, Username, Email, Phone_Number, Password) VALUES (?, ?, ?, ?, ?)", 
-            (customer_id, username, email, phone_number, pw_hash)
+            "INSERT INTO CustomerUser (Customer_ID, Username, Email, Password, Phone_Number) VALUES (?, ?, ?, ?, ?)", 
+            (customer_id, username, email, pw_hash, phone_number,)
             )
         self.connection.commit()
         return True
