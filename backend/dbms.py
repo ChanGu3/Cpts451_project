@@ -1,5 +1,10 @@
 import sqlite3
 import bcrypt
+from enum import Enum
+
+class UserType(Enum):
+    CUSTOMER = 0
+    ADMIN = 1
 
 class Database:
     """
@@ -98,12 +103,12 @@ class Database:
         """Signs in customer or admin and returns their user id and email"""
         if self.validate_customer_username_password(username, password):
             self.cursor.execute("SELECT Customer_ID, Email FROM CustomerUser WHERE Username = ?", (username,))
-            return self.cursor.fetchone()
+            return self.cursor.fetchone(), UserType.CUSTOMER
         elif self.validate_admin_username_password(username, password):
             self.cursor.execute("SELECT Admin_ID, Email FROM AdminUser WHERE Username = ?", (username,))
-            return self.cursor.fetchone()
+            return self.cursor.fetchone(), UserType.ADMIN
 
-        return None
+        return None, None
 
     def insert_new_product(self, product_details: dict) -> bool:
         """Inserts all product details into the db. Expects all fields to be provided."""

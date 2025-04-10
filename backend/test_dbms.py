@@ -1,5 +1,5 @@
 import pytest
-from dbms import Database
+from dbms import Database, UserType
 import bcrypt
 
 """
@@ -174,20 +174,20 @@ def test_admin_remove_product():
 def test_sign_in_customer():
     """ensures valid customer credentials return the correct user id and email"""
     assert db.customer_account_creation("new_customer1", "test", "test@test.com", "1111111111")
-    assert db.sign_in("new_customer1", "test") == (1, "test@test.com")
+    assert db.sign_in("new_customer1", "test") == ((1, "test@test.com"), UserType.CUSTOMER)
 
 def test_sign_in_admin():
     """ensures valid admin credentials return the correct user id and email"""
     assert db.admin_account_creation("new_admin1", "test", "test@test.com")
-    assert db.sign_in("new_admin1", "test") == (1, "test@test.com")
+    assert db.sign_in("new_admin1", "test") == ((1, "test@test.com"), UserType.ADMIN)
 
 def test_sign_in_invalid_customer():
     """ensures invalid customer credentials return None"""
-    assert db.sign_in("bad_customer_1", "bad_password_1") is None
+    assert db.sign_in("bad_customer_1", "bad_password_1") == (None, None)
 
 def test_sign_in_invalid_admin():
     """ensures invalid admin credentials return None"""
-    assert db.sign_in("bad_admin_1", "bad_password_1") is None
+    assert db.sign_in("bad_admin_1", "bad_password_1") == (None, None)
     
 def test_get_product_categories():
     assert db.add_product_category("fishing")
