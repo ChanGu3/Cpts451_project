@@ -141,20 +141,8 @@ def test_admin_add_product():
     assert product_details[4] == "test"
     assert product_details[5] == 10
 
-def test_invalid_admin_update_product():
-    assert not db.admin_update_product(
-        admin_id=0,
-        admin_password="bad_password",
-        product_id=1,
-        new_product_details={
-            "price": 9999
-        }
-    )
-
 def test_admin_update_product():
     assert db.admin_update_product(
-        admin_id=0,
-        admin_password="test",
         product_id=1,
         new_product_details={
             "price": 9999,
@@ -210,11 +198,11 @@ def test_get_product_categories():
     assert categories[1][0] == "food"
 
     assert db.set_product_category(1, "fishing")
-    assert db.get_product_category(1) == "fishing"
+    assert db.get_product_category(1)[0] == "fishing"
 
 def test_update_product_category():
     assert db.update_product_category(1, "food")
-    assert db.get_product_category(1) == "food"
+    assert db.get_product_category(1)[0] == "food"
 
 def test_search_products_by_category():
 
