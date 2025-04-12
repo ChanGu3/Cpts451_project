@@ -188,22 +188,21 @@ create table Payment(
         CONSTRAINT Payment_Amount_NOTNULL NOT NULL
         CONSTRAINT Payment_Amount_NonNegative CHECK (Amount >= 0)
     ,
-	CONSTRAINT Payment_PK PRIMARY KEY(Payment_ID),
+	CONSTRAINT Payment_PK PRIMARY KEY(Payment_ID, PaymentName),
 	CONSTRAINT Payment_PaymentName_FK FOREIGN KEY(PaymentName) REFERENCES PaymentType(PaymentName) ON DELETE SET NULL
 );
 
 create table Paypal(
-	Payment_ID INT,
+	Paypal_ID INT,
 	Email Varchar(254)
         CONSTRAINT Paypal_Email_NOTNULL NOT NULL
         CONSTRAINT Paypal_Email_Format CHECK (Email LIKE '%@%.%')
     ,
-	CONSTRAINT Paypal_PK PRIMARY KEY(Payment_ID),
-	CONSTRAINT Paypal_Payment_ID_FK FOREIGN KEY(Payment_ID) REFERENCES Payment(Payment_ID)
+	CONSTRAINT Paypal_PK PRIMARY KEY(Paypal_ID)
 );
 
 create table CreditCard(
-	Payment_ID INT,
+	Card_ID INT,
 	Address1 Varchar(300)
         CONSTRAINT CreditCard_Address1_NOTNULL NOT NULL
     ,
@@ -235,24 +234,23 @@ create table CreditCard(
 	ExpDate DATE
         CONSTRAINT CreditCard_ExpDate_NOTNULL NOT NULL
     ,
-	CONSTRAINT CreditCard_PK PRIMARY KEY(Payment_ID),
-    CONSTRAINT CreditCard_Payment_ID_FK FOREIGN KEY(Payment_ID) REFERENCES Payment(Payment_ID)
+	CONSTRAINT CreditCard_PK PRIMARY KEY(Card_ID)
 );
 
-create table ProductReviews(
-	Product_ID INT,
-	Customer_ID INT,
-	Rating INT
-		CONSTRAINT ProductReviews_Rating_NOTNULL NOT NULL
-		CONSTRAINT ProductReviews_Rating_Format CHECK (Rating BETWEEN 1 AND 5)
-	,
-	Review Varchar(1000)
-		CONSTRAINT ProductReviews_Review_NOTNULL NOT NULL
-	,
-	DateOfReview Date 
-		CONSTRAINT ProductReviews_DateOfReview_NOTNULL NOT NULL
-	,
-	CONSTRAINT ProductReviews_PK PRIMARY KEY(Product_ID, Customer_ID),
-	CONSTRAINT ProductReviews_Product_ID_FK FOREIGN KEY(Product_ID) REFERENCES Product(Product_ID) ON DELETE CASCADE,
-	CONSTRAINT ProductReviews_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE
-);
+-- create table ProductReviews(
+-- 	Product_ID INT,
+-- 	Customer_ID INT,
+-- 	Rating INT
+-- 		CONSTRAINT ProductReviews_Rating_NOTNULL NOT NULL
+-- 		CONSTRAINT ProductReviews_Rating_Format CHECK (Rating BETWEEN 1 AND 5)
+-- 	,
+-- 	Review Varchar(1000)
+-- 		CONSTRAINT ProductReviews_Review_NOTNULL NOT NULL
+-- 	,
+-- 	DateOfReview Date 
+-- 		CONSTRAINT ProductReviews_DateOfReview_NOTNULL NOT NULL
+-- 	,
+-- 	CONSTRAINT ProductReviews_PK PRIMARY KEY(Product_ID, Customer_ID),
+-- 	CONSTRAINT ProductReviews_Product_ID_FK FOREIGN KEY(Product_ID) REFERENCES Product(Product_ID) ON DELETE CASCADE,
+-- 	CONSTRAINT ProductReviews_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE
+-- );

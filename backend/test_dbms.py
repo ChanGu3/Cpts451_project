@@ -292,3 +292,22 @@ def test_cart_updates():
     assert cart_products[0] == (2,)
     assert db.search_product_by_id(cart_products[0][0]) == (2, "baseball2", 100, 100, "test", 10, "test", "2025-03-04")
 
+def test_add_new_credit_card():
+    assert db.add_new_credit_card(payment_info={
+        "card_id": 1,
+        "address1": "hello",
+        "address2": "world",
+        "country": "usa",
+        "state": "wa",
+        "city": "seattle",
+        "zip": "98105",
+        "name_on_card": "hunter",
+        "card_number": "1234567890123456",
+        "expiration_date": "2025-01-01",
+        "cvc": "123"
+    })
+    assert db.get_credit_card_details(1) == (1, "hello", "world", "usa", "wa", "seattle", 98105, "hunter", 1234567890123456, 123, "2025-01-01")
+
+def test_add_new_paypal():
+    assert db.add_new_paypal(paypal_id=1, email="test@test.com")
+    assert db.get_paypal_details(1) == (1, "test@test.com")

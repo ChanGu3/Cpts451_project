@@ -18,6 +18,10 @@ class Database:
         self.cursor = self.connection.cursor()
         print("Cursor created...")
 
+        # add default payment types
+        self.add_payment_type("Credit Card")
+        self.add_payment_type("Paypal")
+
     def __del__(self):
         """On class destruction, close connection to db"""
         self.connection.close()
@@ -447,6 +451,67 @@ class Database:
         self.cursor.execute("SELECT Product_ID FROM Cart WHERE Customer_ID = ?", (customer_id,))
         return self.cursor.fetchall()
 
+    def add_payment_type(self, payment_type: str):
+        """Adds a new payment type to the db"""
+        self.cursor.execute("INSERT INTO PaymentType (PaymentName) VALUES (?)", (payment_type,))
+        self.connection.commit()
+        return True
+
+    def add_new_credit_card(self, payment_info: dict):
+        """Adds a new credit card to the db"""
+        self.cursor.execute(
+            """
+            INSERT INTO CreditCard 
+            (
+                Card_ID, 
+                Address1, 
+                Address2, 
+                Country, 
+                State, 
+                City, 
+                ZipCode, 
+                NameOnCard,
+                CardNumber, 
+                ExpDate, 
+                CVC
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, 
+            (
+                payment_info["card_id"], 
+                payment_info["address1"], 
+                payment_info["address2"], 
+                payment_info["country"], 
+                payment_info["state"], 
+                payment_info["city"], 
+                payment_info["zip"], 
+                payment_info["name_on_card"],
+                payment_info["card_number"], 
+                payment_info["expiration_date"], 
+                payment_info["cvc"]
+            )
+        )
+        self.connection.commit()
+        return True
+    
+    def get_credit_card_details(self, card_id: int):
+        """Gets the details of a credit card from the db"""
+        self.cursor.execute("SELECT * FROM CreditCard WHERE Card_ID = ?", (card_id,))
+        return self.cursor.fetchone()
+
+    def add_new_paypal(self, paypal_id: int, email: str):
+        """Adds a new paypal account to the db"""
+        self.cursor.execute(
+            "INSERT INTO Paypal (Paypal_ID, Email) VALUES (?, ?)", 
+            (paypal_id, email)
+        )
+        self.connection.commit()
+        return True
+
+    def get_paypal_details(self, paypal_id: int):
+        """Gets the details of a paypal account from the db"""
+        self.cursor.execute("SELECT * FROM Paypal WHERE Paypal_ID = ?", (paypal_id,))
+        return self.cursor.fetchone()
+    
     def add_new_order(self, customer_id: int):
         pass
 

@@ -4,4 +4,4 @@ rm database.db
 
 python3 setup_db.py
 
-pytest
+pytest -vv
