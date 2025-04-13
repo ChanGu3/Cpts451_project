@@ -451,18 +451,19 @@ class Database:
         self.cursor.execute("SELECT Product_ID FROM Cart WHERE Customer_ID = ?", (customer_id,))
         return self.cursor.fetchall()
 
-    def add_payment_type(self, payment_type: str):
+    def add_payment_type(self, payment_type_name: str):
         """Adds a new payment type to the db"""
-        self.cursor.execute("INSERT INTO PaymentType (PaymentName) VALUES (?)", (payment_type,))
+        self.cursor.execute("INSERT INTO PaymentType (PaymentTypeName) VALUES (?)", (payment_type_name,))
         self.connection.commit()
         return True
 
-    def add_new_credit_card(self, payment_info: dict):
+    def add_new_credit_card(self, customer_id: int, payment_info: dict):
         """Adds a new credit card to the db"""
         self.cursor.execute(
             """
             INSERT INTO CreditCard 
             (
+                Customer_ID, 
                 Card_ID, 
                 Address1, 
                 Address2, 
@@ -474,10 +475,11 @@ class Database:
                 CardNumber, 
                 ExpDate, 
                 CVC
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, 
             (
-                payment_info["card_id"], 
+                customer_id, 
+                self._new_card_id(), 
                 payment_info["address1"], 
                 payment_info["address2"], 
                 payment_info["country"], 
@@ -493,25 +495,39 @@ class Database:
         self.connection.commit()
         return True
     
-    def get_credit_card_details(self, card_id: int):
+    def get_credit_card_details(self, customer_id: int):
         """Gets the details of a credit card from the db"""
-        self.cursor.execute("SELECT * FROM CreditCard WHERE Card_ID = ?", (card_id,))
+        self.cursor.execute("SELECT * FROM CreditCard WHERE Customer_ID = ?", (customer_id,))
         return self.cursor.fetchone()
 
-    def add_new_paypal(self, paypal_id: int, email: str):
+    def add_new_paypal(self, customer_id: int, email: str):
         """Adds a new paypal account to the db"""
         self.cursor.execute(
-            "INSERT INTO Paypal (Paypal_ID, Email) VALUES (?, ?)", 
-            (paypal_id, email)
+            "INSERT INTO Paypal (Customer_ID, Paypal_ID, Email) VALUES (?, ?, ?)", 
+            (customer_id, self._new_paypal_id(), email)
         )
         self.connection.commit()
         return True
 
-    def get_paypal_details(self, paypal_id: int):
+    def get_paypal_details(self, customer_id: int):
         """Gets the details of a paypal account from the db"""
-        self.cursor.execute("SELECT * FROM Paypal WHERE Paypal_ID = ?", (paypal_id,))
+        self.cursor.execute("SELECT * FROM Paypal WHERE Customer_ID = ?", (customer_id,))
         return self.cursor.fetchone()
     
+    def add_payment(self, customer_id: int, amount: float, payment_type_name: str):
+        """Adds a new payment to the db. User payment info must already be in db."""
+        self.cursor.execute(
+            "INSERT INTO Payment (Customer_ID, Payment_ID, PaymentTypeName, Amount) VALUES (?, ?, ?, ?)", 
+            (customer_id, self._new_payment_id(), payment_type_name, amount)
+        )
+        self.connection.commit()
+        return True
+
+    def get_payment_details(self, payment_id: int, payment_type_name: str):
+        """Gets the details of a payment from the db."""
+        self.cursor.execute("SELECT * FROM Payment WHERE Payment_ID = ? AND PaymentTypeName = ?", (payment_id, payment_type_name))
+        return self.cursor.fetchone()
+
     def add_new_order(self, customer_id: int):
         pass
 
@@ -598,3 +614,27 @@ class Database:
         if max_product_id is None:
             return 0
         return max_product_id + 1
+
+    def _new_paypal_id(self) -> int:
+        """generate new paypal id artifical key"""
+        self.cursor.execute("SELECT MAX(Paypal_ID) FROM Paypal")
+        max_paypal_id = self.cursor.fetchone()[0]
+        if max_paypal_id is None:
+            return 0
+        return max_paypal_id + 1
+
+    def _new_card_id(self) -> int:
+        """generate new card id artifical key"""
+        self.cursor.execute("SELECT MAX(Card_ID) FROM CreditCard")
+        max_card_id = self.cursor.fetchone()[0]
+        if max_card_id is None:
+            return 0
+        return max_card_id + 1
+
+    def _new_payment_id(self) -> int:
+        """generate new payment id artifical key"""
+        self.cursor.execute("SELECT MAX(Payment_ID) FROM Payment")
+        max_payment_id = self.cursor.fetchone()[0]
+        if max_payment_id is None:
+            return 0
+        return max_payment_id + 1

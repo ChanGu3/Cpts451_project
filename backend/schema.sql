@@ -174,34 +174,39 @@ create table OrderStatus(
 );
 
 create table PaymentType(
-	PaymentName Varchar(100),
-	CONSTRAINT PaymentType_PK PRIMARY KEY(PaymentName)
+	PaymentTypeName Varchar(100),
+	CONSTRAINT PaymentType_PK PRIMARY KEY(PaymentTypeName)
 );
 
 /*
 Payment_ID in all payment types schemas need to be unique 
 */
 create table Payment(
+	Customer_ID INT,
 	Payment_ID INT,
-	PaymentName Varchar(100),
+	PaymentTypeName Varchar(100),
 	Amount Numeric(8,2)
         CONSTRAINT Payment_Amount_NOTNULL NOT NULL
         CONSTRAINT Payment_Amount_NonNegative CHECK (Amount >= 0)
     ,
-	CONSTRAINT Payment_PK PRIMARY KEY(Payment_ID, PaymentName),
-	CONSTRAINT Payment_PaymentName_FK FOREIGN KEY(PaymentName) REFERENCES PaymentType(PaymentName) ON DELETE SET NULL
+	CONSTRAINT Payment_PK PRIMARY KEY(Customer_ID, Payment_ID, PaymentTypeName),
+	CONSTRAINT Payment_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE,
+	CONSTRAINT Payment_PaymentTypeName_FK FOREIGN KEY(PaymentTypeName) REFERENCES PaymentType(PaymentTypeName) ON DELETE SET NULL
 );
 
 create table Paypal(
+	Customer_ID INT,
 	Paypal_ID INT,
 	Email Varchar(254)
         CONSTRAINT Paypal_Email_NOTNULL NOT NULL
         CONSTRAINT Paypal_Email_Format CHECK (Email LIKE '%@%.%')
     ,
-	CONSTRAINT Paypal_PK PRIMARY KEY(Paypal_ID)
+	CONSTRAINT Paypal_PK PRIMARY KEY(Customer_ID, Paypal_ID),
+	CONSTRAINT Paypal_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE
 );
 
 create table CreditCard(
+	Customer_ID INT,
 	Card_ID INT,
 	Address1 Varchar(300)
         CONSTRAINT CreditCard_Address1_NOTNULL NOT NULL
@@ -234,7 +239,8 @@ create table CreditCard(
 	ExpDate DATE
         CONSTRAINT CreditCard_ExpDate_NOTNULL NOT NULL
     ,
-	CONSTRAINT CreditCard_PK PRIMARY KEY(Card_ID)
+	CONSTRAINT CreditCard_PK PRIMARY KEY(Customer_ID, Card_ID),
+	CONSTRAINT CreditCard_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE
 );
 
 -- create table ProductReviews(
