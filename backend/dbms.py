@@ -419,27 +419,41 @@ class Database:
         self.cursor.execute("SELECT Product_ID FROM Wishlist WHERE Customer_ID = ?", (customer_id,))
         return self.cursor.fetchall()
 
-    def add_product_to_cart(self, customer_id: int, product_id: int):
+    def add_product_to_cart(self, customer_id: int, product_id: int, quantity: int) -> bool:
         customer_exists = self._does_customer_id_exist(customer_id)
         product_exists = self._does_product_exist(product_id)
         if customer_exists and product_exists:
-            self.cursor.execute("INSERT INTO Cart (Customer_ID, Product_ID) VALUES (?, ?)", (customer_id, product_id))
+            if self._does_Cart_Product_exist(customer_id, product_id):
+                # If the product is already in the cart, update the quantity
+                self.cursor.execute("UPDATE Cart SET Quantity = Quantity + ? WHERE Customer_ID = ? AND Product_ID = ?", (quantity, customer_id, product_id))
+            else:
+                self.cursor.execute("INSERT INTO Cart (Customer_ID, Product_ID, Quantity) VALUES (?, ?, ?)", (customer_id, product_id, quantity))
             self.connection.commit()
             return True
         return False
 
-    def remove_product_from_cart(self, customer_id: int, product_id: int):
+    def remove_product_from_cart(self, customer_id: int, product_id: int, quantity: int) -> bool:
         """Removes a product from the customer's cart"""
-        self.cursor.execute("DELETE FROM Cart WHERE Customer_ID = ? AND Product_ID = ?", (customer_id, product_id))
-        self.connection.commit()
-        return True
+        customer_exists = self._does_customer_id_exist(customer_id)
+        product_exists = self._does_product_exist(product_id)
+        if customer_exists and product_exists:
+            product_info = self._does_Cart_Product_exist(customer_id, product_id)
+            if product_info is not None:
+                if product_info[2] > quantity:
+                    # If the quantity is greater than the quantity to remove, update the quantity
+                    self.cursor.execute("UPDATE Cart SET Quantity = Quantity - ? WHERE Customer_ID = ? AND Product_ID = ?", (quantity, customer_id, product_id))
+                else:
+                    self.cursor.execute("DELETE FROM Cart WHERE Customer_ID = ? AND Product_ID = ?", (customer_id, product_id))
+                self.connection.commit()
+                return True
+        return False
 
-    def get_all_product_ids_in_cart(self, customer_id: int):
+    def get_all_product_ids_and_quantity_in_cart(self, customer_id: int):
         """
         Returns the product ids of all products in the cart. 
         search_product_by_id() can then be used to get the details.
         """
-        self.cursor.execute("SELECT Product_ID FROM Cart WHERE Customer_ID = ?", (customer_id,))
+        self.cursor.execute("SELECT Product_ID, Quantity FROM Cart WHERE Customer_ID = ?", (customer_id,))
         return self.cursor.fetchall()
 
     def add_new_order(self, customer_id: int):
@@ -504,6 +518,14 @@ class Database:
         if len(self.cursor.fetchall()) == 0:
             return False
         return True
+
+    def _does_Cart_Product_exist(self, customer_id: int, product_id: int) -> bool:
+        """Checks if product is in the cart for the customer"""
+        self.cursor.execute("SELECT Customer_ID, Product_ID, Quantity FROM Cart WHERE Customer_ID = ? AND Product_ID = ?", (customer_id, product_id,))
+        data = len(self.cursor.fetchall())
+        if len(data) == 0:
+            return data
+        return None
 
     def _new_customer_id(self) -> int:
         """generate new customer id artifical key"""

@@ -88,7 +88,29 @@ def product_page(productID):
         return render_template('Product.html', product_details=product_details, product_thumbnail_name=product_thumbnail_name)
     else:
         return abort(404)
+
+@app.route('/<string:username>/Cart')
+def cart_page(username, methods=['GET', 'POST']): 
+    if g.user is not None:
+        if g.user.userType != "Customer" or username != g.user.username:
+            return abort(404)
+    else:
+        return abort(404)
     
+    database = GetDatabase()
+    
+    if request.method == 'POST':
+        if request.form.get('remove_item') is not None:
+            product_id = request.form.get('product_id')
+        elif request.form.get('update_quantity') is not None:
+            product_id = request.form.get('product_id')
+            quantity = request.form.get('quantity')
+    
+    
+    cart_items = database.get_all_product_ids_and_quantity_in_cart(g.user.ID)
+    del(database)
+    return render_template('Cart.html', cart_items=cart_items)
+
 @app.route('/')
 def domain():
     return redirect(url_for('index'))

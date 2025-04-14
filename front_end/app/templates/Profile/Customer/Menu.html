@@ -9,20 +9,20 @@
 <div class="account-container">
     <h1>Your Account</h1>
     <div class="account-sections">
-        <div class="account-box" onclick="window.location.href='{{ url_for('user_profile_page', username=user.username, page='Orders') }}';">
+        <div class="account-box" onclick="window.location.href='{{ url_for('profile_route.user_profile_page', displayName=user.username, page='Orders') }}';">
             <h2>Orders</h2>
             <p>Track, return, or buy things again</p>
-            <a href="{{ url_for('user_profile_page', username=user.username, page='Orders') }}">View Orders</a>
+            <a href="{{ url_for('profile_route.user_profile_page', displayName=user.username, page='Orders') }}">View Orders</a>
         </div>
-        <div class="account-box" onclick="window.location.href='{{ url_for('user_profile_page', username=user.username, page='PersonalInformation') }}';">
+        <div class="account-box" onclick="window.location.href='{{ url_for('profile_route.user_profile_page', displayName=user.username, page='PersonalInformation') }}';">
             <h2>Login & Security</h2>
             <p>Manage email, phone number, and password</p>
-            <a href="{{ url_for('user_profile_page', username=user.username, page='PersonalInformation') }}">Edit Login Details</a>
+            <a href="{{ url_for('profile_route.user_profile_page', displayName=user.username, page='PersonalInformation') }}">Edit Login Details</a>
         </div>
-        <div class="account-box" onclick="window.location.href='{{ url_for('user_profile_page', username=user.username, page='Wishlist') }}';">
+        <div class="account-box" onclick="window.location.href='{{ url_for('profile_route.user_profile_page', displayName=user.username, page='Wishlist') }}';">
             <h2>Wishlist</h2>
             <p>View and edit your wishlist</p>
-            <a href="{{ url_for('user_profile_page', username=user.username, page='Wishlist') }}">Go to Wishlist</a>
+            <a href="{{ url_for('profile_route.user_profile_page', displayName=user.username, page='Wishlist') }}">Go to Wishlist</a>
         </div>
     </div>
 </div>

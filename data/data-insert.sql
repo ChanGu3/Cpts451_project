@@ -19,10 +19,10 @@ INSERT INTO Product VALUES
 (4, 'Product D', 40.99, 300, 'Description of Product D', 20, 'www.productD.com', '2025-FEB-15');
 
 INSERT INTO Cart VALUES
-(1, 1),
-(1, 2),
-(2, 3),
-(3, 4);
+(1, 1, 3),
+(1, 2, 5),
+(2, 3, 1),
+(3, 4, 9);
 
 INSERT INTO Wishlist VALUES
 (1, 3),

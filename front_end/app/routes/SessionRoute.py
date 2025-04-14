@@ -17,8 +17,8 @@ def set_session():
     # logging in is hardcoded when we have page for login we will use the form data to set the session cookies
     
     # if Admin
-    session['userType'] = 'Admin'
-    session['username'] = 'admin1'
+    session['userType'] = 'Customer'
+    session['username'] = 'customer1'
     session['ID'] = 0
     # if Customer
         # session['userType'] = 'Customer'

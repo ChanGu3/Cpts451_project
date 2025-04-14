@@ -35,6 +35,10 @@ create table CustomerUser(
 create table Cart(
 	Customer_ID INT,
 	Product_ID INT,
+	Quantity INT 
+		CONSTRAINT Cart_Quantity_NOTNULL NOT NULL
+		CONSTRAINT Cart_Quantity_NonNegative CHECK (Quantity >= 0)
+	,
 	CONSTRAINT Cart_PK PRIMARY KEY(Customer_ID, Product_ID),
 	CONSTRAINT Cart_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE, 
 	CONSTRAINT Cart_Product_ID_FK FOREIGN KEY(Product_ID) REFERENCES Product(Product_ID) ON DELETE CASCADE
