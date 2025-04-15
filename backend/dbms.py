@@ -9,6 +9,7 @@ class Database:
     def __init__(self, database_fname: str):
         self.database_fname = database_fname
         self.connection = sqlite3.connect(self.database_fname)
+        self.connection.row_factory = sqlite3.Row
         print("Connection to database established...")
         self.cursor = self.connection.cursor()
         print("Cursor created...")
@@ -439,7 +440,7 @@ class Database:
         if customer_exists and product_exists:
             product_info = self._does_Cart_Product_exist(customer_id, product_id)
             if product_info is not None:
-                if product_info[2] > quantity:
+                if product_info[0]['Quantity'] > quantity:
                     # If the quantity is greater than the quantity to remove, update the quantity
                     self.cursor.execute("UPDATE Cart SET Quantity = Quantity - ? WHERE Customer_ID = ? AND Product_ID = ?", (quantity, customer_id, product_id))
                 else:
@@ -448,13 +449,14 @@ class Database:
                 return True
         return False
 
-    def get_all_product_ids_and_quantity_in_cart(self, customer_id: int):
+    def get_all_products_in_cart(self, customer_id: int):
         """
         Returns the product ids of all products in the cart. 
         search_product_by_id() can then be used to get the details.
         """
-        self.cursor.execute("SELECT Product_ID, Quantity FROM Cart WHERE Customer_ID = ?", (customer_id,))
-        return self.cursor.fetchall()
+        self.cursor.execute("SELECT Product.*, ProductThumbnail.ImageName, Cart.Quantity FROM Cart INNER JOIN Product ON Cart.Product_ID = Product.Product_ID INNER JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID WHERE Customer_ID = ?", (customer_id,))
+        rows = self.cursor.fetchall()
+        return rows
 
     def add_new_order(self, customer_id: int):
         pass
@@ -522,8 +524,8 @@ class Database:
     def _does_Cart_Product_exist(self, customer_id: int, product_id: int) -> bool:
         """Checks if product is in the cart for the customer"""
         self.cursor.execute("SELECT Customer_ID, Product_ID, Quantity FROM Cart WHERE Customer_ID = ? AND Product_ID = ?", (customer_id, product_id,))
-        data = len(self.cursor.fetchall())
-        if len(data) == 0:
+        data = self.cursor.fetchall()
+        if len(data) != 0:
             return data
         return None
 

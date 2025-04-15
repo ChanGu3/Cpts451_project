@@ -11,60 +11,63 @@
         <div class="Left">
             <div class="OtherContentTop">
                 <div class="ImageContainer">
-                    <img src="{{ url_for('get_thumbnail', productName=product_details[1], imageName=product_thumbnail_name) }}" alt="No Image">
+                    <img src="{{ url_for('get_thumbnail', productName=product_details['Title'], imageName=product_thumbnail_name) }}" alt="No Image">
                 </div>
                 <div class="ProductInfo">
-                    <p> {{product_details[1]}} </p>
+                    <p> {{product_details['Title']}} </p>
                     <div class="TitleLine"> </div> 
-                    {% if product_details[5] > 0 %}
-                        <p> Original Price: <s> ${{product_details[2]}} </s> </p>
-                        <p> Discount: {{product_details[5]}}% </p>
-                        {% set discounted_price = (product_details[2] * (1 - (product_details[5] / 100)))|round(2) %}
+                    {% if product_details['DiscountPercentage'] > 0 %}
+                        <p> Original Price: <s> ${{product_details['Price']}} </s> </p>
+                        <p> Discount: {{product_details['DiscountPercentage']}}% </p>
+                        {% set discounted_price = (product_details['Price'] * (1 - (product_details['DiscountPercentage'] / 100)))|round(2) %}
                         <p> Discounted Price: ${{discounted_price}} </p>
                     {% else %}
-                        <p> Original Price: ${{product_details[2]}} </p>
+                        <p> Original Price: ${{product_details['Price']}} </p>
                     {% endif %}
                     <div class="RowContainer">
                         <p> WebsiteURL: </p>
-                        <a href="https://{{product_details[6]}}" target="_blank"> {{product_details[6]}} </a>
+                        <a href="https://{{product_details['WebsiteInfo']}}" target="_blank"> {{product_details[WebsiteInfo]}} </a>
                     </div>
                 </div>
             </div>
             <div class="DescriptionBottom">
                 <p> Description: </p>
-                <p> {{product_details[4]}} </p>
+                <p> {{product_details['Description']}} </p>
             </div>
         </div>
         <div class="Right">
             <br> </br>
-            {% if product_details[5] > 0 %}
-                {% set discounted_price = (product_details[2] * (1 - (product_details[5] / 100)))|round(2) %}
+            {% if product_details['DiscountPercentage'] > 0 %}
+                {% set discounted_price = (product_details['Price'] * (1 - (product_details['DiscountPercentage'] / 100)))|round(2) %}
                 <p> Price: ${{discounted_price}} </p>
             {% else %}
-                <p> Price: ${{product_details[2]}} </p>
+                <p> Price: ${{product_details['Price']}} </p>
             {% endif %}
-            {% if product_details[3] > 0 %}
-                <p> In Stock: {{product_details[3]}} </p>
+            {% if product_details['Stock'] > 0 %}
+                <p> In Stock: {{product_details['Stock']}} </p>
             {% else %}
                 <p> Out of Stock </p>
             {% endif %}
             <div class="RowContainer">
                 <p> Quantity: </p>
-                <select id="ProductQuantity" name="quantity"> 
-                    {% if product_details[3] > 0 %}
-                        <option value="1" selected> 1 </option> 
-                        {% for i in range(2, product_details[3]+1) %}
-                            <option value="{{i}}">{{i}}</option>
-                        {% endfor %}
-                    {% else %}
-                        <option value="0" selected> Out of Stock </option> 
-                        <script>
-                            document.getElementById("ProductQuantity").disabled = true;
-                        </script>
-                    {% endif %}
-                </select> 
+                <form action="{{ url_for('add_cart_item') }}" method="post">
+                    <select id="ProductQuantity" name="quantity"> 
+                        {% if product_details['Stock'] > 0 %}
+                            <option value="1" selected> 1 </option> 
+                            {% for i in range(2, product_details['Stock']+1) %}
+                                <option value="{{i}}">{{i}}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="0" selected> Out of Stock </option> 
+                            <script>
+                                document.getElementById("ProductQuantity").disabled = true;
+                            </script>
+                        {% endif %}
+                    </select> 
+                    <input type="hidden" name="product_id" value="{{ product_details['Product_ID'] }}">
+                    <button>Add To Cart</button>
+                </form>
             </div>
-            <button> Add to Cart </button>
             <br> </br>
             <button> Add to Wishlist </button>
         </div>

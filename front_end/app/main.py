@@ -80,11 +80,11 @@ def product_page(productID):
     if product_details is not None:
         product_category = database.get_product_category(productID)
         if product_category is not None:
-            product_details = product_details + (product_category[0],)
+            product_details = dict(product_details)  
+            product_details['CategoryName'] = (product_category['CategoryName'],)
         product_thumbnail = database.retrieve_specific_product_thumbnail_details(productID)
         if product_thumbnail is not None:
             product_thumbnail_name = product_thumbnail[1]
-        print(product_details)
         return render_template('Product.html', product_details=product_details, product_thumbnail_name=product_thumbnail_name)
     else:
         return abort(404)
@@ -99,17 +99,59 @@ def cart_page(username, methods=['GET', 'POST']):
     
     database = GetDatabase()
     
-    if request.method == 'POST':
-        if request.form.get('remove_item') is not None:
-            product_id = request.form.get('product_id')
-        elif request.form.get('update_quantity') is not None:
-            product_id = request.form.get('product_id')
-            quantity = request.form.get('quantity')
+    cart_items = database.get_all_products_in_cart(g.user.ID)
+    subTotal = 0
+    item_count = 0
+    for item in cart_items:
+        subTotal += item['Price'] * item['Quantity']
+        item_count += item['Quantity']
+    return render_template('Cart.html', cart_items=cart_items, subTotal=subTotal, item_count=item_count)
+
+@app.route('/Cart/AddItem', methods=['POST'])
+def add_cart_item():
+    if g.user is not None:
+        if g.user.userType != "Customer":
+            return abort(500)
+    else:
+        return abort(500)
+    
+    quantity = request.form.get('quantity')
+    if quantity is None:
+        quantity = 1
+    else:
+        quantity = int(quantity)   
+    
+    product_id = request.form.get('product_id')
     
     
-    cart_items = database.get_all_product_ids_and_quantity_in_cart(g.user.ID)
+    
+    database = GetDatabase()
+    database.add_product_to_cart(customer_id=g.user.ID, product_id=product_id, quantity=quantity)
     del(database)
-    return render_template('Cart.html', cart_items=cart_items)
+    return redirect(url_for('cart_page', username=g.user.username))
+
+@app.route('/Cart/RemoveItem', methods=['POST'])
+def remove_cart_item():
+    if g.user is not None:
+        if g.user.userType != "Customer":
+            return abort(500)
+    else:
+        return abort(500)
+    
+    quantity = request.form.get('quantity')
+    if quantity is None:
+        quantity = 1
+    else:
+        quantity = int(quantity)
+    
+    product_id = request.form.get('product_id')
+    database = GetDatabase()
+    database.remove_product_from_cart(customer_id=g.user.ID, product_id=product_id, quantity=quantity)
+    #is_Product_In_Cart = database._does_Cart_Product_exist(customer_id=g.user.ID, product_id=product_id)
+    del(database)
+    return redirect(url_for('cart_page', username=g.user.username))
+    #if is_Product_In_Cart is False:
+    #    return redirect(url_for('cart_page', username=g.user.username))
 
 @app.route('/')
 def domain():

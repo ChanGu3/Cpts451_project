@@ -19,7 +19,7 @@ def set_session():
     # if Admin
     session['userType'] = 'Customer'
     session['username'] = 'customer1'
-    session['ID'] = 0
+    session['ID'] = 1
     # if Customer
         # session['userType'] = 'Customer'
         # session['username'] = 'JohnDoe'
