@@ -68,6 +68,13 @@
     padding-bottom: 15px;
 }
 
+.CartProduct .OtherDetails button{
+    width: 100px;
+    height: 25px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
 .CartProduct .Price{
     margin-left: auto;
 }

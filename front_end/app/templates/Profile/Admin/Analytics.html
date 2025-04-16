@@ -15,7 +15,7 @@
             <input class="SearchBar" type="text" placeholder="Search..." id='productsearch' name='productsearch' value=''>
         </form>
         {% for displayedProduct in displayedProducts %}
-            <div class='barcontainer'>
+            <div class='barcontainer' id='AnalyticBC'>
                 <div class='top'>
                     <p> {{displayedProduct[1]}} </p>
                 </div>
@@ -26,7 +26,7 @@
                         <p> Total Purchased: {{displayedProduct[9]}}</p>
                         <p> Total Sales: {{displayedProduct[10]}}</p>
                     </div>
-                    <div class='text3container'>        
+                    <div class='text3container' id='AnalyticT3C'>        
                         <p> Current Price: {{displayedProduct[2]}} </p>
                         <p> Discount: {{displayedProduct[5]}}%</p>
                         {% set priceWDis = (displayedProduct[2] * ((100-displayedProduct[5]) / 100)) | round(2) %}
@@ -47,7 +47,7 @@
             {% endif %}
         </div>
     </div>
-
+    <analyticmiddle></analyticmiddle>
     <div class="AnalyticRight">
         <h3>Top 10 Popular Products</h3>
         <br> <br>

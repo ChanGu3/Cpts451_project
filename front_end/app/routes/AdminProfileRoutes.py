@@ -11,7 +11,7 @@ def profile_pi(displayName):
     
     database = GetDatabase()
     adminInfo = database.get_admin_info(g.user.ID)
-    email = adminInfo[3]
+    email = adminInfo['Email']
     
     if request.method == 'POST':
         if request.form['newpassword1'] != request.form['newpassword2']:
@@ -172,7 +172,9 @@ def profile_products(displayName):
             currentEditProductValues = database.retrieve_specific_product_details(productID)
             currentEditProductCategory = database.get_product_category(productID)
             if currentEditProductCategory is not None:
-                currentEditProductValues = currentEditProductValues + (currentEditProductCategory[0],)
+                currentEditProductValues = dict(currentEditProductValues)
+                currentEditProductValues['CategoryName'] = currentEditProductCategory['CategoryName']
+                
             del database
             session['currentEditProductValues'] = currentEditProductValues
             return redirect(url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch) + '#EditProductModal')
@@ -201,4 +203,11 @@ def profile_products(displayName):
 
 
 def Helper_GetCurrentEditProductValues(productID, productName, price, stock, description, discount, websiteURL, currentCategory):
-    return (productID, productName, price, stock, description, discount, websiteURL, "TEMP", currentCategory)
+    return {"Product_ID":productID, 
+            "Title": productName, 
+            "Price": price, 
+            "Stock": stock, 
+            "Description": description, 
+            "DiscountPercentage": discount, 
+            "WebsiteInfo": websiteURL, 
+            "CategoryName": currentCategory}

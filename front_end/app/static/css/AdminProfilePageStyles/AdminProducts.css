@@ -10,14 +10,12 @@
 
 .ProductsCenter .FormSearchBar
 {
-    display: flex;
     justify-content: center;
     align-items: center;
-    width: inherit;
-    height: inherit;
-    max-width: 50vw;
-    max-height: 10vh;
-    margin: 10px;
+    width: 60vw;
+    height: 25px;
+    margin-left: 20%;
+    margin-right: 20%;
 }
 
 .ProductsCenter .FormSearchBar .SearchBar
@@ -102,6 +100,16 @@
     background-color: #b1b1b1;
     position: relative;
     gap: 10px;
+}
+
+#AddProductModal .modal-content button,
+#EditProductModal .modal-content button{
+    height: auto;
+    width: auto;
+    cursor: pointer;
+    background-color: antiquewhite;
+    border-radius: 4px;
+    padding: 3px;
 }
 
 #AddProductModal .modal-content .ContainerRow,

@@ -252,7 +252,7 @@ class Database:
 
     def retrieve_all_product_details_With_Thumbnail_With_Analytics(self):
         """Gets all product details from the db"""
-        self.cursor.execute("SELECT Product.*, ProductThumbnail.ImageName, sum(ProductsInOrder.Quantity), sum(ProductsInOrder.Quantity * ProductsInOrder.PriceSold) FROM Product INNER JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID LEFT JOIN ProductsInOrder ON Product.Product_ID = ProductsInOrder.Product_ID GROUP BY Product.Product_ID ORDER BY (CURRENT_DATE - Product.DateCreated) ASC")
+        self.cursor.execute("SELECT Product.*, ProductThumbnail.ImageName, sum(ProductsInOrder.Quantity) AS QuantitySold, sum(ProductsInOrder.Quantity * ProductsInOrder.PriceSold) AS TotalEquity FROM Product INNER JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID LEFT JOIN ProductsInOrder ON Product.Product_ID = ProductsInOrder.Product_ID GROUP BY Product.Product_ID ORDER BY (CURRENT_DATE - Product.DateCreated) ASC")
         return self.cursor.fetchall()
 
     def retrieve_specific_product_details(self, product_id: int):
@@ -424,7 +424,7 @@ class Database:
         customer_exists = self._does_customer_id_exist(customer_id)
         product_exists = self._does_product_exist(product_id)
         if customer_exists and product_exists:
-            if self._does_Cart_Product_exist(customer_id, product_id):
+            if self._does_cart_product_exist(customer_id, product_id):
                 # If the product is already in the cart, update the quantity
                 self.cursor.execute("UPDATE Cart SET Quantity = Quantity + ? WHERE Customer_ID = ? AND Product_ID = ?", (quantity, customer_id, product_id))
             else:
@@ -438,7 +438,7 @@ class Database:
         customer_exists = self._does_customer_id_exist(customer_id)
         product_exists = self._does_product_exist(product_id)
         if customer_exists and product_exists:
-            product_info = self._does_Cart_Product_exist(customer_id, product_id)
+            product_info = self._does_cart_product_exist(customer_id, product_id)
             if product_info is not None:
                 if product_info[0]['Quantity'] > quantity:
                     # If the quantity is greater than the quantity to remove, update the quantity
@@ -457,6 +457,54 @@ class Database:
         self.cursor.execute("SELECT Product.*, ProductThumbnail.ImageName, Cart.Quantity FROM Cart INNER JOIN Product ON Cart.Product_ID = Product.Product_ID INNER JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID WHERE Customer_ID = ?", (customer_id,))
         rows = self.cursor.fetchall()
         return rows
+
+    def get_Specific_Customer_Review(self, customer_id: int, product_id: int):
+        """Gets specific customer review from db"""
+        self.cursor.execute("SELECT ProductReviews.Product_ID AS Product_ID," +
+                                " ProductReviews.Customer_ID AS Customer_ID," +
+                                " ProductReviews.Rating AS Rating," +
+                                " ProductReviews.Review AS Review," +
+                                " ProductReviews.DateOfReview AS DateOfReview" +
+                                ", CustomerUser.Username FROM ProductReviews INNER JOIN CustomerUser ON ProductReviews.Customer_ID = CustomerUser.Customer_ID WHERE ProductReviews.Customer_ID = ? AND ProductReviews.Product_ID = ?", (customer_id, product_id))
+        return self.cursor.fetchone()
+
+    def get_product_review_average(self, product_id: int):
+        """Gets all reviews of a product from db"""
+        self.cursor.execute("SELECT AVG(Rating) AS AverageRating FROM ProductReviews WHERE Product_ID = ? ORDER BY DateOfReview DESC", (product_id,))
+        data = self.cursor.fetchone()
+        return data['AverageRating']
+    
+    def get_all_reviews_of_product_except_customer(self, customer_id: int, product_id: int):
+        """Gets all reviews of a product from db except the customer's review"""
+        if self._does_customer_id_exist(customer_id) is False:
+            self.cursor.execute("SELECT ProductReviews.Product_ID AS Product_ID," +
+                                " ProductReviews.Customer_ID AS Customer_ID," +
+                                " ProductReviews.Rating AS Rating," +
+                                " ProductReviews.Review AS Review," +
+                                " ProductReviews.DateOfReview AS DateOfReview" +
+                                ", CustomerUser.Username AS Username FROM ProductReviews INNER JOIN CustomerUser ON ProductReviews.Customer_ID = CustomerUser.Customer_ID WHERE ProductReviews.Product_ID = ? ORDER BY ProductReviews.DateOfReview ASC", (product_id,))
+        else:
+            self.cursor.execute("SELECT ProductReviews.Product_ID AS Product_ID," +
+                                " ProductReviews.Customer_ID AS Customer_ID," +
+                                " ProductReviews.Rating AS Rating," +
+                                " ProductReviews.Review AS Review," +
+                                " ProductReviews.DateOfReview AS DateOfReview" +
+                                ", CustomerUser.Username FROM ProductReviews INNER JOIN CustomerUser ON ProductReviews.Customer_ID = CustomerUser.Customer_ID WHERE ProductReviews.Product_ID = ? AND ProductReviews.Customer_ID != ? ORDER BY ProductReviews.DateOfReview ASC", (product_id, customer_id,))
+        data = self.cursor.fetchall()
+        if len(data) == 0:
+            return None
+        return data
+        
+    def add_review_to_product(self, customer_id: int, product_id: int, rating:int, review: str) -> bool:
+        """Inserts a review for a product into the db"""
+        customer_exists = self._does_customer_id_exist(customer_id)
+        product_exists = self._does_product_exist(product_id)
+        review_exists = self._does_Review_Of_Product_exist(customer_id, product_id)
+        if customer_exists and product_exists and not review_exists:
+            self.cursor.execute("INSERT INTO ProductReviews (Customer_ID, Product_ID, Rating, Review, DateOfReview) VALUES (?, ?, ?, ?, strftime('%Y-%m-%d', 'now'))", (customer_id, product_id, rating, review))
+            self.connection.commit()
+            return True
+        return False
 
     def add_new_order(self, customer_id: int):
         pass
@@ -521,13 +569,38 @@ class Database:
             return False
         return True
 
-    def _does_Cart_Product_exist(self, customer_id: int, product_id: int) -> bool:
+    def _does_cart_product_exist(self, customer_id: int, product_id: int):
         """Checks if product is in the cart for the customer"""
-        self.cursor.execute("SELECT Customer_ID, Product_ID, Quantity FROM Cart WHERE Customer_ID = ? AND Product_ID = ?", (customer_id, product_id,))
+        self.cursor.execute("SELECT Customer_ID, Product_ID Quantity FROM Cart WHERE Customer_ID = ? AND Product_ID = ?", (customer_id, product_id,))
         data = self.cursor.fetchall()
         if len(data) != 0:
             return data
         return None
+    
+    def _does_Wishlist_Product_exist(self, customer_id: int, product_id: int):
+        """Checks if product is in the cart for the customer"""
+        self.cursor.execute("SELECT Customer_ID, Product_ID FROM Wishlist WHERE Customer_ID = ? AND Product_ID = ?", (customer_id, product_id,))
+        data = self.cursor.fetchall()
+        if len(data) != 0:
+            return data
+        return None
+
+    def _does_Review_Of_Product_exist(self, customer_id: int, product_id: int) -> bool:
+        """Checks if product is in the cart for the customer"""
+        self.cursor.execute("SELECT Customer_ID, Product_ID FROM ProductReviews WHERE Customer_ID = ? AND Product_ID = ?", (customer_id, product_id,))
+        data = self.cursor.fetchall()
+        if len(data) != 0:
+            return True
+        return False
+    
+    def _does_Product_Exist_In_Customer_Orders(self, customer_id: int, product_id: int) -> bool:
+        """Checks if product has been ordered by the customer"""
+        self.cursor.execute("SELECT Orders.Order_ID, Orders.Customer_ID, ProductsInOrder.Product_ID FROM Orders INNER JOIN ProductsInOrder ON Orders.Order_ID = ProductsInOrder.Order_ID WHERE Orders.Customer_ID = ? AND ProductsInOrder.Product_ID = ?", (customer_id, product_id,))
+        data = self.cursor.fetchall()
+        if len(data) != 0:
+            return True
+        return False
+        
 
     def _new_customer_id(self) -> int:
         """generate new customer id artifical key"""

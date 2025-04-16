@@ -47,7 +47,7 @@
             <select id="categorySelectADD" name="category"> 
                 <option value="None" selected> None </option> 
                 {% for category in categories %}
-                    <option value="{{category[0]}}">{{category[0]}}</option>
+                    <option value="{{category['CategoryName']}}">{{category['CategoryName']}}</option>
                 {% endfor %}
             </select> 
         </div>
@@ -57,14 +57,14 @@
 </div>
 
 {% if currentEditProductValues %}
-    {% set productID = currentEditProductValues[0] %}
-    {% set productName = currentEditProductValues[1] %}
-    {% set stock = currentEditProductValues[3] %}
-    {% set price = currentEditProductValues[2] %}
-    {% set discount = currentEditProductValues[5] %}
-    {% set description = currentEditProductValues[4] %}
-    {% set websiteURL = currentEditProductValues[6] %}  {# Assuming website is at index 6 #}
-    {% set currentCategory = currentEditProductValues[8] %} {# Assuming categories are passed in for the edit #}
+    {% set productID = currentEditProductValues['Product_ID'] %}
+    {% set productName = currentEditProductValues['Title'] %}
+    {% set stock = currentEditProductValues['Stock'] %}
+    {% set price = currentEditProductValues['Price'] %}
+    {% set discount = currentEditProductValues['DiscountPercentage'] %}
+    {% set description = currentEditProductValues['Description'] %}
+    {% set websiteURL = currentEditProductValues['WebsiteInfo'] %}
+    {% set currentCategory = currentEditProductValues['CategoryName'] %}
 
     <div id="EditProductModal" class="modal">
         <form class="modal-content" action="{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch) }}" enctype="multipart/form-data" method="POST">
@@ -109,7 +109,7 @@
                 <select id="categorySelectEDIT" name="category"> 
                     <option value="None" selected> None </option> 
                     {% for category in categories %}
-                        <option value="{{category[0]}}">{{category[0]}}</option>
+                        <option value="{{category['CategoryName']}}">{{category['CategoryName']}}</option>
                     {% endfor %}
                 </select>
                 {% if currentCategory %} 
@@ -133,31 +133,31 @@
     {% for displayedProduct in displayedProducts %}
         <div class='barcontainer'>
             <div class='top'>
-                <p> {{displayedProduct[1]}} </p>
+                <p> {{displayedProduct['Title']}} </p>
             </div>
             <div class='bottom'>
-                <img src="{{ url_for('get_thumbnail', productName=displayedProduct[1], imageName=displayedProduct[8]) }}" alt="No Image">
+                <img src="{{ url_for('get_thumbnail', productName=displayedProduct['Title'], imageName=displayedProduct['imageName']) }}" alt="No Image">
                 <div class='text3container'>        
-                    <p> Stock: {{displayedProduct[3]}} </p>
-                    <p> Total Purchased: {{displayedProduct[9]}}</p>
-                    <p> Total Sales: {{displayedProduct[10]}}</p>
+                    <p> Stock: {{displayedProduct['Stock']}} </p>
+                    <p> Total Purchased: {{displayedProduct['QuantitySold']}}</p>
+                    <p> Total Sales: {{displayedProduct['TotalEquity']}}</p>
                 </div>
                 <div class='text3container'>        
-                    <p> Current Price: {{displayedProduct[2]}} </p>
-                    <p> Discount: {{displayedProduct[5]}}% </p>
-                    {% set priceWDis = (displayedProduct[2] * ((100-displayedProduct[5]) / 100)) | round(2) %}
-                    <p> Price W/ Discount: {{priceWDis}} </p>
+                    <p> Current Price: {{displayedProduct['Price']}} </p>
+                    <p> Discount: {{displayedProduct['DiscountPercentage']}}% </p>
+                    {% set priceWDis = (displayedProduct['Price'] * ((100-displayedProduct['DiscountPercentage']) / 100))%}
+                    <p> Price W/ Discount: {{'%.2f' % priceWDis}} </p>
                 </div>
                 <div class='text3container'>        
                     <p> Description: </p>
-                    <p>{{displayedProduct[4][:30]}}{% if displayedProduct[4]|length > 30%}-{% endif %}<p>
-                    <p>{{displayedProduct[4][30:60]}}{% if displayedProduct[4]|length > 60%}...{% endif %}<p>
+                    <p>{{displayedProduct['Description'][:30]}}{% if displayedProduct['Description']|length > 30%}-{% endif %}<p>
+                    <p>{{displayedProduct['Description'][30:60]}}{% if displayedProduct['Description']|length > 60%}...{% endif %}<p>
                 </div>
                 <div class='text3container'>        
-                    <p> Date Created: {{displayedProduct[7]}} </p>
+                    <p> Date Created: {{displayedProduct['DateCreated']}} </p>
                 </div>
-                <button onclick="location.href='{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch, buttonClicked='EditProduct', productID=displayedProduct[0]) }}';" class="EditProductButton">Edit Product</button>
-                <button onclick="location.href='{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch, buttonClicked='DeleteProduct', productID=displayedProduct[0]) }}';" class="RemoveProductButton">Remove Product</button>
+                <button onclick="location.href='{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch, buttonClicked='EditProduct', productID=displayedProduct['Product_ID']) }}';" class="EditProductButton">Edit Product</button>
+                <button onclick="location.href='{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch, buttonClicked='DeleteProduct', productID=displayedProduct['Product_ID']) }}';" class="RemoveProductButton">Remove Product</button>
             </div>
         </div>
     {% endfor %}

@@ -75,19 +75,71 @@ def get_thumbnail(productName, imageName):
 @app.route('/Product/<int:productID>')
 def product_page(productID):
     database = GetDatabase()
-    
     product_details = database.retrieve_specific_product_details(productID)
+    
     if product_details is not None:
         product_category = database.get_product_category(productID)
+        
         if product_category is not None:
             product_details = dict(product_details)  
             product_details['CategoryName'] = (product_category['CategoryName'],)
+            
         product_thumbnail = database.retrieve_specific_product_thumbnail_details(productID)
+        
         if product_thumbnail is not None:
-            product_thumbnail_name = product_thumbnail[1]
-        return render_template('Product.html', product_details=product_details, product_thumbnail_name=product_thumbnail_name)
+            product_thumbnail_name = product_thumbnail[1]    
+        
+        is_Product_In_Wishlist = database._does_Wishlist_Product_exist(customer_id=g.user.ID, product_id=productID)
+        
+        isCustomer = False
+        isAbleReview = False
+        customer_product_review = None
+        average_rating = database.get_product_review_average(productID)
+        if g.user is not None:
+            if g.user.userType == "Customer": 
+                isCustomer = True
+                isProductPurchased = database._does_Product_Exist_In_Customer_Orders(customer_id=g.user.ID, product_id=productID)
+                if isProductPurchased is True:
+                    isProductReviewed = database._does_Review_Of_Product_exist(customer_id=g.user.ID, product_id=productID)
+                    if isProductReviewed is False:
+                        isAbleReview = True   
+                customer_product_review = database.get_Specific_Customer_Review(customer_id=g.user.ID, product_id=productID)
+                product_Reviews = database.get_all_reviews_of_product_except_customer(g.user.ID, productID)
+            else:
+                product_Reviews = database.get_all_reviews_of_product_except_customer(-1, productID)
+        else:
+            del(database)
+            abort(500)
+        
+        return render_template('Product.html', 
+                               product_details=product_details,
+                               average_rating=average_rating, 
+                               product_Reviews=product_Reviews,
+                               customer_product_review=customer_product_review,
+                               product_thumbnail_name=product_thumbnail_name, 
+                               isProductInWishlist=is_Product_In_Wishlist, 
+                               isCustomer=isCustomer, 
+                               isAbleReview=isAbleReview)
     else:
         return abort(404)
+
+@app.route('/Product/AddReview', methods=['POST'])
+def add_product_review():
+    if g.user is not None:
+        if g.user.userType != "Customer":
+            return abort(500)
+    else:
+        return abort(500)
+    
+    product_id = request.form.get('product_id')
+    rating = request.form.get('rating')
+    review = request.form.get('review')
+    
+    database = GetDatabase()
+    database.add_review_to_product(customer_id=g.user.ID, product_id=product_id, rating=rating, review=review)
+    del(database)
+    
+    return redirect(url_for('product_page', productID=product_id))
 
 @app.route('/<string:username>/Cart')
 def cart_page(username, methods=['GET', 'POST']): 
@@ -123,8 +175,6 @@ def add_cart_item():
     
     product_id = request.form.get('product_id')
     
-    
-    
     database = GetDatabase()
     database.add_product_to_cart(customer_id=g.user.ID, product_id=product_id, quantity=quantity)
     del(database)
@@ -153,6 +203,38 @@ def remove_cart_item():
     #if is_Product_In_Cart is False:
     #    return redirect(url_for('cart_page', username=g.user.username))
 
+@app.route('/Wishlist/AddItem', methods=['POST'])
+def add_wishlist_item():
+    if g.user is not None:
+        if g.user.userType != "Customer":
+            return abort(500)
+    else:
+        return abort(500)
+    
+    product_id = request.form.get('product_id')
+    database = GetDatabase()
+    database.add_product_to_wishlist(customer_id=g.user.ID, product_id=product_id)
+    del(database)
+    
+    if request.form.get('pageSent') == "Product":
+        return redirect(url_for('product_page', productID=product_id))
+
+@app.route('/Wishlist/RemoveItem', methods=['POST'])
+def remove_wishlist_item():
+    if g.user is not None:
+        if g.user.userType != "Customer":
+            return abort(500)
+    else:
+        return abort(500)
+    
+    product_id = request.form.get('product_id')
+    database = GetDatabase()
+    database.remove_product_from_wishlist(customer_id=g.user.ID, product_id=product_id)
+    del(database)
+    
+    if request.form.get('pageSent') == "Product":
+        return redirect(url_for('product_page', productID=product_id))
+    
 @app.route('/')
 def domain():
     return redirect(url_for('index'))
