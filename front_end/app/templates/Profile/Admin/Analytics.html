@@ -17,20 +17,20 @@
         {% for displayedProduct in displayedProducts %}
             <div class='barcontainer' id='AnalyticBC'>
                 <div class='top'>
-                    <p> {{displayedProduct[1]}} </p>
+                    <p> {{displayedProduct['Title']}} </p>
                 </div>
                 <div class='bottom'>
-                    <img src="{{ url_for('get_thumbnail', productName=displayedProduct[1], imageName=displayedProduct[8]) }}" alt="Test">
+                    <img src="{{ url_for('get_thumbnail', productName=displayedProduct['Title'], imageName=displayedProduct['ImageName']) }}" alt="Test">
                     <div class='text3container'>        
-                        <p> Stock: {{displayedProduct[3]}} </p>
-                        <p> Total Purchased: {{displayedProduct[9]}}</p>
-                        <p> Total Sales: {{displayedProduct[10]}}</p>
+                        <p> Stock: {{displayedProduct['Stock']}} </p>
+                        <p> Total Purchased: {{displayedProduct['QuantitySold']}}</p>
+                        <p> Total Sales: {{displayedProduct['TotalEquity']}}</p>
                     </div>
                     <div class='text3container' id='AnalyticT3C'>        
-                        <p> Current Price: {{displayedProduct[2]}} </p>
-                        <p> Discount: {{displayedProduct[5]}}%</p>
-                        {% set priceWDis = (displayedProduct[2] * ((100-displayedProduct[5]) / 100)) | round(2) %}
-                        <p> Price W/ Discount: {{priceWDis}}</p>
+                        <p> Current Price: {{displayedProduct['Price']}} </p>
+                        <p> Discount: {{displayedProduct['DiscountPercentage']}}%</p>
+                        {% set priceWDis = (displayedProduct['Price'] * ((100-displayedProduct['DiscountPercentage']) / 100))%}
+                        <p> Price W/ Discount: {{'%.2f' % priceWDis}}</p>
                     </div>
                 </div>
             </div>
@@ -55,15 +55,15 @@
             {% for paproduct in paproducts %}
                 <paproduct>
                     <div class="Top">
-                        <p>#{{loop.index}} {{paproduct[1]}}</p>
+                        <p>#{{loop.index}} {{paproduct['Title']}}</p>
                     </div>
                     <div class="Bottom">
                         <div class="BottomLeft">
-                            <img src="{{ url_for('get_thumbnail', productName=paproduct[1], imageName=paproduct[2]) }}" alt={{paproduct[1]}} class="ProductImage">
+                            <img src="{{ url_for('get_thumbnail', productName=paproduct['Title'], imageName=paproduct['ImageName']) }}" alt={{paproduct['Title']}} class="ProductImage">
                         </div>
                         <div class="BottomRight">
-                            <p>Total Sales: {{paproduct[4]}}</p>
-                            <p>Total Purchased: {{paproduct[3]}}</p>
+                            <p>Total Sales: {{paproduct['QuantitySold']}}</p>
+                            <p>Total Purchased: {{paproduct['TotalEquity']}}</p>
                         </div>
                     </div>
                 </paproduct>
