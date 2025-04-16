@@ -198,6 +198,9 @@ def profile_products(displayName):
     del database
     return render_template('Profile/Admin/Products.html', displayName=displayName, displayedProducts=displayedProducts, isError=isError, errorMessage=errorMessage, page=page, pageLeftURL=pageLeftURL, pageRightURL=pageRightURL, currentSearch=currentSearch, categories=categories, currentEditProductValues=currentEditProductValues)
 
+@adminPI_route.route('<displayName>/Orders', methods=['GET', 'POST'])
+def profile_orders(displayName):
+    return render_template('Profile/Admin/Orders.html', displayName=displayName)
 
 
 

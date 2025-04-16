@@ -58,6 +58,11 @@ def user_profile_page(displayName, page):
                 return redirect(url_for('adminPI_route.profile_analytics', displayName=currentDisplayName), code=308)
             else:
                 return redirect(url_for('adminPI_route.profile_analytics', displayName=currentDisplayName))
+        elif page == 'Orders':
+            if request.method == 'POST':
+                return redirect(url_for('adminPI_route.profile_orders', displayName=currentDisplayName), code=308)
+            else:
+                return redirect(url_for('adminPI_route.profile_orders', displayName=currentDisplayName))
     elif g.user.userType == 'Customer':    
         if page == 'PersonalInformation':
             pageData = {'email': currentDisplayName, 'PhoneNumber': '555-555-5555'}
