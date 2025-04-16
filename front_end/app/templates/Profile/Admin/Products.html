@@ -133,10 +133,14 @@
     {% for displayedProduct in displayedProducts %}
         <div class='barcontainer'>
             <div class='top'>
-                <p> {{displayedProduct['Title']}} </p>
+                <a href="{{ url_for('product_page', productID=displayedProduct['Product_ID']) }}">
+                    <p> {{displayedProduct['Title']}} </p>
+                </a>
             </div>
             <div class='bottom'>
-                <img src="{{ url_for('get_thumbnail', productName=displayedProduct['Title'], imageName=displayedProduct['imageName']) }}" alt="No Image">
+                <a href="{{ url_for('product_page', productID=displayedProduct['Product_ID']) }}">
+                    <img src="{{ url_for('get_thumbnail', productName=displayedProduct['Title'], imageName=displayedProduct['imageName']) }}" alt="No Image">
+                </a>
                 <div class='text3container'>        
                     <p> Stock: {{displayedProduct['Stock']}} </p>
                     <p> Total Purchased: {{displayedProduct['QuantitySold']}}</p>

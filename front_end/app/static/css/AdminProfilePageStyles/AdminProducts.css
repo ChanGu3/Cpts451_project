@@ -8,6 +8,11 @@
     height: 100%;
 }
 
+.ProductsCenter a{
+    text-decoration: none; /* removes underline */
+    color: inherit;        /* inherits color from parent, removes default blue */
+}
+
 .ProductsCenter .FormSearchBar
 {
     justify-content: center;
