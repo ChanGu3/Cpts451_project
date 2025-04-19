@@ -514,18 +514,63 @@ class Database:
         self.cursor.execute("SELECT * FROM Paypal WHERE Customer_ID = ?", (customer_id,))
         return self.cursor.fetchone()
     
-    def add_payment(self, customer_id: int, amount: float, payment_type_name: str):
-        """Adds a new payment to the db. User payment info must already be in db."""
-        self.cursor.execute(
-            "INSERT INTO Payment (Customer_ID, Payment_ID, PaymentTypeName, Amount) VALUES (?, ?, ?, ?)", 
-            (customer_id, self._new_payment_id(), payment_type_name, amount)
-        )
-        self.connection.commit()
+    def add_record_of_purchase(self, customer_id: int, payment_method_id: int, payment_type_name: str, amount: float):
+        """
+        add_record_of_purchase() will add a new record of purchase (record of purchase) 
+        to the db if there is already a credit card or paypal account stored in the 
+        CreditCard or Paypal tables.
+        
+        This insertion contains the id of the customer that made the purchase, the id
+        and type of the payment method, and the amount of the purchase.
+        """
+        if self._does_payment_method_exist(customer_id, payment_method_id, payment_type_name):
+            self.cursor.execute(
+                "INSERT INTO Purchase (Customer_ID, PaymentMethod_ID, PaymentTypeName, Amount) VALUES (?, ?, ?, ?)", 
+                (customer_id, payment_method_id, payment_type_name, amount)
+            )
+            self.connection.commit()
+            return True
+        return False
+
+    def _does_payment_method_exist(self, customer_id: int, payment_method_id: int, payment_type_name: str):
+        """
+        This function checks if there is a credit card or paypal 
+        account for a particular user already in the db
+        """
+        # Check for any credit card payment methods
+        if payment_type_name == "credit_card":
+            self.cursor.execute(
+                "SELECT * FROM CreditCard WHERE Customer_ID = ? AND Card_ID = ?", 
+                (customer_id, payment_method_id)
+            )
+            if len(self.cursor.fetchall()) == 0:
+                return False
+        # Check for any paypal payment methods
+        elif payment_type_name == "paypal":
+            self.cursor.execute(
+                "SELECT * FROM Paypal WHERE Customer_ID = ? AND Paypal_ID = ?", 
+                (customer_id, payment_method_id)
+            )
+            if len(self.cursor.fetchall()) == 0:
+                return False
+        else:
+            return False
+
         return True
 
-    def get_payment_details(self, payment_id: int, payment_type_name: str):
-        """Gets the details of a payment from the db."""
-        self.cursor.execute("SELECT * FROM Payment WHERE Payment_ID = ? AND PaymentTypeName = ?", (payment_id, payment_type_name))
+    def get_purchase_details(self, customer_id: int, payment_method_id: int, payment_type_name: str):
+        """
+        Gets any details of a recorded purchase from the db. This includes the Customer_ID, 
+        PaymentMethod_ID, PaymentTypeName, and Amount.
+
+        NOTE: (Customer_ID, PaymentMethod_ID) is the primary keys for the appropriate payment 
+        method tables Paypal or CreditCard. The value PaymentTypeName is used to determine 
+        which payment method table to query if that information is needed.
+        """
+        self.cursor.execute(
+            "SELECT * FROM Purchase WHERE Customer_ID = ? AND PaymentMethod_ID = ? AND PaymentTypeName = ?", 
+            (customer_id, payment_method_id, payment_type_name)
+        )
         return self.cursor.fetchone()
 
     def add_new_order(self, customer_id: int):

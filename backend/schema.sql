@@ -181,17 +181,16 @@ create table PaymentType(
 /*
 Payment_ID in all payment types schemas need to be unique 
 */
-create table Payment(
+create table Purchase(
 	Customer_ID INT,
-	Payment_ID INT,
+	PaymentMethod_ID INT,
 	PaymentTypeName Varchar(100),
 	Amount Numeric(8,2)
         CONSTRAINT Payment_Amount_NOTNULL NOT NULL
         CONSTRAINT Payment_Amount_NonNegative CHECK (Amount >= 0)
     ,
-	CONSTRAINT Payment_PK PRIMARY KEY(Customer_ID, Payment_ID, PaymentTypeName),
-	CONSTRAINT Payment_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE,
-	CONSTRAINT Payment_PaymentTypeName_FK FOREIGN KEY(PaymentTypeName) REFERENCES PaymentType(PaymentTypeName) ON DELETE SET NULL
+	CONSTRAINT Purchase_PK PRIMARY KEY(Customer_ID, PaymentMethod_ID, PaymentTypeName),
+	CONSTRAINT Purchase_PaymentTypeName_FK FOREIGN KEY(PaymentTypeName) REFERENCES PaymentType(PaymentTypeName) ON DELETE SET NULL
 );
 
 create table Paypal(
@@ -239,24 +238,23 @@ create table CreditCard(
 	ExpDate DATE
         CONSTRAINT CreditCard_ExpDate_NOTNULL NOT NULL
     ,
-	CONSTRAINT CreditCard_PK PRIMARY KEY(Customer_ID, Card_ID),
-	CONSTRAINT CreditCard_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE
+	CONSTRAINT CreditCard_PK PRIMARY KEY(Customer_ID, Card_ID)
 );
 
--- create table ProductReviews(
--- 	Product_ID INT,
--- 	Customer_ID INT,
--- 	Rating INT
--- 		CONSTRAINT ProductReviews_Rating_NOTNULL NOT NULL
--- 		CONSTRAINT ProductReviews_Rating_Format CHECK (Rating BETWEEN 1 AND 5)
--- 	,
--- 	Review Varchar(1000)
--- 		CONSTRAINT ProductReviews_Review_NOTNULL NOT NULL
--- 	,
--- 	DateOfReview Date 
--- 		CONSTRAINT ProductReviews_DateOfReview_NOTNULL NOT NULL
--- 	,
--- 	CONSTRAINT ProductReviews_PK PRIMARY KEY(Product_ID, Customer_ID),
--- 	CONSTRAINT ProductReviews_Product_ID_FK FOREIGN KEY(Product_ID) REFERENCES Product(Product_ID) ON DELETE CASCADE,
--- 	CONSTRAINT ProductReviews_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE
--- );
+create table ProductReviews(
+	Product_ID INT,
+	Customer_ID INT,
+	Rating INT
+		CONSTRAINT ProductReviews_Rating_NOTNULL NOT NULL
+		CONSTRAINT ProductReviews_Rating_Format CHECK (Rating BETWEEN 1 AND 5)
+	,
+	Review Varchar(1000)
+		CONSTRAINT ProductReviews_Review_NOTNULL NOT NULL
+	,
+	DateOfReview Date 
+		CONSTRAINT ProductReviews_DateOfReview_NOTNULL NOT NULL
+	,
+	CONSTRAINT ProductReviews_PK PRIMARY KEY(Product_ID, Customer_ID),
+	CONSTRAINT ProductReviews_Product_ID_FK FOREIGN KEY(Product_ID) REFERENCES Product(Product_ID) ON DELETE CASCADE,
+	CONSTRAINT ProductReviews_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE
+);

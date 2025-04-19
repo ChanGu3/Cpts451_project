@@ -293,6 +293,7 @@ def test_cart_updates():
     assert db.search_product_by_id(cart_products[0][0]) == (2, "baseball2", 100, 100, "test", 10, "test", "2025-03-04")
 
 def test_add_new_credit_card():
+    assert not db._does_payment_method_exist(0, 0, "credit_card")
     assert db.add_new_credit_card(
         customer_id=0,
         payment_info={
@@ -314,8 +315,8 @@ def test_add_new_paypal():
     assert db.add_new_paypal(customer_id=0, email="test@test.com")
     assert db.get_paypal_details(0) == (0, 0, "test@test.com")
 
-def test_add_payment():
-    assert db.add_payment(customer_id=0, amount=100, payment_type_name="credit_card")
-    assert db.get_payment_details(0, "credit_card") == (0, 0, "credit_card", 100)
-    assert db.add_payment(customer_id=0, amount=100, payment_type_name="paypal")
-    assert db.get_payment_details(1, "paypal") == (0, 1, "paypal", 100)
+def test_add_record_of_purchase():
+    assert db.add_record_of_purchase(customer_id=0, payment_method_id=0, amount=100, payment_type_name="credit_card")
+    assert db.get_purchase_details(0, 0, "credit_card") == (0, 0, "credit_card", 100)
+    assert db.add_record_of_purchase(customer_id=0, payment_method_id=0, amount=100, payment_type_name="paypal")
+    assert db.get_purchase_details(0, 0, "paypal") == (0, 0, "paypal", 100)
