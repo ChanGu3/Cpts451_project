@@ -317,6 +317,9 @@ def test_add_new_paypal():
 
 def test_add_record_of_purchase():
     assert db.add_record_of_purchase(customer_id=0, payment_method_id=0, amount=100, payment_type_name="credit_card")
-    assert db.get_purchase_details(0, 0, "credit_card") == (0, 0, "credit_card", 100)
+    assert db.get_individual_purchase_details(0, 0, "credit_card") == (0, 0, "credit_card", 100)
     assert db.add_record_of_purchase(customer_id=0, payment_method_id=0, amount=100, payment_type_name="paypal")
-    assert db.get_purchase_details(0, 0, "paypal") == (0, 0, "paypal", 100)
+    assert db.get_individual_purchase_details(0, 0, "paypal") == (0, 0, "paypal", 100)
+
+def test_get_all_purchase_details():
+    assert db.get_all_purchase_details(customer_id=0) == [(0, 0, "credit_card", 100), (0, 0, "paypal", 100)]

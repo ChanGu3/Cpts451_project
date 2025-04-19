@@ -558,7 +558,7 @@ class Database:
 
         return True
 
-    def get_purchase_details(self, customer_id: int, payment_method_id: int, payment_type_name: str):
+    def get_individual_purchase_details(self, customer_id: int, payment_method_id: int, payment_type_name: str):
         """
         Gets any details of a recorded purchase from the db. This includes the Customer_ID, 
         PaymentMethod_ID, PaymentTypeName, and Amount.
@@ -572,6 +572,11 @@ class Database:
             (customer_id, payment_method_id, payment_type_name)
         )
         return self.cursor.fetchone()
+
+    def get_all_purchase_details(self, customer_id: int):
+        """ Gets all purchase details from the db for a given customer. """
+        self.cursor.execute("SELECT * FROM Purchase WHERE Customer_ID = ?", (customer_id,))
+        return self.cursor.fetchall()
 
     def add_new_order(self, customer_id: int):
         pass
