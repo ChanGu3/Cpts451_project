@@ -315,11 +315,44 @@ def test_add_new_paypal():
     assert db.add_new_paypal(customer_id=0, email="test@test.com")
     assert db.get_paypal_details(0) == (0, 0, "test@test.com")
 
-def test_add_record_of_purchase():
-    assert db.add_record_of_purchase(customer_id=0, payment_method_id=0, amount=100, payment_type_name="credit_card")
-    assert db.get_individual_purchase_details(0, 0, "credit_card") == (0, 0, "credit_card", 100)
-    assert db.add_record_of_purchase(customer_id=0, payment_method_id=0, amount=100, payment_type_name="paypal")
-    assert db.get_individual_purchase_details(0, 0, "paypal") == (0, 0, "paypal", 100)
+def test_make_new_order():
 
-def test_get_all_purchase_details():
-    assert db.get_all_purchase_details(customer_id=0) == [(0, 0, "credit_card", 100), (0, 0, "paypal", 100)]
+    customer_id = 0
+    credit_card_info = db.get_credit_card_details(customer_id)
+
+    payment_info = {
+        "payment_method_id": credit_card_info[0],
+        "payment_type_name": "credit_card",
+        "purchase_amount": 100
+    }
+    address_info = {
+        "date_of_purchase": "2025-01-01",
+        "first_name": "hunter",
+        "last_name": "lindauer",
+        "address1": "1234 main st",
+        "address2": "apt 1",
+        "country": "usa",
+        "state": "wa",
+        "city": "seattle",
+        "zip": "98105",
+        "phone": "1234567890"
+    }
+    products_to_order = [
+        (1, 1), # (product id, quantity)
+        (2, 1)
+    ]
+
+    assert db.add_new_order(
+        customer_id, 
+        payment_info, 
+        address_info,
+        products_to_order
+        )
+
+
+    order_details, payment_details, products_in_order = db.get_order_details(order_id=0)
+
+    assert order_details == (0, 0, 0, "credit_card", "2025-01-01", "Order In Progress", "hunter", "lindauer", "1234 main st", "apt 1", "usa", "wa", "seattle", 98105, 1234567890)
+    assert payment_details == (0, 0, "credit_card", 100)
+    assert products_in_order == [(0, 1, 1, 100, "2025-01-01"), (0, 2, 1, 100, "2025-01-01")]
+

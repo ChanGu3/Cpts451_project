@@ -1,6 +1,7 @@
 import sqlite3
 import bcrypt
 from enum import Enum
+from typing import List, Tuple
 
 class UserType(Enum):
     CUSTOMER = 0
@@ -21,6 +22,8 @@ class Database:
         # add default payment types
         self.add_payment_type("Credit Card")
         self.add_payment_type("Paypal")
+
+        self.default_order_status = "Order In Progress"
 
     def __del__(self):
         """On class destruction, close connection to db"""
@@ -170,6 +173,16 @@ class Database:
         )
         self.connection.commit()
         return product_id
+
+    def product_stock(self, product_id: int) -> int:
+        """Gets the stock of a product from the db"""
+        self.cursor.execute("SELECT Stock FROM Product WHERE Product_ID = ?", (product_id,))
+        return self.cursor.fetchone()[0]
+
+    def product_price(self, product_id: int) -> float:
+        """Gets the price of a product from the db"""
+        self.cursor.execute("SELECT Price FROM Product WHERE Product_ID = ?", (product_id,))
+        return self.cursor.fetchone()[0]
 
     def insert_new_product_image(self, product_id: int, image_name: str, image_data: bytes) -> bool:
         """Inserts product image details into the db. Expects all fields to be provided."""
@@ -514,24 +527,6 @@ class Database:
         self.cursor.execute("SELECT * FROM Paypal WHERE Customer_ID = ?", (customer_id,))
         return self.cursor.fetchone()
     
-    def add_record_of_purchase(self, customer_id: int, payment_method_id: int, payment_type_name: str, amount: float):
-        """
-        add_record_of_purchase() will add a new record of purchase (record of purchase) 
-        to the db if there is already a credit card or paypal account stored in the 
-        CreditCard or Paypal tables.
-        
-        This insertion contains the id of the customer that made the purchase, the id
-        and type of the payment method, and the amount of the purchase.
-        """
-        if self._does_payment_method_exist(customer_id, payment_method_id, payment_type_name):
-            self.cursor.execute(
-                "INSERT INTO Purchase (Customer_ID, PaymentMethod_ID, PaymentTypeName, Amount) VALUES (?, ?, ?, ?)", 
-                (customer_id, payment_method_id, payment_type_name, amount)
-            )
-            self.connection.commit()
-            return True
-        return False
-
     def _does_payment_method_exist(self, customer_id: int, payment_method_id: int, payment_type_name: str):
         """
         This function checks if there is a credit card or paypal 
@@ -578,13 +573,144 @@ class Database:
         self.cursor.execute("SELECT * FROM Purchase WHERE Customer_ID = ?", (customer_id,))
         return self.cursor.fetchall()
 
-    def add_new_order(self, customer_id: int):
-        pass
+    def add_new_order(self, customer_id: int, payment_info: dict, address_info: dict, products_to_order: List[Tuple[int, int]]):
+        """
+        Performs a transaction that updates Purchase, Orders, and ProductsInOrder tables.
+        A valid payment method is required to exist in the db for the customer prior to 
+        calling.
+
+        NOTE: in reality, a payment gateway would be used here, but since this is for a db 
+        class and is not real, we'll just assume the payment is valid if its in the db.
+        """
+        # validate there is a valid payment method for this customer
+        valid_payment_method = self._does_payment_method_exist(
+            customer_id, payment_info["payment_method_id"], payment_info["payment_type_name"]
+        )
+
+        # validate all items are in stock
+        all_products_in_stock = True
+        for (product_id, quantity) in products_to_order:
+            if not self._does_product_exist(product_id):
+                all_products_in_stock = False
+                break
+            if self.product_stock(product_id) < quantity:
+                all_products_in_stock = False
+                break
+
+        if valid_payment_method and all_products_in_stock:
+            order_id = self._new_order_id()
+            
+            self.cursor.execute("BEGIN TRANSACTION")
+            self.cursor.execute(  # insert purchase info into Purchase table
+                """
+                INSERT INTO Purchase 
+                (
+                    Customer_ID, 
+                    PaymentMethod_ID, 
+                    PaymentTypeName, 
+                    Amount
+                ) VALUES (?, ?, ?, ?)
+                """, 
+                (
+                    customer_id, 
+                    payment_info["payment_method_id"], 
+                    payment_info["payment_type_name"], 
+                    payment_info["purchase_amount"]
+                )
+            )
+            self.cursor.execute(  # insert order details into Orders table
+                """
+                INSERT INTO Orders 
+                (
+                    Order_ID,
+                    Customer_ID, 
+                    PaymentMethod_ID, 
+                    PaymentTypeName, 
+                    DateOfPurchase,
+                    StatusName, 
+                    FirstName, 
+                    LastName, 
+                    Address1, 
+                    Address2, 
+                    Country, 
+                    State, 
+                    City, 
+                    ZipCode, 
+                    PhoneNumber
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, 
+                (
+                    order_id,
+                    customer_id,
+                    payment_info["payment_method_id"],
+                    payment_info["payment_type_name"],
+                    address_info["date_of_purchase"],
+                    self.default_order_status,
+                    address_info["first_name"],
+                    address_info["last_name"],
+                    address_info["address1"],
+                    address_info["address2"],
+                    address_info["country"],
+                    address_info["state"],
+                    address_info["city"],
+                    address_info["zip"],
+                    address_info["phone"]
+                )
+            )
+            # insert details of each product in order into ProductsInOrder table
+            for (product_id, quantity) in products_to_order:
+                self.cursor.execute(
+                    """
+                    INSERT INTO ProductsInOrder
+                    (
+                        Order_ID,
+                        Product_ID,
+                        Quantity,
+                        PriceSold,
+                        DateSold
+                    ) VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        order_id,
+                        product_id,
+                        quantity,
+                        self.product_price(product_id),
+                        address_info["date_of_purchase"]
+                    )
+                )
+            self.connection.commit()
+            return True
+        return False
 
     def get_order_details(self, order_id: int):
-        pass
+        """Gets the details of an order from the db"""
 
-    def remove_order(self, order_id: int):
+        # get all order details
+        self.cursor.execute("SELECT * FROM Orders WHERE Order_ID = ?", (order_id,))
+        order_details = self.cursor.fetchone()
+
+        if not (order_details == None): 
+
+            # get payment details
+            customer_id = order_details[1]
+            payment_method_id = order_details[2]
+            payment_type_name = order_details[3]
+            payment_details = self.get_individual_purchase_details(
+                customer_id, payment_method_id, payment_type_name
+            )
+
+            # get all products from the order
+            self.cursor.execute(
+                "SELECT * FROM ProductsInOrder WHERE Order_ID = ?", 
+                (order_id,)
+            )
+            products_in_order = self.cursor.fetchall()
+
+            return order_details, payment_details, products_in_order
+
+        return None
+
+    def cancel_order(self, order_id: int):
         pass
 
     def update_order_status(self, admin_id: int, order_id: int):
@@ -688,3 +814,11 @@ class Database:
         if max_payment_id is None:
             return 0
         return max_payment_id + 1
+
+    def _new_order_id(self) -> int:
+        """generate new order id artifical key"""
+        self.cursor.execute("SELECT MAX(Order_ID) FROM Orders")
+        max_order_id = self.cursor.fetchone()[0]
+        if max_order_id is None:
+            return 0
+        return max_order_id + 1

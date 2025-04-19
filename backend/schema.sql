@@ -109,8 +109,9 @@ create table ProductCategory(
 
 create table Orders(
 	Order_ID INT,
-	Payment_ID INT,
 	Customer_ID INT,
+	PaymentMethod_ID INT,	
+	PaymentTypeName Varchar(100),
 	DateOfPurchase DATE
         CONSTRAINT Order_DateOfPurchase_NOTNULL NOT NULL
     ,
@@ -143,8 +144,8 @@ create table Orders(
         CONSTRAINT Order_PhoneNumber_Format CHECK (PhoneNumber BETWEEN 0000000000 AND 9999999999)
     ,
 	CONSTRAINT Order_PK PRIMARY KEY(Order_ID),
-	CONSTRAINT Order_Payment_ID_FK FOREIGN KEY(Payment_ID) REFERENCES Payment(Payment_ID) ON DELETE SET NULL,
 	CONSTRAINT Order_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE SET NULL,
+	CONSTRAINT Order_PaymentMethod_ID_FK FOREIGN KEY(PaymentMethod_ID) REFERENCES PaymentType(PaymentTypeName) ON DELETE SET NULL,
 	CONSTRAINT Order_StatusName_FK FOREIGN KEY(StatusName) REFERENCES OrderStatus(Name) ON DELETE SET NULL
 );
 
