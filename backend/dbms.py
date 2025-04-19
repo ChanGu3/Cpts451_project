@@ -710,8 +710,15 @@ class Database:
 
         return None
 
+    def get_order_history(self, customer_id: int):
+        """
+        Gets all order ids associated with this customer. 
+        get_order_details() can be used for the details
+        """
+        self.cursor.execute("SELECT Order_ID FROM Orders WHERE Customer_ID = ?", (customer_id,))
+        return self.cursor.fetchall()
+
     def cancel_order(self, order_id: int):
-        """Cancels an order"""
         self.cursor.execute("UPDATE Orders SET StatusName = ? WHERE Order_ID = ?", ("Cancelled", order_id))
         self.connection.commit()
         return True
@@ -727,13 +734,8 @@ class Database:
         return True
 
     def get_order_status(self, order_id: int):
-        """Gets the status of an order"""
         self.cursor.execute("SELECT StatusName FROM Orders WHERE Order_ID = ?", (order_id,))
         return self.cursor.fetchone()[0]
-
-    def get_all_orders_from_user(self, customer_id: int):
-        pass
-
 
     def _hash_new_password(self, password: str) -> tuple[str, str]:
         """Hashes salted password w/ bcrypt"""

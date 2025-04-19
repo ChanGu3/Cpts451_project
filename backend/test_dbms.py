@@ -349,12 +349,12 @@ def test_make_new_order():
         products_to_order
         )
 
-
     order_details, payment_details, products_in_order = db.get_order_details(order_id=0)
 
     assert order_details == (0, 0, 0, "credit_card", "2025-01-01", "Order In Progress", "hunter", "lindauer", "1234 main st", "apt 1", "usa", "wa", "seattle", 98105, 1234567890)
     assert payment_details == (0, 0, "credit_card", 100)
     assert products_in_order == [(0, 1, 1, 100, "2025-01-01"), (0, 2, 1, 100, "2025-01-01")]
+    assert db.get_order_history(customer_id=0) == [(0,)]
 
 def test_order_status_updates():
     assert db.get_order_status(order_id=0) == "Order In Progress"
