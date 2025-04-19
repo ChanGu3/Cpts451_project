@@ -149,6 +149,7 @@ footer {
     margin-top: 30vh;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 300px;
+    background-color: #c5c3a7;
     justify-content: center;
     display: flex;
     align-items: center;
@@ -178,8 +179,21 @@ footer {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 .signin-container button:hover {
     background-color: #969696;
+}
+
+.createaccount-container {
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    background-color: #c5c3a7;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
 }

@@ -8,7 +8,7 @@ create table AdminUser(
     ,
 	Email Varchar(254) 
         CONSTRAINT AdminUser_Email_NOTNULL NOT NULL
-        CONSTRAINT AdminUser_Email_Format CHECK (Email LIKE '%@%.%')
+        CONSTRAINT AdminUser_Email_Format CHECK (Email LIKE '_%@_%._%')
     ,
 	CONSTRAINT AdminUser_PK PRIMARY KEY (Admin_ID)
 );
@@ -20,7 +20,7 @@ create table CustomerUser(
     ,
 	Email Varchar(254) 
         CONSTRAINT CustomerUser_Email_NOTNULL NOT NULL
-        CONSTRAINT CustomerUser_Email_Format CHECK (Email LIKE '%@%.%')
+        CONSTRAINT CustomerUser_Email_Format CHECK (Email LIKE '_%@_%._%')
     ,
 	Password Varchar(64) 
         CONSTRAINT CustomerUser_Password_NOTNULL NOT NULL
@@ -113,8 +113,9 @@ create table ProductCategory(
 
 create table Orders(
 	Order_ID INT,
-	Payment_ID INT,
 	Customer_ID INT,
+	PaymentMethod_ID INT,	
+	PaymentTypeName Varchar(100),
 	DateOfPurchase DATE
         CONSTRAINT Order_DateOfPurchase_NOTNULL NOT NULL
     ,
@@ -147,8 +148,8 @@ create table Orders(
         CONSTRAINT Order_PhoneNumber_Format CHECK (PhoneNumber BETWEEN 0000000000 AND 9999999999)
     ,
 	CONSTRAINT Order_PK PRIMARY KEY(Order_ID),
-	CONSTRAINT Order_Payment_ID_FK FOREIGN KEY(Payment_ID) REFERENCES Payment(Payment_ID) ON DELETE SET NULL,
 	CONSTRAINT Order_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE SET NULL,
+	CONSTRAINT Order_PaymentMethod_ID_FK FOREIGN KEY(PaymentMethod_ID) REFERENCES PaymentType(PaymentTypeName) ON DELETE SET NULL,
 	CONSTRAINT Order_StatusName_FK FOREIGN KEY(StatusName) REFERENCES OrderStatus(Name) ON DELETE SET NULL
 );
 
@@ -178,36 +179,39 @@ create table OrderStatus(
 );
 
 create table PaymentType(
-	PaymentName Varchar(100),
-	CONSTRAINT PaymentType_PK PRIMARY KEY(PaymentName)
+	PaymentTypeName Varchar(100),
+	CONSTRAINT PaymentType_PK PRIMARY KEY(PaymentTypeName)
 );
 
 /*
 Payment_ID in all payment types schemas need to be unique 
 */
-create table Payment(
-	Payment_ID INT,
-	PaymentName Varchar(100),
+create table Purchase(
+	Customer_ID INT,
+	PaymentMethod_ID INT,
+	PaymentTypeName Varchar(100),
 	Amount Numeric(8,2)
         CONSTRAINT Payment_Amount_NOTNULL NOT NULL
         CONSTRAINT Payment_Amount_NonNegative CHECK (Amount >= 0)
     ,
-	CONSTRAINT Payment_PK PRIMARY KEY(Payment_ID),
-	CONSTRAINT Payment_PaymentName_FK FOREIGN KEY(PaymentName) REFERENCES PaymentType(PaymentName) ON DELETE SET NULL
+	CONSTRAINT Purchase_PK PRIMARY KEY(Customer_ID, PaymentMethod_ID, PaymentTypeName),
+	CONSTRAINT Purchase_PaymentTypeName_FK FOREIGN KEY(PaymentTypeName) REFERENCES PaymentType(PaymentTypeName) ON DELETE SET NULL
 );
 
 create table Paypal(
-	Payment_ID INT,
+	Customer_ID INT,
+	Paypal_ID INT,
 	Email Varchar(254)
         CONSTRAINT Paypal_Email_NOTNULL NOT NULL
         CONSTRAINT Paypal_Email_Format CHECK (Email LIKE '%@%.%')
     ,
-	CONSTRAINT Paypal_PK PRIMARY KEY(Payment_ID),
-	CONSTRAINT Paypal_Payment_ID_FK FOREIGN KEY(Payment_ID) REFERENCES Payment(Payment_ID)
+	CONSTRAINT Paypal_PK PRIMARY KEY(Customer_ID, Paypal_ID),
+	CONSTRAINT Paypal_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE
 );
 
 create table CreditCard(
-	Payment_ID INT,
+	Customer_ID INT,
+	Card_ID INT,
 	Address1 Varchar(300)
         CONSTRAINT CreditCard_Address1_NOTNULL NOT NULL
     ,
@@ -239,8 +243,7 @@ create table CreditCard(
 	ExpDate DATE
         CONSTRAINT CreditCard_ExpDate_NOTNULL NOT NULL
     ,
-	CONSTRAINT CreditCard_PK PRIMARY KEY(Payment_ID),
-    CONSTRAINT CreditCard_Payment_ID_FK FOREIGN KEY(Payment_ID) REFERENCES Payment(Payment_ID)
+	CONSTRAINT CreditCard_PK PRIMARY KEY(Customer_ID, Card_ID)
 );
 
 create table ProductReviews(

@@ -1,5 +1,5 @@
 import pytest
-from dbms import Database
+from dbms import Database, UserType
 import bcrypt
 
 """
@@ -141,20 +141,8 @@ def test_admin_add_product():
     assert product_details[4] == "test"
     assert product_details[5] == 10
 
-def test_invalid_admin_update_product():
-    assert not db.admin_update_product(
-        admin_id=0,
-        admin_password="bad_password",
-        product_id=1,
-        new_product_details={
-            "price": 9999
-        }
-    )
-
 def test_admin_update_product():
     assert db.admin_update_product(
-        admin_id=0,
-        admin_password="test",
         product_id=1,
         new_product_details={
             "price": 9999,
@@ -186,20 +174,20 @@ def test_admin_remove_product():
 def test_sign_in_customer():
     """ensures valid customer credentials return the correct user id and email"""
     assert db.customer_account_creation("new_customer1", "test", "test@test.com", "1111111111")
-    assert db.sign_in("new_customer1", "test") == (1, "test@test.com")
+    assert db.sign_in("new_customer1", "test") == ((1, "test@test.com"), UserType.CUSTOMER)
 
 def test_sign_in_admin():
     """ensures valid admin credentials return the correct user id and email"""
     assert db.admin_account_creation("new_admin1", "test", "test@test.com")
-    assert db.sign_in("new_admin1", "test") == (1, "test@test.com")
+    assert db.sign_in("new_admin1", "test") == ((1, "test@test.com"), UserType.ADMIN)
 
 def test_sign_in_invalid_customer():
     """ensures invalid customer credentials return None"""
-    assert db.sign_in("bad_customer_1", "bad_password_1") is None
+    assert db.sign_in("bad_customer_1", "bad_password_1") == (None, None)
 
 def test_sign_in_invalid_admin():
     """ensures invalid admin credentials return None"""
-    assert db.sign_in("bad_admin_1", "bad_password_1") is None
+    assert db.sign_in("bad_admin_1", "bad_password_1") == (None, None)
     
 def test_get_product_categories():
     assert db.add_product_category("fishing")
@@ -210,11 +198,11 @@ def test_get_product_categories():
     assert categories[1][0] == "food"
 
     assert db.set_product_category(1, "fishing")
-    assert db.get_product_category(1) == "fishing"
+    assert db.get_product_category(1)[0] == "fishing"
 
 def test_update_product_category():
     assert db.update_product_category(1, "food")
-    assert db.get_product_category(1) == "food"
+    assert db.get_product_category(1)[0] == "food"
 
 def test_search_products_by_category():
 
@@ -304,3 +292,75 @@ def test_cart_updates():
     assert cart_products[0] == (2,)
     assert db.search_product_by_id(cart_products[0][0]) == (2, "baseball2", 100, 100, "test", 10, "test", "2025-03-04")
 
+def test_add_new_credit_card():
+    assert not db._does_payment_method_exist(0, 0, "credit_card")
+    assert db.add_new_credit_card(
+        customer_id=0,
+        payment_info={
+            "card_id": 1,
+            "address1": "hello",
+            "address2": "world",
+            "country": "usa",
+            "state": "wa",
+            "city": "seattle",
+            "zip": "98105",
+            "name_on_card": "hunter",
+            "card_number": "1234567890123456",
+            "expiration_date": "2025-01-01",
+            "cvc": "123"
+    })
+    assert db.get_credit_card_details(0) == (0, 0, "hello", "world", "usa", "wa", "seattle", 98105, "hunter", 1234567890123456, 123, "2025-01-01")
+
+def test_add_new_paypal():
+    assert db.add_new_paypal(customer_id=0, email="test@test.com")
+    assert db.get_paypal_details(0) == (0, 0, "test@test.com")
+
+def test_make_new_order():
+
+    customer_id = 0
+    credit_card_info = db.get_credit_card_details(customer_id)
+
+    payment_info = {
+        "payment_method_id": credit_card_info[0],
+        "payment_type_name": "credit_card",
+        "purchase_amount": 100
+    }
+    address_info = {
+        "date_of_purchase": "2025-01-01",
+        "first_name": "hunter",
+        "last_name": "lindauer",
+        "address1": "1234 main st",
+        "address2": "apt 1",
+        "country": "usa",
+        "state": "wa",
+        "city": "seattle",
+        "zip": "98105",
+        "phone": "1234567890"
+    }
+    products_to_order = [
+        (1, 1), # (product id, quantity)
+        (2, 1)
+    ]
+
+    assert db.add_new_order(
+        customer_id, 
+        payment_info, 
+        address_info,
+        products_to_order
+        )
+
+    order_details, payment_details, products_in_order = db.get_order_details(order_id=0)
+
+    assert order_details == (0, 0, 0, "credit_card", "2025-01-01", "Order In Progress", "hunter", "lindauer", "1234 main st", "apt 1", "usa", "wa", "seattle", 98105, 1234567890)
+    assert payment_details == (0, 0, "credit_card", 100)
+    assert products_in_order == [(0, 1, 1, 100, "2025-01-01"), (0, 2, 1, 100, "2025-01-01")]
+    assert db.get_order_history(customer_id=0) == [(0,)]
+
+def test_order_status_updates():
+    assert db.get_order_status(order_id=0) == "Order In Progress"
+    assert db.cancel_order(order_id=0)
+    assert db.get_order_status(order_id=0) == "Cancelled"
+    assert db.update_order_status_to_shipped(order_id=0)
+    assert db.get_order_status(order_id=0) == "Shipped"
+    assert db.update_order_status_to_delivered(order_id=0)
+    assert db.get_order_status(order_id=0) == "Delivered"
