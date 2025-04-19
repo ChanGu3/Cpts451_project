@@ -356,3 +356,11 @@ def test_make_new_order():
     assert payment_details == (0, 0, "credit_card", 100)
     assert products_in_order == [(0, 1, 1, 100, "2025-01-01"), (0, 2, 1, 100, "2025-01-01")]
 
+def test_order_status_updates():
+    assert db.get_order_status(order_id=0) == "Order In Progress"
+    assert db.cancel_order(order_id=0)
+    assert db.get_order_status(order_id=0) == "Cancelled"
+    assert db.update_order_status_to_shipped(order_id=0)
+    assert db.get_order_status(order_id=0) == "Shipped"
+    assert db.update_order_status_to_delivered(order_id=0)
+    assert db.get_order_status(order_id=0) == "Delivered"

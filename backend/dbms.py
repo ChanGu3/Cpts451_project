@@ -599,7 +599,7 @@ class Database:
 
         if valid_payment_method and all_products_in_stock:
             order_id = self._new_order_id()
-            
+
             self.cursor.execute("BEGIN TRANSACTION")
             self.cursor.execute(  # insert purchase info into Purchase table
                 """
@@ -711,10 +711,25 @@ class Database:
         return None
 
     def cancel_order(self, order_id: int):
-        pass
+        """Cancels an order"""
+        self.cursor.execute("UPDATE Orders SET StatusName = ? WHERE Order_ID = ?", ("Cancelled", order_id))
+        self.connection.commit()
+        return True
 
-    def update_order_status(self, admin_id: int, order_id: int):
-        pass
+    def update_order_status_to_shipped(self, order_id: int):
+        self.cursor.execute("UPDATE Orders SET StatusName = ? WHERE Order_ID = ?", ("Shipped", order_id))
+        self.connection.commit()
+        return True
+
+    def update_order_status_to_delivered(self, order_id: int):
+        self.cursor.execute("UPDATE Orders SET StatusName = ? WHERE Order_ID = ?", ("Delivered", order_id))
+        self.connection.commit()
+        return True
+
+    def get_order_status(self, order_id: int):
+        """Gets the status of an order"""
+        self.cursor.execute("SELECT StatusName FROM Orders WHERE Order_ID = ?", (order_id,))
+        return self.cursor.fetchone()[0]
 
     def get_all_orders_from_user(self, customer_id: int):
         pass
