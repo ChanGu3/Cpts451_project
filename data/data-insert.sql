@@ -7,10 +7,10 @@ used some random data for testing generated using chatgpt and then revised for p
 /* INSERT INTO AdminUser VALUES(2, 'admin2', 'password123', 'admin2@example.com');*/ 
 
 INSERT INTO CustomerUser VALUES
-(1, 'customer1', 'customer1@example.com', 'password1', 1234567890),
-(2, 'customer2', 'customer2@example.com', 'password2', 2345678901),
-(3, 'customer3', 'customer3@example.com', 'password3', 3456789012),
-(4, 'customer4', 'customer4@example.com', 'password4', 4567890123);
+(1, 'customer1', 'customer1@example.com', 'password1', '1234567890'),
+(2, 'customer2', 'customer2@example.com', 'password2', '2345678901'),
+(3, 'customer3', 'customer3@example.com', 'password3', '3456789012'),
+(4, 'customer4', 'customer4@example.com', 'password4', '4567890113');
 
 INSERT INTO Product VALUES
 (1, 'Product A', 10.99, 100, 'Description of Product A', 10, 'www.productA.com', '2025-FEB-25'),
@@ -52,28 +52,25 @@ INSERT INTO OrderStatus VALUES
 ('Cancelled', 'Order has been cancelled');
 
 INSERT INTO PaymentType VALUES
-('CreditCard'),
+('Credit Card'),
 ('Paypal');
 
-/*
-Product_ID needs to be inforced to be unique in each payment type through this payment
-*/
-INSERT INTO Payment VALUES
-(1, 'CreditCard', 100.00),
-(2, 'Paypal', 50.00),
-(3, 'CreditCard', 150.00);
+INSERT INTO Purchase VALUES
+(1, 1, 'Credit Card', 100.00),
+(2, 2, 'Paypal', 50.00),
+(3, 3, 'Credit Card', 150.00);
 
 INSERT INTO Paypal VALUES
-(2, 'paypal2@example.com');
+(2, 2, 'paypalcustomer2@example.com');
 
 INSERT INTO CreditCard VALUES
-(1, '123 Main St', 'Apt 4B', 'USA', 'NY', 'New York', 10001, 'John Doe', 1234567890123456, 123, '2025-DEC-31'),
-(3, '789 Pine St', 'Suite 2', 'USA', 'TX', 'Dallas', 75201, 'Mark Johnson', 3456789012345678, 789, '2025-OCT-15');
+(1, 1, '123 Main St', 'Apt 4B', 'USA', 'NY', 'New York', '10001', 'customer1', '1234567890123456', '123', '2025-DEC-31'),
+(3, 3, '789 Pine St', 'Suite 2', 'USA', 'TX', 'Dallas', '75201', 'customer3', '3456789012345678', '789', '2025-OCT-15');
 
 INSERT INTO Orders VALUES
-(1, 1, 1, '2025-FEB-25', 'Pending', 'John', 'Doe', '123 Main St', '', 'USA', 'NY', 'New York', 10001, 1234567890),
-(2, 2, 2, '2025-FEB-24', 'Shipped', 'Jane', 'Smith', '456 Oak St', '', 'USA', 'CA', 'Los Angeles', 90001, 2345678901),
-(3, 3, 3, '2025-FEB-23', 'Delivered', 'Mark', 'Johnson', '789 Pine St', 'Suite 2', 'USA', 'TX', 'Dallas', 75201, 3456789012);
+(1, 1, 1, 'Credit Card', '2025-FEB-25', 'Pending', 'John', 'Doe', '123 Main St', '', 'USA', 'NY', 'New York', '10001', '1234567890'),
+(2, 2, 2, 'Paypal', '2025-FEB-24', 'Shipped', 'Jane', 'Smith', '456 Oak St', '', 'USA', 'CA', 'Los Angeles', '90001', '2345678901'),
+(3, 3, 3, 'Credit Card', '2025-FEB-23', 'Delivered', 'Mark', 'Johnson', '789 Pine St', 'Suite 2', 'USA', 'TX', 'Dallas', '75201', '3456789012');
 
 INSERT INTO ProductsInOrder VALUES
 (1, 1, 3, 10.99, '2025-DEC-31'),

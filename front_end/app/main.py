@@ -9,8 +9,6 @@ from routes.SessionRoute import session_route, User
 from routes.ProfileRoute import profile_route
 from routes.AdminProfileRoutes import adminPI_route
 
-STATIC_IMAGE_PATH_TO_NOT_FOUND = 'static/images/no_image_found.png'
-
 #App Config
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
@@ -69,7 +67,7 @@ def get_thumbnail(productName, imageName):
         
         return send_file(image_stream, mimetype=f'{image_type}')
     else:
-        return send_file(STATIC_IMAGE_PATH_TO_NOT_FOUND, mimetype=f'image/jpeg')
+        return send_file(STATIC_IMAGE_PATH_TO_NOT_FOUND, mimetype=f'image/png')
 
 # Sends user to products Page
 @app.route('/Product/<int:productID>')
@@ -315,3 +313,4 @@ def createaccount():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True) # debug false when delpoying
+    STATIC_IMAGE_PATH_TO_NOT_FOUND = os.path.join(os.path.abspath(__file__), url_for('static', filename='images/no_image_found.png'))

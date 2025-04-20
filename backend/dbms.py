@@ -20,10 +20,6 @@ class Database:
         self.cursor = self.connection.cursor()
         print("Cursor created...")
 
-        # add default payment types
-        self.add_payment_type("Credit Card")
-        self.add_payment_type("Paypal")
-
         self.default_order_status = "Order In Progress"
 
     def __del__(self):

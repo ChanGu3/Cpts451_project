@@ -10,6 +10,12 @@ class User:
         self.userType = userType
         self.username = username
         self.ID = ID
+        
+    def IsAdmin(self):
+        return self.userType == 'Admin'
+    
+    def IsCustomer(self):
+        return self.userType == 'Customer'
 
 # Sets the session cookies to a user when logged in (Not using database currently just a test dummy)
 @session_route.route('/set_session')

@@ -42,7 +42,7 @@ def user_profile_page(displayName, page):
         return redirect(url_for('profile_route.user_profile_page', displayName=currentDisplayName, page=page), code=308)
     
     #try:        
-    if g.user.userType == 'Admin':
+    if g.user.IsAdmin():
         if page == 'PersonalInformation':
             if request.method == 'POST':
                 return redirect(url_for('adminPI_route.profile_pi', displayName=currentDisplayName), code=308)
@@ -63,7 +63,7 @@ def user_profile_page(displayName, page):
                 return redirect(url_for('adminPI_route.profile_orders', displayName=currentDisplayName), code=308)
             else:
                 return redirect(url_for('adminPI_route.profile_orders', displayName=currentDisplayName))
-    elif g.user.userType == 'Customer':    
+    elif g.user.IsCustomer():    
         if page == 'PersonalInformation':
             pageData = {'email': currentDisplayName, 'PhoneNumber': '555-555-5555'}
         elif page == 'Orders':
