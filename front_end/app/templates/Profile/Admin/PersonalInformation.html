@@ -6,43 +6,47 @@
 {% endblock %}
 
 {% block menu_element_content %}
-<h1 class="AdminTitle"> Personal Information</h1>
-
-<div class="AdminPIContainer">
-    <div class='AdminPI'>
-        <label for='username'>Username: </label>
-        <input type='text' id='username' value={{displayName}} disabled>
+<div class="background">
+    <div class="AdminTitle">
+        <h1> Personal Information</h1>
     </div>
-    <div class="AdminPI">
-        <label for='password'>Password: </label>
-        <input type='Password'id='password' value="******" disabled>
-    </div>
-    <div class="AdminPI">
-        <label for='email'>Email: </label>
-        <input type='text'id='email' value={{email}} disabled>
-    </div>
-    <br><br>
-    <form action="{{url_for('profile_route.user_profile_page', displayName=displayName, page="PersonalInformation")}}" method="POST">
-        <h3> Create New Password </h3>
-        <div class="AdminPI">
-            <label for="newpassword1">New Password: </label>
-            <input type='Password' id="newpassword1" value="" name="newpassword1" required>
+    <div class="AdminPIContainer">
+        <div class='AdminPI'>
+            <label for='username'>Username: </label>
+            <input type='text' id='username' value={{displayName}} disabled>
         </div>
         <div class="AdminPI">
-            <label for='newpassword2'>New Password: </label>
-            <input type='Password' id='newpassword2' value="" name="newpassword2" required>
+            <label for='password'>Password: </label>
+            <input type='Password'id='password' value="******" disabled>
         </div>
         <div class="AdminPI">
-            <label for='currentpassword'>Current Password: </label>
-            <input type='Password' id='currentpassword' value="" name="currentpassword" required>
+            <label for='email'>Email: </label>
+            <input type='text'id='email' value={{email}} disabled>
         </div>
-        {% if actionMessage %}
-            {% if isError %}
-                <p class="ActionMessage ErrorMessage"> {{actionMessage}} </p>
-            {% else %}
-                <p class="ActionMessage SuccessMessage"> {{actionMessage}} </p>
+        <br><br>
+        <form action="{{url_for('profile_route.user_profile_page', displayName=displayName, page="PersonalInformation")}}" method="POST">
+            <h3> Create New Password </h3>
+            <div class="AdminPI">
+                <label for="newpassword1">New Password: </label>
+                <input type='Password' id="newpassword1" value="" name="newpassword1" required>
+            </div>
+            <div class="AdminPI">
+                <label for='newpassword2'>New Password: </label>
+                <input type='Password' id='newpassword2' value="" name="newpassword2" required>
+            </div>
+            <div class="AdminPI">
+                <label for='currentpassword'>Current Password: </label>
+                <input type='Password' id='currentpassword' value="" name="currentpassword" required>
+            </div>
+            {% if actionMessage %}
+                {% if isError %}
+                    <p class="ActionMessage ErrorMessage"> {{actionMessage}} </p>
+                {% else %}
+                    <p class="ActionMessage SuccessMessage"> {{actionMessage}} </p>
+                {% endif %}
             {% endif %}
-        {% endif %}
-        <button class="buttonPI" type="sumbit" onclick=""> Save </button>
-    </form>
+            <button class="buttonPI" type="sumbit" onclick=""> Save </button>
+        </form>
+    </div>
+</div>
 {% endblock %}

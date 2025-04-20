@@ -782,6 +782,21 @@ class Database:
         self.cursor.execute("SELECT Order_ID FROM Orders WHERE Customer_ID = ?", (customer_id,))
         return self.cursor.fetchall()
 
+    def get_all_orders(self, op_status_filter: str = None, op_orderId_filter: int = None):
+        """Gets all orders from the db. If op_status_filter is provided, only orders with that status are returned.
+        If op_orderId_filter is provided, only orders with that order id are returned. if both are provided, 
+        only orders with that status and order id are returned."""
+        
+        if op_status_filter is not None and op_orderId_filter is not None:
+            self.cursor.execute("SELECT * FROM Orders WHERE StatusName = ? AND Order_ID = ?", (op_status_filter, op_orderId_filter))
+        elif op_status_filter is not None:
+            self.cursor.execute("SELECT * FROM Orders WHERE StatusName = ?", (op_status_filter,))
+        elif op_orderId_filter is not None:
+            self.cursor.execute("SELECT * FROM Orders WHERE Order_ID = ?", (op_orderId_filter,))
+        else:
+            self.cursor.execute("SELECT * FROM Orders")
+        return self.cursor.fetchall()
+
     def cancel_order(self, order_id: int):
         self.cursor.execute("UPDATE Orders SET StatusName = ? WHERE Order_ID = ?", ("Cancelled", order_id))
         self.connection.commit()
@@ -800,6 +815,11 @@ class Database:
     def get_order_status(self, order_id: int):
         self.cursor.execute("SELECT StatusName FROM Orders WHERE Order_ID = ?", (order_id,))
         return self.cursor.fetchone()[0]
+    
+    def get_all_order_statuses(self):
+        """Gets all order statuses from the db"""
+        self.cursor.execute("SELECT * FROM OrderStatus")
+        return self.cursor.fetchall()
 
     def _hash_new_password(self, password: str) -> tuple[str, str]:
         """Hashes salted password w/ bcrypt"""

@@ -1,0 +1,82 @@
+.Main{
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    height: auto;
+}
+
+.Main H2{
+    margin-top: 45px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.TopBorder{
+    margin-top: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.TopBorder .SelectLabel{
+    margin-right: 10px;
+}
+
+
+.TopBorder .SelectStatus{
+    border-radius: 4px;
+    width: fit-content;
+    height: fit-content;
+    padding: 5px 5px;
+    margin-right: 10px;
+}
+
+.button{
+    border-radius: 4px;
+    text-align: center;
+    border: none;
+    margin-right: 30px;
+    color: white;
+    background-color: #62abff;
+    padding: 5px;
+}
+
+.button:hover{
+    background-color: #6e6e6e;
+    color: white;
+    cursor: pointer;
+}
+
+.button:active{
+    background-color: #555555;
+    color: white;
+}
+
+.TopBorder .SearchBar{
+    border-radius: 4px;
+    min-width: 250px;
+    min-height: 30px;
+    padding: 5px 5px;
+}
+
+.OrdersBody{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+    height: auto;
+}
+
+.OrdersBody .rcleft{
+    margin-left: auto;
+}
+
+.OrdersBody .rcright{
+    margin-right: auto;
+}
+
+.OrdersBody .rcgap{
+    gap: 10px;
+}

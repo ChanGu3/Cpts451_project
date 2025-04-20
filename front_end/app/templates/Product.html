@@ -17,15 +17,15 @@
                     <h2> {{product_details['Title']}} </h2>
                     <div class="TitleLine"> </div> 
                     {% if product_details['DiscountPercentage'] > 0 %}
-                        <p> Original Price: <s> ${{product_details['Price']}} </s> </p>
-                        <p> Discount: {{product_details['DiscountPercentage']}}% </p>
+                        <p> <b>Original Price:</b> <s> ${{product_details['Price']}} </s> </p>
+                        <p> <b>Discount:</b> {{product_details['DiscountPercentage']}}% </p>
                         {% set discounted_price = (product_details['Price'] * (1 - (product_details['DiscountPercentage'] / 100))) %}
-                        <p> Discounted Price: ${{'%.2f' % discounted_price}} </p>
+                        <p> <b>Discounted Price:</b> ${{'%.2f' % discounted_price}} </p>
                     {% else %}
-                        <p> Original Price: ${{product_details['Price']}} </p>
+                        <p> <b>Original Price:</b> ${{product_details['Price']}} </p>
                     {% endif %}
                     <div class="RowContainer">
-                        <p> WebsiteURL: </p>
+                        <p> <b>WebsiteURL:</b> </p>
                         <a href="https://{{product_details['WebsiteInfo']}}" target="_blank"> {{product_details['WebsiteInfo']}} </a>
                     </div>
                 </div>
@@ -39,36 +39,34 @@
             <br> </br>
             {% if product_details['DiscountPercentage'] > 0 %}
                 {% set discounted_price = (product_details['Price'] * (1 - (product_details['DiscountPercentage'] / 100))) %}
-                <p> Price: ${{'%.2f' % discounted_price}} </p>
+                <p> <b>Price:</b> ${{'%.2f' % discounted_price}} </p>
             {% else %}
-                <p> Price: ${{product_details['Price']}} </p>
+                <p> <b>Price:</b> ${{product_details['Price']}} </p>
             {% endif %}
             {% if product_details['Stock'] > 0 %}
-                <p> In Stock </p>
+                <p> <b>In Stock</b> </p>
             {% else %}
-                <p> Out of Stock </p>
+                <p> <b>Out of Stock</b> </p>
             {% endif %}
             {% if isCustomer %}
-                <div class="RowContainer">
-                    <p> Quantity: </p>
-                    <form action="{{ url_for('add_cart_item') }}" method="post">
-                        <select id="ProductQuantity" name="quantity"> 
-                            {% if product_details['Stock'] > 0 %}
-                                <option value="1" selected> 1 </option> 
-                                {% for i in range(2, product_details['Stock']+1) %}
-                                    <option value="{{i}}">{{i}}</option>
-                                {% endfor %}
-                            {% else %}
-                                <option value="0" selected> Out of Stock </option> 
-                                <script>
-                                    document.getElementById("ProductQuantity").disabled = true;
-                                </script>
-                            {% endif %}
-                        </select> 
-                        <input type="hidden" name="product_id" value="{{ product_details['Product_ID'] }}">
-                        <button>Add To Cart</button>
-                    </form>
-                </div>
+                <form action="{{ url_for('add_cart_item') }}" method="post" class="RowContainer">
+                    <p> <b>Quantity:</b> </p>
+                    <select id="ProductQuantity" name="quantity"> 
+                        {% if product_details['Stock'] > 0 %}
+                            <option value="1" selected> 1 </option> 
+                            {% for i in range(2, product_details['Stock']+1) %}
+                                <option value="{{i}}">{{i}}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="0" selected> Out of Stock </option> 
+                            <script>
+                                document.getElementById("ProductQuantity").disabled = true;
+                            </script>
+                        {% endif %}
+                    </select> 
+                    <input type="hidden" name="product_id" value="{{ product_details['Product_ID'] }}">
+                    <button>Add To Cart</button>
+                </form>
                 <br> </br>
                 {% if isProductInWishlist %}
                     <form action="{{ url_for('remove_wishlist_item') }}" method="post">
@@ -87,55 +85,56 @@
         </div>
     </div>
     <div class="BaseBottom">
-        <div class="Top">
-            {% if isCustomer and isAbleReview %}
-                <form action="{{ url_for('add_product_review') }}" method="POST">
-                    <input type="hidden" name="product_id" value="{{ product_details['Product_ID'] }}">
-                    <p> <b>Hey</b>, {{g.user.username}}! It looks like you ordered this product and haven't left a review yet! Let others know about the product! </p>
-                    <b></b>
-                    <div class="Row">
-                        <p> Rating: </p>
-                        <select id="ProductRating" name="rating" required> 
-                            <option value="1" selected> 1 </option> 
-                            <option value="2"> 2 </option>
-                            <option value="3"> 3 </option>
-                            <option value="4"> 4 </option>
-                            <option value="5"> 5 </option>
-                        </select>
-                        <button type="Submit"> Sumbit Review </button> 
-                    </div>
-                    <div class="CreateReviewContainer">
-                        <textarea type="text" name="review" maxlength="1000" placeholder="Please Type Your Review Here! (max 1000 char)"></textarea>
-                    </div>
-                </form>
-            {% elif isCustomer and not isAbleReview %}
-                {% if customer_product_review %}
-                    <p> Hey, {{g.user.username}}! Thank you For Leaving A Review! </p>
-                    <div class="ReviewContainer">
-                        <div class="Top">
-                            <h3> Date Reviewed: </h3> 
-                            <p>{{customer_product_review['DateOfReview']}} </p>
-                            <p> | </p>
-                            <h3> Username: </h3>
-                            <p> {{customer_product_review['Username']}} <p>
-                            <p> | </p>
-                            <h3> Rating: </h3>
-                            <p> {{customer_product_review['Rating']}} </p>
+        {% if not isCustomer and not isAbleReview %}
+            <div class="BBTop">
+                {% if isCustomer and isAbleReview %}
+                    <form action="{{ url_for('add_product_review') }}" method="POST">
+                        <input type="hidden" name="product_id" value="{{ product_details['Product_ID'] }}">
+                        <p> Hey, <b>{{g.user.username}}</b>! It looks like you ordered this product and haven't left a review yet! Let others know about the product! </p>
+                        <div class="Row">
+                            <p> <b>Rating:</b> </p>
+                            <select id="ProductRating" name="rating" required> 
+                                <option value="1" selected> 1 </option> 
+                                <option value="2"> 2 </option>
+                                <option value="3"> 3 </option>
+                                <option value="4"> 4 </option>
+                                <option value="5"> 5 </option>
+                            </select>
+                            <button type="Submit"> Sumbit Review </button> 
                         </div>
-                        <div class="Bottom">
-                            <h3> Review: </h3>
-                            <p> {{customer_product_review['Review']}} </p>
+                        <div class="CreateReviewContainer">
+                            <textarea type="text" name="review" maxlength="1000" placeholder="Please Type Your Review Here! (max 1000 char)"></textarea>
                         </div>
-                    </div>
+                    </form>
+                {% elif isCustomer and not isAbleReview %}
+                    {% if customer_product_review %}
+                        <p> Hey, <b>{{g.user.username}}</b>! Thank you For Leaving A Review! </p>
+                        <div class="ReviewContainer">
+                            <div class="Top">
+                                <h3> Date Reviewed: </h3> 
+                                <p>{{customer_product_review['DateOfReview']}} </p>
+                                <p> | </p>
+                                <h3> Username: </h3>
+                                <p> {{customer_product_review['Username']}} <p>
+                                <p> | </p>
+                                <h3> Rating: </h3>
+                                <p> {{customer_product_review['Rating']}} </p>
+                            </div>
+                            <div class="Bottom">
+                                <h3> Review: </h3>
+                                <p> {{customer_product_review['Review']}} </p>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
         <div class="Title">
-            <h1>Reviews</h1>
+            <h2><u>Reviews</u></h2>
             {% if average_rating %}
-                <h3> Average Rating: {{ '%.1f' % average_rating}} </h3>
+                <h4> Average Rating: {{ '%.1f' % average_rating}} </h4>
             {% else %}
-                <h3> Average Rating: No Reviews Yet! </h3>
+                <h4> Average Rating: No Reviews Yet! </h4>
             {% endif %}
         </div>
         <div class="Reviews">
@@ -164,5 +163,7 @@
             {% endif %}
         </div>
     </div>
+    <br></br>
+    <br></br>
 </div>
 {% endblock %}

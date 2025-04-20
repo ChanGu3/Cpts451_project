@@ -15,26 +15,32 @@
             <input class="SearchBar" type="text" placeholder="Search..." id='productsearch' name='productsearch' value=''>
         </form>
         {% for displayedProduct in displayedProducts %}
-            <div class='barcontainer' id='AnalyticBC'>
+            <div class='barcontainer' id='bcAnalytics'>
                 <div class='top'>
-                    <a href="{{ url_for('product_page', productID=displayedProduct['Product_ID']) }}">
-                        <p> {{displayedProduct['Title']}} </p>
-                    </a>
+                    <a href="{{ url_for('product_page', productID=displayedProduct['Product_ID']) }}"> {{displayedProduct['Title']}} </a>
                 </div>
                 <div class='bottom'>
-                    <a href="{{ url_for('product_page', productID=displayedProduct['Product_ID']) }}">
-                        <img src="{{ url_for('get_thumbnail', productName=displayedProduct['Title'], imageName=displayedProduct['ImageName']) }}" alt="Test">
-                    </a>
-                    <div class='text3container'>        
-                        <p> Stock: {{displayedProduct['Stock']}} </p>
-                        <p> Total Purchased: {{displayedProduct['QuantitySold']}}</p>
-                        <p> Total Sales: {{displayedProduct['TotalEquity']}}</p>
-                    </div>
-                    <div class='text3container' id='AnalyticT3C'>        
-                        <p> Current Price: {{displayedProduct['Price']}} </p>
-                        <p> Discount: {{displayedProduct['DiscountPercentage']}}%</p>
-                        {% set priceWDis = (displayedProduct['Price'] * ((100-displayedProduct['DiscountPercentage']) / 100))%}
-                        <p> Price W/ Discount: {{'%.2f' % priceWDis}}</p>
+                    <div class='rowcontainer rcright'>
+                        <a href="{{ url_for('product_page', productID=displayedProduct['Product_ID']) }}">
+                            <img src="{{ url_for('get_thumbnail', productName=displayedProduct['Title'], imageName=displayedProduct['ImageName']) }}" alt="Test">
+                        </a>
+                        <div class='colcontainer ccgap'>
+                            <div class='rowcontainer rcright rcgap'>
+                                <p> <b>Stock:</b> {{displayedProduct['Stock']}} </p>
+                                <p> | </p>
+                                <p> <b>Total Purchased:</b> {{displayedProduct['QuantitySold']}}</p>
+                                <p> | </p>
+                                <p> <b>Total Sales:</b> {{displayedProduct['TotalEquity']}}</p>
+                            </div>
+                            <div class='rowcontainer rcright rcgap'>
+                                <p> <b>Current Price:</b> {{displayedProduct['Price']}} </p>
+                                <p> | </p>
+                                <p> <b>Discount:</b> {{displayedProduct['DiscountPercentage']}}%</p>
+                                <p> | </p>
+                                {% set priceWDis = (displayedProduct['Price'] * ((100-displayedProduct['DiscountPercentage']) / 100))%}
+                                <p> <b>Price W/ Discount:</b> {{'%.2f' % priceWDis}}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -70,8 +76,8 @@
                             </a>
                         </div>
                         <div class="BottomRight">
-                            <p>Total Sales: {{paproduct['QuantitySold']}}</p>
-                            <p>Total Purchased: {{paproduct['TotalEquity']}}</p>
+                            <p><b>Total Sales:</b> {{paproduct['QuantitySold']}}</p>
+                            <p><b>Total Purchased:</b> {{paproduct['TotalEquity']}}</p>
                         </div>
                     </div>
                 </paproduct>

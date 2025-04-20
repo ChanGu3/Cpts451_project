@@ -17,8 +17,8 @@
 {
     justify-content: center;
     align-items: center;
-    width: 60vw;
-    height: 25px;
+    width: 600px;
+    height: 35px;
     margin-left: 20%;
     margin-right: 20%;
 }
@@ -29,43 +29,6 @@
     height: inherit;
     max-width: inherit;
     max-height: inherit;
-}
-
-.ProductsCenter button
-{
-    cursor: pointer; 
-}
-
-.ProductsCenter button:hover
-{
-    background-color: #777777; /* Light background on hover */
-    transition: background-color 0.3s ease; /* Smooth transition for the background color */
-}
-
-.ProductsCenter button:active
-{
-    background-color: #2f2f2f; /* Light background on hover */
-}
-
-.ProductsCenter .AddProductButton
-{
-    background-color: rgb(0, 255, 0);
-    padding: 1.5vh 3vw; 
-    font-size: 1rem; 
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.RemoveProductButton
-{
-    background-color: rgb(255, 0, 0);
-    padding: 7.5px 10px; 
-}
-
-.EditProductButton
-{
-    background-color: rgb(0, 153, 255);
-    padding: 7.5px 10px;  
 }
 
 #AddProductModal,
@@ -100,21 +63,22 @@
     align-items: center; 
     width: 50%;
     max-width: 500px; 
-    height: 80%;
-    max-height: 800px;
-    background-color: #b1b1b1;
+    height: fit-content;
+    background-color: #6e6e6e;
     position: relative;
     gap: 10px;
+    border-radius: 4px;
+    padding: 30px 10px;
 }
 
-#AddProductModal .modal-content button,
-#EditProductModal .modal-content button{
-    height: auto;
-    width: auto;
-    cursor: pointer;
-    background-color: antiquewhite;
-    border-radius: 4px;
-    padding: 3px;
+#AddProductModal .modal-content button:hover,
+#EditProductModal .modal-content button:hover{
+    background-color: #2d8efd
+}
+
+#AddProductModal .modal-content button:active,
+#EditProductModal .modal-content button:active{
+    background-color: #2b2b2b
 }
 
 #AddProductModal .modal-content .ContainerRow,
@@ -131,6 +95,7 @@
 #AddProductModal .modal-content .ContainerRow,
 #EditProductModal .modal-content .ContainerRow {
     flex-direction: row;
+    margin-top: 10px;
 }
 
 #AddProductModal .modal-content .ContainerCol, 
@@ -138,24 +103,35 @@
     flex-direction: column;
 }
 
-#AddProductModal .modal-content .ContainerRow input,
-#AddProductModal .modal-content .ContainerCol input, 
-#EditProductModal .modal-content .ContainerRow input,
-#EditProductModal .modal-content .ContainerCol input {
+#AddProductModal .modal-content input,
+#EditProductModal .modal-content input {
     margin-left: 10px;
     margin-right: 10px;
     width: 100%; /* Make inputs fill the container width */
+    height: 20px;
     font-size: 1rem;
+    border-radius: 2px;
+    border: none;
+    padding: 0px 5px;
 }
 
-#AddProductModal .modal-content .ContainerRow p,
-#AddProductModal .modal-content .ContainerCol p, 
-#EditProductModal .modal-content .ContainerRow p,
-#EditProductModal .modal-content .ContainerCol p {
+#AddProductModal .modal-content p,
+#EditProductModal .modal-content p {
     margin-left: 10px;
     margin-right: 10px;
     width: 100%; /* Make inputs fill the container width */
     font-size: 1rem;
+    color: white;
+}
+
+#AddProductModal .modal-content h1,
+#EditProductModal .modal-content h1 {
+    color: white;
+}
+
+#AddProductModal .modal-content select,
+#EditProductModal .modal-content select {
+    border-radius: 3px;
 }
 
 #AddProductModal .modal-content .close, 
@@ -165,11 +141,12 @@
     top: -1vw;
     right: 1vw;
     font-size: 3vw;
+    text-decoration: none;
 }
 
 .required::placeholder
 {
-    color: #b90000; 
+    color: #ff0000; 
 }
 
 #AddProductModal .modal-content .textarea,

@@ -3,8 +3,92 @@
 
 {% block Stylesheets%}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/AdminProfilePageStyles/AdminOrders.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/AdminProfilePageStyles/AdminAll.css') }}">
 {% endblock %}
 
 {% block menu_element_content %}
-<p> Orders </p>
+<div class="Main">
+    <H2>Orders</H2>
+    <form action="{{ url_for('adminPI_route.profile_orders', displayName=displayName, page_number=1) }}" method="POST" class="TopBorder">
+        <label for="order_status" class="SelectLabel">Status Filter</label>
+        <select name="order_status" id="order_status" class="SelectStatus">
+            <option value="All" selected>All</option>
+            {% for status in statuses%}
+                <option value="{{ status['Name'] }}" {% if status['Name'] == op_status_filter %}selected{% endif %}>{{ status['Name'] }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" name="buttonType" value="status_filter" class="button">Search</button>
+        <input type="number" step="1" min="0" name="orderID_searchbar" {% if op_orderId_filter != None %}value="{{op_orderId_filter}}"{% endif %} placeholder="Single OrderID Search..." class="SearchBar">
+    </form>
+    <div class="OrdersBody"> 
+        {% set startList = (currentPage - 1) * ordersPerPage %}
+        {% set endList = (currentPage) * ordersPerPage %}
+        {% for order in orders[startList:endList] %}
+            <div id="bcOrders" class='barcontainer'>
+                <div class='top'>
+                        <a style="text-decoration: none;" href="#">
+                            <h3>Order ID: {{ order['Order_ID'] }}</h3>
+                        </a>
+                        <h6><b>Order Status:</b></h6>
+                        <h6 style="color: #62abff;">{{ order['StatusName'] }}</h6>
+                </div>
+                <div class='bottom'>
+                    <div class="colcontainer ccgap ccright">
+                        <div class="rowcontainer rcgap rcright">
+                            <div class="rowcontainer rcgap">
+                                <p><b>Name:</b> </p>
+                                <input type="text" value="{{order['FirstName']}} {{order['LastName']}}" disabled>
+                            </div>
+                            <div class="rowcontainer rcgap">
+                                <p><b>Customer ID:</b> </p>
+                                <input type="text" value="{{order['Customer_ID']}}" disabled>
+                            </div>
+                            <div class="rowcontainer rcgap">
+                                <p><b>Phone Number:</b> </p>
+                                <input type="text" value="({{order['PhoneNumber'][0:3]}})-{{order['PhoneNumber'][3:6]}}-{{order['PhoneNumber'][6:10]}}" disabled>
+                            </div>
+                        </div>
+                        <div class="rowcontainer rcgap rcright">
+                            <div class="rowcontainer rcgap">
+                                <p><b>Payment Type:</b>  </p>
+                                <input type="text" value="{{order['PaymentTypeName']}}" disabled>
+                            </div>
+                            <div class="rowcontainer rcgap">
+                                <p><b>Purchase Date:</b>  </p>
+                                <input type="text" value="{{order['DateOfPurchase']}}" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <form action="{{ url_for('adminPI_route.update_order_status', displayName=displayName) }}" method="POST" class="rowcontainer rcleft rcgap">
+                        {% if order['StatusName'] != "Cancelled" %}
+                            <label for="change_order_status" class="SelectLabel">Status</label>
+                            <select name="change_order_status" id="change_order_status">
+                                <option value="" disabled selected>Select Status</option>
+                                {% for status in statuses%}
+                                    {% if status['Name'] != "Pending" %} 
+                                        <option value="{{ status['Name'] }}" {% if status['Name'] == order['StatusName'] %}selected{% endif %}>{{ status['Name'] }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <button type="submit" name="buttonType" value="status_change">Change Status</button>
+                        {% endif %}
+                        <button  onclick="#">Go To Order Page</button>
+                        <input type="hidden" name="currentPage" value="{{ page_number }}">
+                        <input type="hidden" name="order_ID" value="{{ order['Order_ID'] }}">
+                        <input type="hidden" name="op_status_filter" value="{{ op_status_filter }}">
+                        <input type="hidden" name="op_orderId_filter" value="{{ op_orderId_filter }}">
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="PageContainer">
+            {% if currentPage > 1 %}
+                <a href="{{ url_for('adminPI_route.profile_orders', displayName=displayName, page_number=currentPage - 1, op_status_filter=op_status_filter, op_orderId_filter=op_orderId_filter) }}">Page: {{currentPage-1}}</a>
+            {% endif %}
+            {% if currentPage < totalPages %}
+                <a href="{{ url_for('adminPI_route.profile_orders', displayName=displayName, page_number=currentPage + 1, op_status_filter=op_status_filter, op_orderId_filter=op_orderId_filter) }}">Page: {{currentPage+1}}</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

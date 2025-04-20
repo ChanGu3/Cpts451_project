@@ -51,6 +51,32 @@
     text-decoration: underline;
 }
 
+* button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: fit-content;
+    width: fit-content;
+    padding: 5px 5px;
+    border-radius: 4px;
+    border: none;
+
+    color: white;
+    background-color: #62abff;
+}
+
+* button:hover{
+    background-color: #6e6e6e;
+    color: white;
+    cursor: pointer;
+}
+
+* button:active{
+    background-color: #555555;
+    color: white;
+}
+
 * .textnowrapROW {
     display: flex;
     flex-direction: row;
@@ -84,7 +110,7 @@ main {
 
 /* Footer HTML Styles */
 footer {
-    height: 100px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
