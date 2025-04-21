@@ -71,8 +71,7 @@
                     <div class="Bottom">
                         <div class="BottomLeft">
                             <a href="{{ url_for('product_page', productID=paproduct['Product_ID']) }}">
-                                <img src="{{ url_for('get_thumbnail', productName=paproduct['Title'], imageName=paproduct['ImageName']) }}" alt="{{paproduct['Title']}}" class="ProductImage">
-                            </a>
+                                <img src="{{ url_for('get_thumbnail', productName=paproduct['Title'], imageName=paproduct['ImageName'] or 'placeholder.jpg') }}" alt="{{ paproduct['Title'] }}" class="ProductImage">                            </a>
                         </div>
                         <div class="BottomRight">
                             <p><b>Total Sales:</b> {{paproduct['QuantitySold']}}</p>
