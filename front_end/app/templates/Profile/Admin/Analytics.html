@@ -22,7 +22,7 @@
                 <div class='bottom'>
                     <div class='rowcontainer rcright'>
                         <a href="{{ url_for('product_page', productID=displayedProduct['Product_ID']) }}">
-                            <img src="{{ url_for('get_thumbnail', productName=paproduct['Title'], imageName=paproduct.get('ImageName', 'placeholder.jpg')) }}" alt="{{ paproduct['Title'] }}" class="ProductImage">                        </a>
+                            <img src="{{ url_for('get_thumbnail', productName=paproducts['Title'], imageName=paproducts['ImageName'] )}}" alt="{{ paproducts['Title'] }}" class="ProductImage">                        </a>
                         <div class='colcontainer ccgap'>
                             <div class='rowcontainer rcright rcgap'>
                                 <p> <b>Stock:</b> {{displayedProduct['Stock']}} </p>

@@ -270,7 +270,7 @@ class Database:
 
     def retrieve_all_product_details_With_Thumbnail_With_Analytics(self):
         self.cursor.execute("""
-        SELECT Product.Product_ID, Product.Title, Product.Price, ProductThumbnail.ImageName
+        SELECT Product.Product_ID, Product.Title, Product.Price, ProductThumbnail.ImageName, Product.DiscountPercentage, Product.Description
         FROM Product
         LEFT JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID
         WHERE ProductThumbnail.ImageName IS NOT NULL
@@ -306,7 +306,7 @@ class Database:
     def retrieve_Top_10_product_details(self):
         """Retrieve the top 10 products sorted by stock."""
         self.cursor.execute("""
-        SELECT Product.Product_ID, Product.Title, Product.Price, ProductThumbnail.ImageName, Product.Stock
+        SELECT Product.Product_ID, Product.Title, Product.Price, ProductThumbnail.ImageName, Product.Stock, Product.DiscountPercentage, Product.Description
         FROM Product
         LEFT JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID
         WHERE ProductThumbnail.ImageName IS NOT NULL
