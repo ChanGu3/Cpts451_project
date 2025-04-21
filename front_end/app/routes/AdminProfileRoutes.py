@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for, g, session, request, redirect
+from flask import Blueprint, render_template, url_for, g, session, request, redirect, abort
 from dbmsInstance import GetDatabase
 from math import ceil
 adminPI_route = Blueprint('adminPI_route', __name__)
@@ -11,7 +11,7 @@ def profile_pi(displayName):
     
     database = GetDatabase()
     adminInfo = database.get_admin_info(g.user.ID)
-    email = adminInfo[3]
+    email = adminInfo['Email']
     
     if request.method == 'POST':
         if request.form['newpassword1'] != request.form['newpassword2']:
@@ -172,7 +172,9 @@ def profile_products(displayName):
             currentEditProductValues = database.retrieve_specific_product_details(productID)
             currentEditProductCategory = database.get_product_category(productID)
             if currentEditProductCategory is not None:
-                currentEditProductValues = currentEditProductValues + (currentEditProductCategory[0],)
+                currentEditProductValues = dict(currentEditProductValues)
+                currentEditProductValues['CategoryName'] = currentEditProductCategory['CategoryName']
+                
             del database
             session['currentEditProductValues'] = currentEditProductValues
             return redirect(url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch) + '#EditProductModal')
@@ -196,9 +198,79 @@ def profile_products(displayName):
     del database
     return render_template('Profile/Admin/Products.html', displayName=displayName, displayedProducts=displayedProducts, isError=isError, errorMessage=errorMessage, page=page, pageLeftURL=pageLeftURL, pageRightURL=pageRightURL, currentSearch=currentSearch, categories=categories, currentEditProductValues=currentEditProductValues)
 
+ORDERS_PER_PAGE = 6 # Number of orders to display per page in the orders view
+@adminPI_route.route('<displayName>/Orders', methods=['GET', 'POST'])
+def profile_orders(displayName):
+    if g.user is None:
+        return abort(404)
+    else:
+        if g.user.IsAdmin() is False:
+            return abort(403)
+        
+    database = GetDatabase()
+    if request.method == 'POST':
+        op_status_filter = request.form.get('order_status', None)
+        if op_status_filter == "All" or op_status_filter == "None" or op_status_filter is None:
+            op_status_filter = None
+        op_orderId_filter =  request.form.get('orderID_searchbar', None)
+        
+        if op_orderId_filter == "" or op_orderId_filter == "None" or op_orderId_filter is None:
+            op_orderId_filter = None
+        elif op_orderId_filter.isdigit():
+            op_orderId_filter = int(op_orderId_filter)
+            
+    elif request.method == 'GET':
+        op_status_filter = request.args.get('op_status_filter', None)
+        if op_status_filter == "All" or op_status_filter == "None" or op_status_filter is None:
+            op_status_filter = None
+        op_orderId_filter =  request.args.get('op_orderId_filter', None)
+        
+        if op_orderId_filter == "" or op_orderId_filter == "None" or op_orderId_filter is None:
+            op_orderId_filter = None
+        elif op_orderId_filter.isdigit():
+            op_orderId_filter = int(op_orderId_filter)
+    
+    orders = database.get_all_orders(op_status_filter, op_orderId_filter)
+    possible_order_Statuses = database.get_all_order_statuses()
+    currentPage = int(request.args.get('page_number', 1))
+    totalPages = ceil(len(orders)/ORDERS_PER_PAGE)
 
+    del(database)
+    return render_template('Profile/Admin/Orders.html', displayName=displayName, orders=orders, statuses=possible_order_Statuses, currentPage=currentPage, ordersPerPage=ORDERS_PER_PAGE, totalPages=totalPages, op_status_filter=op_status_filter, op_orderId_filter=op_orderId_filter)
 
+@adminPI_route.route('<displayName>/Orders/Update', methods=['POST'])
+def update_order_status(displayName):
+    database = GetDatabase()
+    
+    curr_page = request.form.get('currentPage', 1)
+    if curr_page.isdigit():
+        curr_page = int(curr_page)
+    else:
+        curr_page = 1
+        
+    order_ID = request.form.get('order_ID', None)
+    new_status = request.form.get('change_order_status', None)
+    op_status_filter = request.form.get('op_status_filter', None)
+    op_orderId_filter = request.form.get('op_orderId_filter', None)
+    if new_status is not None and order_ID is not None:
+        if new_status == 'Shipped':
+            database.update_order_status_to_shipped(order_ID)
+        elif new_status == 'Delivered':
+            database.update_order_status_to_delivered(order_ID)
+        elif new_status == 'Cancelled':
+            database.cancel_order(order_ID)
+            a = 0
+
+    del(database)
+    return redirect(url_for('adminPI_route.profile_orders', displayName=displayName, page_number=curr_page, op_status_filter=op_status_filter, op_orderId_filter=op_orderId_filter))
 
 
 def Helper_GetCurrentEditProductValues(productID, productName, price, stock, description, discount, websiteURL, currentCategory):
-    return (productID, productName, price, stock, description, discount, websiteURL, "TEMP", currentCategory)
+    return {"Product_ID":productID, 
+            "Title": productName, 
+            "Price": price, 
+            "Stock": stock, 
+            "Description": description, 
+            "DiscountPercentage": discount, 
+            "WebsiteInfo": websiteURL, 
+            "CategoryName": currentCategory}

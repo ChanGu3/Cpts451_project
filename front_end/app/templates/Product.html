@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Home Page{% endblock %}
+{% block title %}Product Page{% endblock %}
 
 {% block Stylesheets %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/Product.css') }}">
@@ -11,80 +11,159 @@
         <div class="Left">
             <div class="OtherContentTop">
                 <div class="ImageContainer">
-                    <img src="{{ url_for('get_thumbnail', productName=product_details[1], imageName=product_thumbnail_name) }}" alt="No Image">
+                    <img src="{{ url_for('get_thumbnail', productName=product_details['Title'], imageName=product_thumbnail_name) }}" alt="No Image">
                 </div>
                 <div class="ProductInfo">
-                    <p> {{product_details[1]}} </p>
+                    <h2> {{product_details['Title']}} </h2>
                     <div class="TitleLine"> </div> 
-                    {% if product_details[5] > 0 %}
-                        <p> Original Price: <s> ${{product_details[2]}} </s> </p>
-                        <p> Discount: {{product_details[5]}}% </p>
-                        {% set discounted_price = (product_details[2] * (1 - (product_details[5] / 100)))|round(2) %}
-                        <p> Discounted Price: ${{discounted_price}} </p>
+                    {% if product_details['DiscountPercentage'] > 0 %}
+                        <p> <b>Original Price:</b> <s> ${{product_details['Price']}} </s> </p>
+                        <p> <b>Discount:</b> {{product_details['DiscountPercentage']}}% </p>
+                        {% set discounted_price = (product_details['Price'] * (1 - (product_details['DiscountPercentage'] / 100))) %}
+                        <p> <b>Discounted Price:</b> ${{'%.2f' % discounted_price}} </p>
                     {% else %}
-                        <p> Original Price: ${{product_details[2]}} </p>
+                        <p> <b>Original Price:</b> ${{product_details['Price']}} </p>
                     {% endif %}
                     <div class="RowContainer">
-                        <p> WebsiteURL: </p>
-                        <a href="https://{{product_details[6]}}" target="_blank"> {{product_details[6]}} </a>
+                        <p> <b>WebsiteURL:</b> </p>
+                        <a href="https://{{product_details['WebsiteInfo']}}" target="_blank"> {{product_details['WebsiteInfo']}} </a>
                     </div>
                 </div>
             </div>
             <div class="DescriptionBottom">
-                <p> Description: </p>
-                <p> {{product_details[4]}} </p>
+                <h3> Description: </h3>
+                <p> {{product_details['Description']}} </p>
             </div>
         </div>
         <div class="Right">
             <br> </br>
-            {% if product_details[5] > 0 %}
-                {% set discounted_price = (product_details[2] * (1 - (product_details[5] / 100)))|round(2) %}
-                <p> Price: ${{discounted_price}} </p>
+            {% if product_details['DiscountPercentage'] > 0 %}
+                {% set discounted_price = (product_details['Price'] * (1 - (product_details['DiscountPercentage'] / 100))) %}
+                <p> <b>Price:</b> ${{'%.2f' % discounted_price}} </p>
             {% else %}
-                <p> Price: ${{product_details[2]}} </p>
+                <p> <b>Price:</b> ${{product_details['Price']}} </p>
             {% endif %}
-            {% if product_details[3] > 0 %}
-                <p> In Stock: {{product_details[3]}} </p>
+            {% if product_details['Stock'] > 0 %}
+                <p> <b>In Stock</b> </p>
             {% else %}
-                <p> Out of Stock </p>
+                <p> <b>Out of Stock</b> </p>
             {% endif %}
-            <div class="RowContainer">
-                <p> Quantity: </p>
-                <select id="ProductQuantity" name="quantity"> 
-                    {% if product_details[3] > 0 %}
-                        <option value="1" selected> 1 </option> 
-                        {% for i in range(2, product_details[3]+1) %}
-                            <option value="{{i}}">{{i}}</option>
-                        {% endfor %}
-                    {% else %}
-                        <option value="0" selected> Out of Stock </option> 
-                        <script>
-                            document.getElementById("ProductQuantity").disabled = true;
-                        </script>
-                    {% endif %}
-                </select> 
-            </div>
-            <button> Add to Cart </button>
-            <br> </br>
-            <button> Add to Wishlist </button>
+            {% if isCustomer %}
+                <form action="{{ url_for('add_cart_item') }}" method="post" class="RowContainer">
+                    <p> <b>Quantity:</b> </p>
+                    <select id="ProductQuantity" name="quantity"> 
+                        {% if product_details['Stock'] > 0 %}
+                            <option value="1" selected> 1 </option> 
+                            {% for i in range(2, product_details['Stock']+1) %}
+                                <option value="{{i}}">{{i}}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="0" selected> Out of Stock </option> 
+                            <script>
+                                document.getElementById("ProductQuantity").disabled = true;
+                            </script>
+                        {% endif %}
+                    </select> 
+                    <input type="hidden" name="product_id" value="{{ product_details['Product_ID'] }}">
+                    <button>Add To Cart</button>
+                </form>
+                <br> </br>
+                {% if isProductInWishlist %}
+                    <form action="{{ url_for('remove_wishlist_item') }}" method="post">
+                        <input type="hidden" name="product_id" value="{{ product_details['Product_ID'] }}">
+                        <input type="hidden" name="pageSent" value="Product">
+                        <button> Remove From Wishlist </button>
+                    </form>
+                {% else %}
+                    <form action="{{ url_for('add_wishlist_item') }}" method="post">
+                        <input type="hidden" name="product_id" value="{{ product_details['Product_ID'] }}">
+                        <input type="hidden" name="pageSent" value="Product">
+                        <button> Add to Wishlist </button>
+                    </form>
+                {% endif %}
+            {% endif %}
         </div>
     </div>
     <div class="BaseBottom">
-        <h2> Reviews </h2>
-        <div>
-            <p> Hey, Username Looks Like You Ordered This Product Leave A Review To Let Others Know About The Product! </p>
-            <p> TextBox </p>
-            <button> Sumbit Review </button> 
+        {% if not isCustomer and not isAbleReview %}
+            <div class="BBTop">
+                {% if isCustomer and isAbleReview %}
+                    <form action="{{ url_for('add_product_review') }}" method="POST">
+                        <input type="hidden" name="product_id" value="{{ product_details['Product_ID'] }}">
+                        <p> Hey, <b>{{g.user.username}}</b>! It looks like you ordered this product and haven't left a review yet! Let others know about the product! </p>
+                        <div class="Row">
+                            <p> <b>Rating:</b> </p>
+                            <select id="ProductRating" name="rating" required> 
+                                <option value="1" selected> 1 </option> 
+                                <option value="2"> 2 </option>
+                                <option value="3"> 3 </option>
+                                <option value="4"> 4 </option>
+                                <option value="5"> 5 </option>
+                            </select>
+                            <button type="Submit"> Sumbit Review </button> 
+                        </div>
+                        <div class="CreateReviewContainer">
+                            <textarea type="text" name="review" maxlength="1000" placeholder="Please Type Your Review Here! (max 1000 char)"></textarea>
+                        </div>
+                    </form>
+                {% elif isCustomer and not isAbleReview %}
+                    {% if customer_product_review %}
+                        <p> Hey, <b>{{g.user.username}}</b>! Thank you For Leaving A Review! </p>
+                        <div class="ReviewContainer">
+                            <div class="Top">
+                                <h3> Date Reviewed: </h3> 
+                                <p>{{customer_product_review['DateOfReview']}} </p>
+                                <p> | </p>
+                                <h3> Username: </h3>
+                                <p> {{customer_product_review['Username']}} <p>
+                                <p> | </p>
+                                <h3> Rating: </h3>
+                                <p> {{customer_product_review['Rating']}} </p>
+                            </div>
+                            <div class="Bottom">
+                                <h3> Review: </h3>
+                                <p> {{customer_product_review['Review']}} </p>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+        <div class="Title">
+            <h2><u>Reviews</u></h2>
+            {% if average_rating %}
+                <h4> Average Rating: {{ '%.1f' % average_rating}} </h4>
+            {% else %}
+                <h4> Average Rating: No Reviews Yet! </h4>
+            {% endif %}
         </div>
-        <div class="ReviewContainer">
-            <div class="Top">
-                <p> Username <p>
-                <p> Rating </p>
-            </div>
-            <div class="Bottom">
-                <p> Review <p>
-            </div>
+        <div class="Reviews">
+            {% if product_Reviews %}
+                {% for review in product_Reviews %}
+                <div class="ReviewContainer">
+                    <div class="Top">
+                        <h3> Date Reviewed: </h3> 
+                        <p>{{review['DateOfReview']}} </p>
+                        <p> | </p>
+                        <h3> Username: </h3>
+                        <p> {{review['Username']}} <p>
+                        <p> | </p>
+                        <h3> Rating: </h3>
+                        <p> {{review['Rating']}} </p>
+                    </div>
+                    <div class="Bottom">
+                        <h3> Review: </h3>
+                        <p> {{review['Review']}} </p>
+                    </div>
+                </div>
+                <reviewdivider> </reviewdivider>
+                {% endfor %}
+            {% else %}
+                <p> No Reviews Yet! </p>
+            {% endif %}
         </div>
     </div>
+    <br></br>
+    <br></br>
 </div>
 {% endblock %}

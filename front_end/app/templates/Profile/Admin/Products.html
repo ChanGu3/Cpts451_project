@@ -10,106 +10,111 @@
 
 <div id="AddProductModal" class="modal">
     <form class="modal-content" action="{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch) }}" enctype="multipart/form-data" method="POST">
-        <a href="#" class="close">&times;</a>
-        <br> </br>
+        <a href="#" class="close"><b>&times;</b></a>
         <div class="Container">
-            <h2>Add Product</h2>
+            <h1>Add Product</h1>
         </div>
         <div class="ContainerRow">
-            <p> ProductName: </p>
+            <p> <b>Product Name:</b> </p>
             <input class='required' type="text" name="product_name" maxlength="255" placeholder="Product Name" required>
         </div>
         <div class="ContainerRow">
-            <p> Stock: </p>
+            <p> <b>Stock:</b> </p>
             <input  class='required' min="0" type="number" name="stock" placeholder="Stock" required>
         </div>
         <div class="ContainerRow">
-            <p> Price: </p>
+            <p> <b>Price:</b> </p>
             <input class='required' step="0.01" min="0" type="number" name="price" placeholder="Price" required>
         </div> 
         <div class="ContainerRow">
-            <p> Discount: </p>
+            <p> <b>Discount:</b> </p>
             <input class='required' min="0" max="100" type="number" name="discount" placeholder="Discount" required>
         </div>
-        <div class="ContainerRow">
+        <div class="ContainerRow"> </div>
+        <div class="ContainerCol">
+            <p> <b>Description:</b> </p>
             <textarea class='required textarea' rows="4" cols="50" type="text" name="description" maxlength="1000" placeholder="Description (max 1000 char)" required></textarea>
         </div>
+        <div class="ContainerRow"> </div>
         <div  class="ContainerRow">
-            <p> Website URL: </p>
+            <p> <b>Website URL:</b> </p>
             <input type="text" name="websiteURL" max="500" placeholder="Website URL (Optional)"> 
         </div>
         <div  class="ContainerRow">
-            <p class="required">Thumbnail: </p>
-            <input type="file" accept="image/jpeg, image/png," name="thumbnail" required>
+            <p class="required"><b>Thumbnail:</b> </p>
+            <div class="ContainerCol">
+                <p> File Type: Jpeg/PNG </p>
+                <input type="file" accept="image/jpeg, image/png," name="thumbnail" required>
+            </div>
         </div>
         <div  class="ContainerRow">
-            <p class="required">Category: </p>
+            <p class="required"><b>Category:</b> </p>
             <select id="categorySelectADD" name="category"> 
                 <option value="None" selected> None </option> 
                 {% for category in categories %}
-                    <option value="{{category[0]}}">{{category[0]}}</option>
+                    <option value="{{category['CategoryName']}}">{{category['CategoryName']}}</option>
                 {% endfor %}
             </select> 
         </div>
         <br> </br>
         <button name="submitButton" value="add" type="submit">Submit</button>
+        <br> </br>
     </form>
 </div>
 
 {% if currentEditProductValues %}
-    {% set productID = currentEditProductValues[0] %}
-    {% set productName = currentEditProductValues[1] %}
-    {% set stock = currentEditProductValues[3] %}
-    {% set price = currentEditProductValues[2] %}
-    {% set discount = currentEditProductValues[5] %}
-    {% set description = currentEditProductValues[4] %}
-    {% set websiteURL = currentEditProductValues[6] %}  {# Assuming website is at index 6 #}
-    {% set currentCategory = currentEditProductValues[8] %} {# Assuming categories are passed in for the edit #}
+    {% set productID = currentEditProductValues['Product_ID'] %}
+    {% set productName = currentEditProductValues['Title'] %}
+    {% set stock = currentEditProductValues['Stock'] %}
+    {% set price = currentEditProductValues['Price'] %}
+    {% set discount = currentEditProductValues['DiscountPercentage'] %}
+    {% set description = currentEditProductValues['Description'] %}
+    {% set websiteURL = currentEditProductValues['WebsiteInfo'] %}
+    {% set currentCategory = currentEditProductValues['CategoryName'] %}
 
     <div id="EditProductModal" class="modal">
         <form class="modal-content" action="{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch) }}" enctype="multipart/form-data" method="POST">
-            <a href="#" class="close">&times;</a>
-            <br> </br>
+            <a href="#" class="close"><b>&times;</b></a>
             <div class="Container">
-                <h2>Edit Product</h2>
+                <h1>Edit Product</h1>
             </div>
             <div class="ContainerRow">
-                <p> ID: </p>
+                <p> <b>ID:</b> </p>
                 <input type="text" name="product_id" value={{productID}} readonly>
             </div>
             <div class="ContainerRow">
-                <p> ProductName: </p>
+                <p> <b>ProductName:</b> </p>
                 <input class='required' type="text" name="product_name" maxlength="255" value="{{productName}}" placeholder="Product Name" required>
             </div>
             <div class="ContainerRow">
-                <p> Stock: </p>
+                <p> <b>Stock:</b> </p>
                 <input  class='required' min="0" type="number" name="stock" placeholder="Stock" value={{stock}} required>
             </div>
             <div class="ContainerRow">
-                <p> Price: </p>
+                <p> <b>Price:</b> </p>
                 <input class='required' step="0.01" min="0" type="number" name="price" placeholder="Price" value={{price}} required>
             </div> 
             <div class="ContainerRow">
-                <p> Discount: </p>
+                <p> <b>Discount:</b> </p>
                 <input class='required' min="0" max="100" type="number" name="discount" placeholder="Discount (Optional)" value={{discount}} required>
             </div> 
             <div class="ContainerRow">
                 <textarea class='required textarea' rows="4" cols="50" type="text" name="description" maxlength="1000" placeholder="Description (max 1000 char)" required>{{description}}</textarea>
             </div>
             <div  class="ContainerRow">
-                <p> Website URL: </p>
+                <p> <b>Website URL:</b> </p>
                 <input type="text" name="websiteURL" max="500" placeholder="Website URL (Optional)" value={{websiteURL}}> 
             </div>
             <div  class="ContainerRow">
-                <p class="required">Thumbnail: </p>
+                <p class="required"> <b>Thumbnail:</b> </p>
                 <input type="file" accept="image/jpeg, image/png," name="thumbnail">
             </div>
             <div  class="ContainerRow">
-                <p class="required">Category: </p>
+                <p class="required"> <b>Category:</b> </p>
                 <select id="categorySelectEDIT" name="category"> 
                     <option value="None" selected> None </option> 
                     {% for category in categories %}
-                        <option value="{{category[0]}}">{{category[0]}}</option>
+                        <option value="{{category['CategoryName']}}">{{category['CategoryName']}}</option>
                     {% endfor %}
                 </select>
                 {% if currentCategory %} 
@@ -120,6 +125,7 @@
             </div>
             <br> </br>
             <button name="submitButton" value="edit" type="submit">Submit Changes</button>
+            <br> </br>
         </form>
     </div>
 {% endif %}
@@ -131,33 +137,44 @@
         <input class="SearchBar" type="text" placeholder="Search..." id='productsearch' name='productsearch' value=''>
     </form>
     {% for displayedProduct in displayedProducts %}
-        <div class='barcontainer'>
+        <div class='barcontainer' id="bcProducts">
             <div class='top'>
-                <p> {{displayedProduct[1]}} </p>
+                <a href="{{ url_for('product_page', productID=displayedProduct['Product_ID']) }}"> {{displayedProduct['Title']}} </a>
             </div>
             <div class='bottom'>
-                <img src="{{ url_for('get_thumbnail', productName=displayedProduct[1], imageName=displayedProduct[8]) }}" alt="No Image">
-                <div class='text3container'>        
-                    <p> Stock: {{displayedProduct[3]}} </p>
-                    <p> Total Purchased: {{displayedProduct[9]}}</p>
-                    <p> Total Sales: {{displayedProduct[10]}}</p>
+                <div class="rowcontainer rcright">
+                    <a href="{{ url_for('product_page', productID=displayedProduct['Product_ID']) }}">
+                        <img src="{{ url_for('get_thumbnail', productName=displayedProduct['Title'], imageName=displayedProduct['imageName']) }}" alt="No Image">
+                    </a>
+                    <div class="colcontainer ccgap">
+                        <div class="rowcontainer rcright rcgap">
+                            <p> <b>Stock:</b> {{displayedProduct['Stock']}} </p>
+                            <p> | </p>
+                            <p> <b>Date Created:</b> {{displayedProduct['DateCreated']}} </p>
+                        </div>
+                        <div class="rowcontainer rcright rcgap">
+                            <p> <b>Current Price:</b> {{displayedProduct['Price']}} </p>
+                            <p> | </p>
+                            <p> <b>Discount:</b> {{displayedProduct['DiscountPercentage']}}% </p>
+                            <p> | </p>
+                            {% set priceWDis = (displayedProduct['Price'] * ((100-displayedProduct['DiscountPercentage']) / 100))%}
+                            <p> <b>Price W/ Discount:</b> {{'%.2f' % priceWDis}} </p>
+                        </div>
+                        <div class="rowcontainer rcright rcgap">
+                            <p> <b>Description:</b> </p>
+                        </div>
+                        <div class="rowcontainer rcright rcgap">
+                            <p>{{displayedProduct['Description'][:30]}}{% if displayedProduct['Description']|length > 30%}-{% endif %}<p>
+                        </div>
+                        <div class="rowcontainer rcright rcgap">
+                            <p>{{displayedProduct['Description'][30:60]}}{% if displayedProduct['Description']|length > 60%}...{% endif %}<p>
+                        </div>
+                    </div>
                 </div>
-                <div class='text3container'>        
-                    <p> Current Price: {{displayedProduct[2]}} </p>
-                    <p> Discount: {{displayedProduct[5]}}% </p>
-                    {% set priceWDis = (displayedProduct[2] * ((100-displayedProduct[5]) / 100)) | round(2) %}
-                    <p> Price W/ Discount: {{priceWDis}} </p>
+                <div class="rowcontainer rcleft rcgap">
+                    <button onclick="location.href='{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch, buttonClicked='EditProduct', productID=displayedProduct['Product_ID']) }}';" class="EditProductButton">Edit Product</button>
+                    <button onclick="location.href='{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch, buttonClicked='DeleteProduct', productID=displayedProduct['Product_ID']) }}';" class="RemoveProductButton">Remove Product</button>
                 </div>
-                <div class='text3container'>        
-                    <p> Description: </p>
-                    <p>{{displayedProduct[4][:30]}}{% if displayedProduct[4]|length > 30%}-{% endif %}<p>
-                    <p>{{displayedProduct[4][30:60]}}{% if displayedProduct[4]|length > 60%}...{% endif %}<p>
-                </div>
-                <div class='text3container'>        
-                    <p> Date Created: {{displayedProduct[7]}} </p>
-                </div>
-                <button onclick="location.href='{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch, buttonClicked='EditProduct', productID=displayedProduct[0]) }}';" class="EditProductButton">Edit Product</button>
-                <button onclick="location.href='{{ url_for('adminPI_route.profile_products', displayName=displayName, page=page, currentSearch=currentSearch, buttonClicked='DeleteProduct', productID=displayedProduct[0]) }}';" class="RemoveProductButton">Remove Product</button>
             </div>
         </div>
     {% endfor %}

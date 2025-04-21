@@ -25,9 +25,9 @@ create table CustomerUser(
 	Password Varchar(64) 
         CONSTRAINT CustomerUser_Password_NOTNULL NOT NULL
     ,
-	Phone_Number INT 
+	Phone_Number Varchar(10) 
         CONSTRAINT CustomerUser_Phone_Number_NOTNULL NOT NULL
-        CONSTRAINT CustomerUser_PhoneNumber_Format CHECK (Phone_Number BETWEEN 0000000000 AND 9999999999)
+        CONSTRAINT CustomerUser_PhoneNumber_Format CHECK (Phone_Number GLOB '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
     ,
 	CONSTRAINT CustomerUser_PK PRIMARY KEY(Customer_ID)
 );
@@ -35,6 +35,10 @@ create table CustomerUser(
 create table Cart(
 	Customer_ID INT,
 	Product_ID INT,
+	Quantity INT 
+		CONSTRAINT Cart_Quantity_NOTNULL NOT NULL
+		CONSTRAINT Cart_Quantity_NonNegative CHECK (Quantity >= 0)
+	,
 	CONSTRAINT Cart_PK PRIMARY KEY(Customer_ID, Product_ID),
 	CONSTRAINT Cart_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE CASCADE, 
 	CONSTRAINT Cart_Product_ID_FK FOREIGN KEY(Product_ID) REFERENCES Product(Product_ID) ON DELETE CASCADE
@@ -135,13 +139,13 @@ create table Orders(
 	City Varchar(100)
         CONSTRAINT Order_City_NOTNULL NOT NULL
     ,
-	ZipCode INT
+	ZipCode Varchar(5)
         CONSTRAINT Order_ZipCode_NOTNULL NOT NULL
-        CONSTRAINT Order_ZipCode_Format CHECK (ZipCode BETWEEN 00000 AND 99999)
+        CONSTRAINT Order_ZipCode_Format CHECK (ZipCode GLOB '[0-9][0-9][0-9][0-9][0-9]')
     ,
-	PhoneNumber INT
+	PhoneNumber Varchar(10)
         CONSTRAINT Order_PhoneNumber_NOTNULL NOT NULL
-        CONSTRAINT Order_PhoneNumber_Format CHECK (PhoneNumber BETWEEN 0000000000 AND 9999999999)
+        CONSTRAINT Order_PhoneNumber_Format CHECK (PhoneNumber GLOB '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
     ,
 	CONSTRAINT Order_PK PRIMARY KEY(Order_ID),
 	CONSTRAINT Order_Customer_ID_FK FOREIGN KEY(Customer_ID) REFERENCES CustomerUser(Customer_ID) ON DELETE SET NULL,
@@ -221,16 +225,16 @@ create table CreditCard(
 	City Varchar(100)
         CONSTRAINT CreditCard_City_NOTNULL NOT NULL
     ,
-	ZipCode INT
+	ZipCode Varchar(5)
         CONSTRAINT CreditCard_ZipCode_NOTNULL NOT NULL
-        CONSTRAINT CreditCard_ZipCode_Format CHECK (ZipCode BETWEEN 00000 AND 99999)
+        CONSTRAINT CreditCard_ZipCode_Format CHECK (ZipCode GLOB '[0-9][0-9][0-9][0-9][0-9]')
     ,
 	NameOnCard Varchar(100)
         CONSTRAINT CreditCard_NameOnCard_NOTNULL NOT NULL
     ,
-	CardNumber INT
+	CardNumber Varchar(16)
         CONSTRAINT CreditCard_CardNumber_NOTNULL NOT NULL
-        CONSTRAINT CreditCard_CardNumber_Format CHECK (CardNumber BETWEEN 0000000000000000 AND 9999999999999999)
+        CONSTRAINT CreditCard_CardNumber_Format CHECK (CardNumber GLOB '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')
     ,
 	CVC INT
         CONSTRAINT CreditCard_CVC_NOTNULL NOT NULL

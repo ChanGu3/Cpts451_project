@@ -25,6 +25,7 @@
 .account-box:hover {
     background: #e0e0e0;
 }
+
 .account-box a {
     display: inline-block;
     text-decoration: none;
