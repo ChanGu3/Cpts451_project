@@ -25,7 +25,7 @@ def set_session():
     # if Admin
     session['userType'] = 'Customer'
     session['username'] = 'AdminUser'
-    session['ID'] = 2
+    session['ID'] = 0
     # if Customer
         # session['userType'] = 'Customer'
         # session['username'] = 'JohnDoe'

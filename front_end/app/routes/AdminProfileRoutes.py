@@ -198,7 +198,7 @@ def profile_products(displayName):
     del database
     return render_template('Profile/Admin/Products.html', displayName=displayName, displayedProducts=displayedProducts, isError=isError, errorMessage=errorMessage, page=page, pageLeftURL=pageLeftURL, pageRightURL=pageRightURL, currentSearch=currentSearch, categories=categories, currentEditProductValues=currentEditProductValues)
 
-ORDERS_PER_PAGE = 2 # Number of orders to display per page in the orders view
+ORDERS_PER_PAGE = 6 # Number of orders to display per page in the orders view
 @adminPI_route.route('<displayName>/Orders', methods=['GET', 'POST'])
 def profile_orders(displayName):
     if g.user is None:

@@ -105,3 +105,11 @@
     border-radius: 10px;
     cursor: pointer;
 }
+
+.ProceedToCartContainer button:hover{
+    background-color: #FF3B2F;
+}
+
+.ProceedToCartContainer button:active{
+    background-color: #ff0d00;
+}
