@@ -269,8 +269,13 @@ class Database:
         return self.cursor.fetchall()
 
     def retrieve_all_product_details_With_Thumbnail_With_Analytics(self):
-        """Gets all product details from the db"""
-        self.cursor.execute("SELECT Product.*, ProductThumbnail.ImageName, sum(ProductsInOrder.Quantity) AS QuantitySold, sum(ProductsInOrder.Quantity * ProductsInOrder.PriceSold) AS TotalEquity FROM Product INNER JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID LEFT JOIN ProductsInOrder ON Product.Product_ID = ProductsInOrder.Product_ID GROUP BY Product.Product_ID ORDER BY (CURRENT_DATE - Product.DateCreated) ASC")
+        self.cursor.execute("""
+        SELECT Product.Product_ID, Product.Title, Product.Price, ProductThumbnail.ImageName
+        FROM Product
+        LEFT JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID
+        WHERE ProductThumbnail.ImageName IS NOT NULL
+        ORDER BY Product.DateCreated DESC
+        """)
         return self.cursor.fetchall()
 
     def retrieve_specific_product_details(self, product_id: int):
@@ -299,12 +304,15 @@ class Database:
         return self.cursor.fetchone()
 
     def retrieve_Top_10_product_details(self):
-        """Gets top 10 product details from the db"""
-        self.cursor.execute("SELECT Product.Product_ID AS Product_ID,"+
-                            " Product.Title AS Title,"+
-                            " ProductThumbnail.ImageName AS ImageName,"+
-                            " sum(ProductsInOrder.Quantity) AS QuantitySold,"+
-                            " sum(ProductsInOrder.pricesold * ProductsInOrder.Quantity) AS TotalEquity FROM ProductsInOrder INNER JOIN Product on Product.product_id = ProductsInOrder.product_id LEFT JOIN ProductThumbnail on ProductThumbnail.product_id = ProductsInOrder.product_id GROUP BY Product.product_id ORDER BY sum(ProductsInOrder.Quantity) DESC LIMIT 10")
+        """Retrieve the top 10 products sorted by stock."""
+        self.cursor.execute("""
+        SELECT Product.Product_ID, Product.Title, Product.Price, ProductThumbnail.ImageName, Product.Stock
+        FROM Product
+        LEFT JOIN ProductThumbnail ON Product.Product_ID = ProductThumbnail.Product_ID
+        WHERE ProductThumbnail.ImageName IS NOT NULL
+        ORDER BY Product.Stock DESC
+        LIMIT 10
+        """)
         return self.cursor.fetchall()
 
     def add_product_category(self, category_name: str) -> bool:

@@ -42,6 +42,7 @@ def profile_analytics(displayName):
     
     database = GetDatabase()
     paproducts = database.retrieve_Top_10_product_details()
+    print("Paproducts:", paproducts)
     
     if request.method == 'POST':
         searchBarInput = request.form.get('productsearch', None)
@@ -194,6 +195,8 @@ def profile_products(displayName):
         pageLeftURL = True
     if (ceil(len(searchedProducts)/PRODUCTS_P_PER_PAGE) != page and len(searchedProducts) > PRODUCTS_P_PER_PAGE):
         pageRightURL = True
+
+    print(searchedProducts)
     
     del database
     return render_template('Profile/Admin/Products.html', displayName=displayName, displayedProducts=displayedProducts, isError=isError, errorMessage=errorMessage, page=page, pageLeftURL=pageLeftURL, pageRightURL=pageRightURL, currentSearch=currentSearch, categories=categories, currentEditProductValues=currentEditProductValues)

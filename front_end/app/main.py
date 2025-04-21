@@ -56,18 +56,19 @@ def get_image(productName, imageName):
 # plus it allows us to go to the images directly if we want to by just looking it up 
 # Example: <img src="{{ url_for('get_thumbnail', productName='Product1', imageName='Image1') }}" alt="Image1">
 @app.route('/Product/Thumbnail/<string:productName>/<string:imageName>')
-def get_thumbnail(productName, imageName):
+def get_thumbnail(productName, imageName='placeholder.jpg'):
+    if imageName == 'placeholder.jpg':
+        return send_file(STATIC_IMAGE_PATH_TO_NOT_FOUND, mimetype='image/png')
+
     image_tuple = GetDatabase().get_specific_product_thumbnail(productName, imageName)
-    
     if image_tuple is not None:
         image_data = image_tuple[0]
         mime = magic.Magic(mime=True)
         image_type = mime.from_buffer(image_data)
         image_stream = io.BytesIO(image_data)
-        
         return send_file(image_stream, mimetype=f'{image_type}')
     else:
-        return send_file(STATIC_IMAGE_PATH_TO_NOT_FOUND, mimetype=f'image/png')
+        return send_file(STATIC_IMAGE_PATH_TO_NOT_FOUND, mimetype='image/png')
 
 # Sends user to products Page
 @app.route('/Product/<int:productID>')
@@ -239,7 +240,26 @@ def domain():
 
 @app.route('/Home')
 def index():
-    return render_template('index.html')
+    database = GetDatabase()
+
+    # Fetch featured products
+    featured_products = database.retrieve_Top_10_product_details()
+    featured_products = [dict(product) for product in featured_products]  # Convert rows to dictionaries
+
+    # Fetch latest products
+    latest_products = database.retrieve_all_product_details_With_Thumbnail_With_Analytics()
+    latest_products = [dict(product) for product in latest_products]  # Convert rows to dictionaries
+
+    print("Featured Products:", featured_products)
+    print("Latest Products:", latest_products)
+
+    del database
+
+    return render_template(
+        'index.html',
+        featured_products=featured_products[:10],  # Limit to 10 products
+        latest_products=latest_products[:10]       # Limit to 10 products
+    )
 
 @app.route('/SignIn', methods=['GET', 'POST'])
 def signin():
