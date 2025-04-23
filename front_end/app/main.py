@@ -101,7 +101,7 @@ def product_page(productID):
         average_rating = database.get_product_review_average(productID)
         
         if g.get('user') is not None:
-            if g.user.userType == "Customer": 
+            if g.user.IsCustomer(): 
                 isCustomer = True
                 is_Product_In_Wishlist = database._does_Wishlist_Product_exist(customer_id=g.user.ID, product_id=productID)
                 isProductPurchased = database._does_Product_Exist_In_Customer_Orders(customer_id=g.user.ID, product_id=productID)
@@ -132,7 +132,7 @@ def product_page(productID):
 @app.route('/Product/AddReview', methods=['POST'])
 def add_product_review():
     if g.user is not None:
-        if g.user.userType != "Customer":
+        if g.user.IsCustomer() == False:
             return abort(500)
     else:
         return abort(500)
@@ -150,7 +150,7 @@ def add_product_review():
 @app.route('/<string:username>/Cart')
 def cart_page(username, methods=['GET', 'POST']): 
     if g.user is not None:
-        if g.user.userType != "Customer" or username != g.user.username:
+        if g.user.IsCustomer() == False or username != g.user.username:
             return abort(404)
     else:
         return abort(404)
@@ -168,7 +168,7 @@ def cart_page(username, methods=['GET', 'POST']):
 @app.route('/Cart/AddItem', methods=['POST'])
 def add_cart_item():
     if g.user is not None:
-        if g.user.userType != "Customer":
+        if g.user.IsCustomer() == False:
             return abort(500)
     else:
         return abort(500)
@@ -189,7 +189,7 @@ def add_cart_item():
 @app.route('/Cart/RemoveItem', methods=['POST'])
 def remove_cart_item():
     if g.user is not None:
-        if g.user.userType != "Customer":
+        if g.user.IsCustomer() == False:
             return abort(500)
     else:
         return abort(500)
@@ -212,7 +212,7 @@ def remove_cart_item():
 @app.route('/Wishlist/AddItem', methods=['POST'])
 def add_wishlist_item():
     if g.user is not None:
-        if g.user.userType != "Customer":
+        if g.user.IsCustomer() == False:
             return abort(500)
     else:
         return abort(500)
@@ -228,7 +228,7 @@ def add_wishlist_item():
 @app.route('/Wishlist/RemoveItem', methods=['POST'])
 def remove_wishlist_item():
     if g.user is not None:
-        if g.user.userType != "Customer":
+        if g.user.IsCustomer() == False:
             return abort(500)
     else:
         return abort(500)

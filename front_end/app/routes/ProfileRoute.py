@@ -17,12 +17,12 @@ def user_profile():
 
 @profile_route.route('<displayName>/Menu')
 def user_profile_menu(displayName):
+    
     # if user is not logged or username is typed directly in redirect page not found
     if g.user is None:
         return abort(404)
     
     user_type = session.get('userType')
-    print("User type: ", user_type)
 
     if g.user.IsAdmin():
         return render_template(f'Profile/Admin/Menu.html', displayName=displayName);
