@@ -3,11 +3,13 @@ import io
 import magic
 from dotenv import load_dotenv
 from dbmsInstance import GetDatabase
+from backend.dbms import UserType
 from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g, abort, send_file, flash, get_flashed_messages
 from routes.ErrorRoute import error_route
 from routes.SessionRoute import session_route, User
 from routes.ProfileRoute import profile_route
 from routes.AdminProfileRoutes import adminPI_route
+
 
 #App Config
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -272,17 +274,25 @@ def signin():
 
         # Validate input
         if not username or not password:
+            print(f"Invalid input. Username: {username}, Password: {password}")
             return redirect(url_for('signin'))
 
         try:
             print(f"Username: {username}, Password: {password}")  # Debug check
-            user = database.sign_in(username, password)
-            print(f"User: {user}")  # Debug check
+            user, user_type = database.sign_in(username, password)
+            print(f"User: {user}, UserType: {user_type}")  # Debug check
 
             if user:
-                user_id, email = user
+                # Convert the Row object to a dictionary
+                user_dict = {key: user[key] for key in user.keys()}
+                print(f"User Dictionary: {user_dict}")
+
+                # Store user details in the session
                 session['username'] = username
-                session['ID'] = user_id
+                session['email'] = user_dict['Email']
+                session['ID'] = user_dict['Customer_ID'] if user_type == UserType.CUSTOMER else user_dict['Admin_ID']
+                session['userType'] = 'CUSTOMER' if user_type == UserType.CUSTOMER else 'ADMIN'
+
                 return redirect(url_for('session_route.set_session'))
             else:
                 return redirect(url_for('signin'))
@@ -330,6 +340,8 @@ def createaccount():
             return render_template('CreateAccount.html', actionMessage=actionMessage, isError=isError)
             
     return render_template('CreateAccount.html', actionMessage=actionMessage)
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True) # debug false when delpoying
