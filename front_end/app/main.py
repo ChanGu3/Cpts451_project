@@ -3,11 +3,13 @@ import io
 import magic
 from dotenv import load_dotenv
 from dbmsInstance import GetDatabase
+from backend.dbms import UserType
 from flask import Flask, render_template, make_response, request, redirect, url_for, blueprints, session, g, abort, send_file, flash, get_flashed_messages
 from routes.ErrorRoute import error_route
 from routes.SessionRoute import session_route, User
 from routes.ProfileRoute import profile_route
 from routes.AdminProfileRoutes import adminPI_route
+
 
 #App Config
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -25,8 +27,12 @@ app.register_blueprint(adminPI_route, url_prefix='/Admin')
 # Loads the user from the session if it exists globally
 @app.before_request
 def before_request():
-    if session.get('userType') is not None and session.get('ID') is not None:
+    if 'userType' in session and 'username' in session and 'ID' in session:
         g.user = User(session['userType'], session['username'], session['ID'])
+        print(f"g.user initialized: {g.user.userType}, {g.user.username}, {g.user.ID}")
+    else:
+        g.user = None
+        print("g.user is None")
 
 # Injects the user into the context of every template gloablly
 @app.context_processor
@@ -56,18 +62,19 @@ def get_image(productName, imageName):
 # plus it allows us to go to the images directly if we want to by just looking it up 
 # Example: <img src="{{ url_for('get_thumbnail', productName='Product1', imageName='Image1') }}" alt="Image1">
 @app.route('/Product/Thumbnail/<string:productName>/<string:imageName>')
-def get_thumbnail(productName, imageName):
+def get_thumbnail(productName, imageName='placeholder.jpg'):
+    if imageName == 'placeholder.jpg':
+        return send_file(STATIC_IMAGE_PATH_TO_NOT_FOUND, mimetype='image/png')
+
     image_tuple = GetDatabase().get_specific_product_thumbnail(productName, imageName)
-    
     if image_tuple is not None:
         image_data = image_tuple[0]
         mime = magic.Magic(mime=True)
         image_type = mime.from_buffer(image_data)
         image_stream = io.BytesIO(image_data)
-        
         return send_file(image_stream, mimetype=f'{image_type}')
     else:
-        return send_file(STATIC_IMAGE_PATH_TO_NOT_FOUND, mimetype=f'image/png')
+        return send_file(STATIC_IMAGE_PATH_TO_NOT_FOUND, mimetype='image/png')
 
 # Sends user to products Page
 @app.route('/Product/<int:productID>')
@@ -240,7 +247,26 @@ def domain():
 
 @app.route('/Home')
 def index():
-    return render_template('index.html')
+    database = GetDatabase()
+
+    # Fetch featured products
+    featured_products = database.retrieve_Top_10_product_details()
+    featured_products = [dict(product) for product in featured_products]  # Convert rows to dictionaries
+
+    # Fetch latest products
+    latest_products = database.retrieve_all_product_details_With_Thumbnail_With_Analytics()
+    latest_products = [dict(product) for product in latest_products]  # Convert rows to dictionaries
+
+    print("Featured Products:", featured_products)
+    print("Latest Products:", latest_products)
+
+    del database
+
+    return render_template(
+        'index.html',
+        featured_products=featured_products[:10],  # Limit to 10 products
+        latest_products=latest_products[:10]       # Limit to 10 products
+    )
 
 @app.route('/SignIn', methods=['GET', 'POST'])
 def signin():
@@ -253,17 +279,27 @@ def signin():
 
         # Validate input
         if not username or not password:
+            print(f"Invalid input. Username: {username}, Password: {password}")
             return redirect(url_for('signin'))
 
         try:
             print(f"Username: {username}, Password: {password}")  # Debug check
-            user = database.sign_in(username, password)
-            print(f"User: {user}")  # Debug check
+            user, user_type = database.sign_in(username, password)
+            print(f"User: {user}, UserType: {user_type}")  # Debug check
 
             if user:
-                user_id, email = user
+                # Convert the Row object to a dictionary
+                user_dict = {key: user[key] for key in user.keys()}
+                print(f"User Dictionary: {user_dict}")
+
+                # Store user details in the session
                 session['username'] = username
-                session['ID'] = user_id
+                session['email'] = user_dict['Email']
+                session['ID'] = user_dict['Customer_ID'] if user_type == UserType.CUSTOMER else user_dict['Admin_ID']
+                session['userType'] = 'CUSTOMER' if user_type == UserType.CUSTOMER else 'ADMIN'
+
+                print(f"Session Data: {session['username']}, {session['email']}, {session['ID']}, {session['userType']}")  # Debug check    
+
                 return redirect(url_for('session_route.set_session'))
             else:
                 return redirect(url_for('signin'))

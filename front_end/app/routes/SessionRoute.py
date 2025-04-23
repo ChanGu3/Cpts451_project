@@ -12,26 +12,21 @@ class User:
         self.ID = ID
         
     def IsAdmin(self):
-        return self.userType == 'Admin'
+        return self.userType == 'ADMIN'
     
     def IsCustomer(self):
-        return self.userType == 'Customer'
+        return self.userType == 'CUSTOMER'
 
 # Sets the session cookies to a user when logged in (Not using database currently just a test dummy)
 @session_route.route('/set_session')
 def set_session():
-    # logging in is hardcoded when we have page for login we will use the form data to set the session cookies
-    
-    # if Admin
-    session['userType'] = 'Customer'
-    session['username'] = 'AdminUser'
-    session['ID'] = 0
-    # if Customer
-        # session['userType'] = 'Customer'
-        # session['username'] = 'JohnDoe'
-        # session['ID'] = '1'
-
-    return redirect(url_for('index'))
+    # Ensure the session data is already set by the signin route
+    if 'userType' in session and 'username' in session and 'ID' in session:
+        print(f"Session initialized: userType={session['userType']}, username={session['username']}, ID={session['ID']}")
+        return redirect(url_for('index'))
+    else:
+        print("Session data is missing. Redirecting to sign-in.")
+        return redirect(url_for('signin'))
 
 # removes session cookies when logged out 
 @session_route.route('/del_session')

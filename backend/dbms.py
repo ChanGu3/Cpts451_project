@@ -303,6 +303,7 @@ class Database:
         self.cursor.execute("SELECT Product.Product_ID AS Product_ID,"+
                             " Product.Title AS Title,"+
                             " ProductThumbnail.ImageName AS ImageName,"+
+                            " Product.Price AS Price,"+
                             " sum(ProductsInOrder.Quantity) AS QuantitySold,"+
                             " sum(ProductsInOrder.pricesold * ProductsInOrder.Quantity) AS TotalEquity FROM ProductsInOrder INNER JOIN Product on Product.product_id = ProductsInOrder.product_id LEFT JOIN ProductThumbnail on ProductThumbnail.product_id = ProductsInOrder.product_id GROUP BY Product.product_id ORDER BY sum(ProductsInOrder.Quantity) DESC LIMIT 10")
         return self.cursor.fetchall()
