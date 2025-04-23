@@ -27,8 +27,12 @@ app.register_blueprint(adminPI_route, url_prefix='/Admin')
 # Loads the user from the session if it exists globally
 @app.before_request
 def before_request():
-    if session.get('userType') is not None and session.get('ID') is not None:
+    if 'userType' in session and 'username' in session and 'ID' in session:
         g.user = User(session['userType'], session['username'], session['ID'])
+        print(f"g.user initialized: {g.user.userType}, {g.user.username}, {g.user.ID}")
+    else:
+        g.user = None
+        print("g.user is None")
 
 # Injects the user into the context of every template gloablly
 @app.context_processor
@@ -293,6 +297,8 @@ def signin():
                 session['ID'] = user_dict['Customer_ID'] if user_type == UserType.CUSTOMER else user_dict['Admin_ID']
                 session['userType'] = 'CUSTOMER' if user_type == UserType.CUSTOMER else 'ADMIN'
 
+                print(f"Session Data: {session['username']}, {session['email']}, {session['ID']}, {session['userType']}")  # Debug check    
+
                 return redirect(url_for('session_route.set_session'))
             else:
                 return redirect(url_for('signin'))
@@ -340,8 +346,6 @@ def createaccount():
             return render_template('CreateAccount.html', actionMessage=actionMessage, isError=isError)
             
     return render_template('CreateAccount.html', actionMessage=actionMessage)
-
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True) # debug false when delpoying

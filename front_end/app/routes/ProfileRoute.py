@@ -20,10 +20,13 @@ def user_profile_menu(displayName):
     # if user is not logged or username is typed directly in redirect page not found
     if g.user is None:
         return abort(404)
-        
-    if g.user.userType == 'Admin':
+    
+    user_type = session.get('userType')
+    print("User type: ", user_type)
+
+    if g.user.IsAdmin():
         return render_template(f'Profile/Admin/Menu.html', displayName=displayName);
-    elif g.user.userType == 'Customer':
+    elif g.user.IsCustomer():
         return render_template(f'Profile/Customer/Menu.html',displayName=displayName);
 
     return abort(404)
