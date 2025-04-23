@@ -87,15 +87,16 @@ def product_page(productID):
         if product_thumbnail is not None:
             product_thumbnail_name = product_thumbnail[1]    
         
-        is_Product_In_Wishlist = database._does_Wishlist_Product_exist(customer_id=g.user.ID, product_id=productID)
-        
         isCustomer = False
         isAbleReview = False
+        is_Product_In_Wishlist = False
         customer_product_review = None
         average_rating = database.get_product_review_average(productID)
-        if g.user is not None:
+        
+        if g.get('user') is not None:
             if g.user.userType == "Customer": 
                 isCustomer = True
+                is_Product_In_Wishlist = database._does_Wishlist_Product_exist(customer_id=g.user.ID, product_id=productID)
                 isProductPurchased = database._does_Product_Exist_In_Customer_Orders(customer_id=g.user.ID, product_id=productID)
                 if isProductPurchased is True:
                     isProductReviewed = database._does_Review_Of_Product_exist(customer_id=g.user.ID, product_id=productID)
@@ -106,8 +107,8 @@ def product_page(productID):
             else:
                 product_Reviews = database.get_all_reviews_of_product_except_customer(-1, productID)
         else:
+            product_Reviews = database.get_all_reviews_of_product_except_customer(-1, productID)
             del(database)
-            abort(500)
         
         return render_template('Product.html', 
                                product_details=product_details,
