@@ -348,6 +348,46 @@ def createaccount():
             
     return render_template('CreateAccount.html', actionMessage=actionMessage)
 
+@app.route('/Payment', methods=['GET'])
+def payment_page():
+    if g.user is not None:
+        if not g.user.IsCustomer():
+            return abort(403)
+    else:
+        return redirect(url_for('signin'))
+
+    database = GetDatabase()
+    cart_items = database.get_all_products_in_cart(g.user.ID)
+    subTotal = 0
+    item_count = 0
+    for item in cart_items:
+        discounted_price = item['Price'] * (1 - (item['DiscountPercentage'] / 100)) if item['DiscountPercentage'] > 0 else item['Price']
+        subTotal += discounted_price * item['Quantity']
+        item_count += item['Quantity']
+    del database
+
+    return render_template('Payment.html', cart_items=cart_items, subTotal=subTotal, item_count=item_count)
+
+@app.route('/ProcessPayment', methods=['POST'])
+def process_payment():
+    if g.user is not None:
+        if not g.user.IsCustomer():
+            return abort(403)
+    else:
+        return redirect(url_for('signin'))
+
+    database = GetDatabase()
+    cart_items = database.get_all_products_in_cart(g.user.ID)
+
+    for item in cart_items:
+        database.reduce_product_stock(item['Product_ID'], item['Quantity'])
+
+    database.clear_cart(g.user.ID)
+    del database
+
+    flash("Payment successful! Thank you for your purchase.", "success")
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True) # debug false when delpoying
     STATIC_IMAGE_PATH_TO_NOT_FOUND = os.path.join(os.path.abspath(__file__), url_for('static', filename='images/no_image_found.png'))

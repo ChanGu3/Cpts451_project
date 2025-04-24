@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Payment Page{% endblock %}
+
+{% block Stylesheets %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Cart.css') }}">
+{% endblock %}
+
+{% block content %}
+<br><br><br><br>
+<div class="MainDisplay">
+    <div class="CartProducts">
+        <div class="Title">
+            <h1>Payment Page</h1>
+            <p>Price</p>
+        </div>
+        <div class="Border"></div>
+        {% for item in cart_items %}
+            <div class="CartProduct">
+                <a href="{{ url_for('product_page', productID=item['Product_ID']) }}">
+                    <img src="{{ url_for('get_thumbnail', productName=item['Title'], imageName=item['ImageName']) }}" alt="Product Image">
+                </a>
+                <div class="ProductDetails">
+                    <a href="{{ url_for('product_page', productID=item['Product_ID']) }}">
+                        <h3>{{ item['Title'] }}</h3>
+                    </a>
+                </div>
+                <div class="Price">
+                    {% if item['DiscountPercentage'] > 0 %}
+                        {% set discounted_price = (item['Price'] * (1 - (item['DiscountPercentage'] / 100))) %}
+                        <p> <s>${{ '%.2f' % item['Price'] }}</s> | %{{ item['DiscountPercentage'] }} | ${{ '%.2f' % discounted_price }}</p>
+                    {% else %}
+                        <p> Price: ${{ item['Price'] }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="Border"></div>
+        {% endfor %}
+    </div>
+    <div class="ProceedToCartContainer">
+        <p>Total Price ({{item_count}} items): <b>${{ '%.2f' % subTotal }}</b></p>
+        <form action="{{ url_for('process_payment') }}" method="post">
+            <button type="submit">Pay Now</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

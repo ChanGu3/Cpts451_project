@@ -957,3 +957,20 @@ class Database:
         if max_order_id is None:
             return 0
         return max_order_id + 1
+    
+    def reduce_product_stock(self, product_id, quantity):
+        """Reduce the stock of a product by the given quantity."""
+        self.cursor.execute("""
+            UPDATE Product
+            SET Stock = Stock - ?
+            WHERE Product_ID = ? AND Stock >= ?
+        """, (quantity, product_id, quantity))
+        self.connection.commit()
+
+    def clear_cart(self, customer_id):
+        """Clear all items from the customer's cart."""
+        self.cursor.execute("""
+            DELETE FROM Cart
+            WHERE Customer_ID = ?
+        """, (customer_id,))
+        self.connection.commit()
