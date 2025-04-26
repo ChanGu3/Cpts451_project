@@ -404,7 +404,7 @@ def process_payment():
     }
 
     # Prepare products to order
-    products_to_order = [(item['Product_ID'], item['Quantity']) for item in cart_items]
+    products_to_order = [(item['Product_ID'] - 1, item['Quantity']) for item in cart_items]
 
     print("Debug Check - add_new_order Parameters:")
     print(f"Customer ID: {g.user.ID}")
