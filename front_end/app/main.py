@@ -161,7 +161,7 @@ def cart_page(username, methods=['GET', 'POST']):
     subTotal = 0
     item_count = 0
     for item in cart_items:
-        subTotal += item['Price'] * item['Quantity']
+        subTotal += (item['Price'] - (item['Price'] * (item['DiscountPercentage'] / 100))) * item['Quantity']
         item_count += item['Quantity']
     return render_template('Cart.html', cart_items=cart_items, subTotal=subTotal, item_count=item_count)
 
