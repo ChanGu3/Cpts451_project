@@ -179,10 +179,9 @@ def profile_products(displayName):
         # Handle Edit Product Values if the button was clicked from the form
         if NonFormButtonTypeClicked == 'EditProduct':
             productID = request.args.get('productID', None)
-            currentEditProductValues = database.retrieve_specific_product_details(productID)
+            currentEditProductValues = dict(database.retrieve_specific_product_details(productID))
             currentEditProductCategory = database.get_product_category(productID)
             if currentEditProductCategory is not None:
-                currentEditProductValues = dict(currentEditProductValues)
                 currentEditProductValues['CategoryName'] = currentEditProductCategory['CategoryName']
                 
             del database

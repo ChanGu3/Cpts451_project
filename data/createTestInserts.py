@@ -16,6 +16,13 @@ database.insert_new_product_thumbnail(1, 'Image1', image_bytes) # returns the im
 database.insert_new_product_thumbnail(2, 'Image1', image_bytes) # returns the image name
 database.insert_new_product_thumbnail(3, 'Image1', image_bytes) # returns the image name
 database.insert_new_product_thumbnail(4, 'Image1', image_bytes) # returns the image name
+database.insert_new_product_thumbnail(5, 'Image1', image_bytes) # returns the image name
+database.insert_new_product_thumbnail(6, 'Image1', image_bytes) # returns the image name
+database.insert_new_product_thumbnail(7, 'Image1', image_bytes) # returns the image name
+database.insert_new_product_thumbnail(8, 'Image1', image_bytes) # returns the image name
+database.insert_new_product_thumbnail(9, 'Image1', image_bytes) # returns the image name
+database.insert_new_product_thumbnail(10, 'Image1', image_bytes) # returns the image name
+database.insert_new_product_thumbnail(11, 'Image1', image_bytes) # returns the image name
 
 database.insert_new_product_image(1, 'Image1', image_bytes) # returns the image name
 database.insert_new_product_image(2, 'Image1', image_bytes) # returns the image name
