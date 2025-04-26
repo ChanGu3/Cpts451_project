@@ -43,19 +43,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #ffffff;
     width: 75px;
     height: 25px;
     text-align: center;
     cursor: pointer;
-}
-
-.AdminPIContainer .buttonPI:hover{
-    background-color: #dadada;
-}
-
-.AdminPIContainer .buttonPI:active{
-    background-color: #a1a1a1;
 }
 
 
