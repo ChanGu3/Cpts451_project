@@ -379,13 +379,46 @@ def process_payment():
     database = GetDatabase()
     cart_items = database.get_all_products_in_cart(g.user.ID)
 
-    for item in cart_items:
-        database.reduce_product_stock(item['Product_ID'], item['Quantity'])
+    # Prepare payment information
+    payment_info = {
+        "payment_method_id": 1,  # Placeholder for payment method ID
+        "payment_type_name": "credit_card",  # Hardcoded payment type
+        "purchase_amount": sum(
+            (item['Price'] * (1 - (item['DiscountPercentage'] / 100)) if item['DiscountPercentage'] > 0 else item['Price']) * item['Quantity']
+            for item in cart_items
+        )
+    }
 
+    # Prepare placeholder address information
+    address_info = {
+        "date_of_purchase": "2025-01-01",  # Placeholder date
+        "first_name": session['username'],  # Use session username as a placeholder
+        "last_name": "",  # Placeholder for last name
+        "address1": "N/A",  # Placeholder for address
+        "address2": "N/A",  # Placeholder for address
+        "country": "USA",  # Placeholder for country
+        "state": "WA",  # Placeholder for state
+        "city": "Pullman",  # Placeholder for city
+        "zip": "99163",  # Placeholder for zip code
+        "phone": "1234567890"  # Placeholder for phone number
+    }
+
+    # Prepare products to order
+    products_to_order = [(item['Product_ID'], item['Quantity']) for item in cart_items]
+
+    print("Debug Check - add_new_order Parameters:")
+    print(f"Customer ID: {g.user.ID}")
+    print(f"Payment Info: {payment_info}")
+    print(f"Address Info: {address_info}")
+    print(f"Products to Order: {products_to_order}")
+
+    # Add the new order
+    success = database.add_new_order(g.user.ID, payment_info, address_info, products_to_order)
+
+    # Clear the user's cart
     database.clear_cart(g.user.ID)
-    del database
 
-    flash("Payment successful! Thank you for your purchase.", "success")
+    del database
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
