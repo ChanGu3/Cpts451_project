@@ -348,6 +348,79 @@ def createaccount():
             
     return render_template('CreateAccount.html', actionMessage=actionMessage)
 
+@app.route('/Payment', methods=['GET'])
+def payment_page():
+    if g.user is not None:
+        if not g.user.IsCustomer():
+            return abort(403)
+    else:
+        return redirect(url_for('signin'))
+
+    database = GetDatabase()
+    cart_items = database.get_all_products_in_cart(g.user.ID)
+    subTotal = 0
+    item_count = 0
+    for item in cart_items:
+        discounted_price = item['Price'] * (1 - (item['DiscountPercentage'] / 100)) if item['DiscountPercentage'] > 0 else item['Price']
+        subTotal += discounted_price * item['Quantity']
+        item_count += item['Quantity']
+    del database
+
+    return render_template('Payment.html', cart_items=cart_items, subTotal=subTotal, item_count=item_count)
+
+@app.route('/ProcessPayment', methods=['POST'])
+def process_payment():
+    if g.user is not None:
+        if not g.user.IsCustomer():
+            return abort(403)
+    else:
+        return redirect(url_for('signin'))
+
+    database = GetDatabase()
+    cart_items = database.get_all_products_in_cart(g.user.ID)
+
+    # Prepare payment information
+    payment_info = {
+        "payment_method_id": 1,  # Placeholder for payment method ID
+        "payment_type_name": "credit_card",  # Hardcoded payment type
+        "purchase_amount": sum(
+            (item['Price'] * (1 - (item['DiscountPercentage'] / 100)) if item['DiscountPercentage'] > 0 else item['Price']) * item['Quantity']
+            for item in cart_items
+        )
+    }
+
+    # Prepare placeholder address information
+    address_info = {
+        "date_of_purchase": "2025-01-01",  # Placeholder date
+        "first_name": session['username'],  # Use session username as a placeholder
+        "last_name": "",  # Placeholder for last name
+        "address1": "N/A",  # Placeholder for address
+        "address2": "N/A",  # Placeholder for address
+        "country": "USA",  # Placeholder for country
+        "state": "WA",  # Placeholder for state
+        "city": "Pullman",  # Placeholder for city
+        "zip": "99163",  # Placeholder for zip code
+        "phone": "1234567890"  # Placeholder for phone number
+    }
+
+    # Prepare products to order
+    products_to_order = [(item['Product_ID'] - 1, item['Quantity']) for item in cart_items]
+
+    print("Debug Check - add_new_order Parameters:")
+    print(f"Customer ID: {g.user.ID}")
+    print(f"Payment Info: {payment_info}")
+    print(f"Address Info: {address_info}")
+    print(f"Products to Order: {products_to_order}")
+
+    # Add the new order
+    success = database.add_new_order(g.user.ID, payment_info, address_info, products_to_order)
+
+    # Clear the user's cart
+    database.clear_cart(g.user.ID)
+
+    del database
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True) # debug false when delpoying
     STATIC_IMAGE_PATH_TO_NOT_FOUND = os.path.join(os.path.abspath(__file__), url_for('static', filename='images/no_image_found.png'))

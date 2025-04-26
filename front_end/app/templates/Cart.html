@@ -66,7 +66,9 @@
     </div>
     <div class="ProceedToCartContainer">
         <p>SubTotal ({{item_count}} items): <b>${{ '%.2f' % subTotal }}</b></p>
-        <button>Proceed To Checkout</button>
+        <a href="{{ url_for('payment_page') }}">
+            <button>Proceed To Checkout</button>
+        </a>
     </div>
 </div>
 {% endblock %}
